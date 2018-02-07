@@ -27,11 +27,11 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         public string helpPrefix = commandTrigger.ToString ();
         public Category catagory = Category.None;
 
-        public bool isAdminOnly = false;
         public bool availableInDM = false;
         public bool availableOnServer = true;
         public bool commandEnabled = true;
-        public bool allowInMain = false;
+
+        public List<GuildPermission> requiredPermissions = new List<GuildPermission>();
 
         public List<Overload> overloads = new List<Overload> ();
 
@@ -196,8 +196,8 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 errors += "\n\tNot available in DM channels.";
             }
 
-            if (isAdminOnly && !(e.Author as SocketGuildUser).GuildPermissions.Administrator) {
-                errors += "\n\tUser is not administrator.";
+            if (!(e.Author as SocketGuildUser).HasAllPermissios (requiredPermissions)) {
+                errors += "\n\tUser does not have permission.";
             }
 
             if (!availableOnServer && e.Channel as SocketGuildChannel != null) {
@@ -230,8 +230,8 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 AddArgs (ref help);
                 help += "```";
 
-                if (isAdminOnly)
-                    help += "**ADMIN ONLY**";
+                if (requiredPermissions.Count > 0)
+                    help += "**REQUIRES PERMISSIONS**";
                 return help;
             } else {
                 return "Failed to execute\n" + executionErrors;
@@ -278,22 +278,27 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             }
 
             string footer = string.Empty;
-            if (isAdminOnly)
-                footer += " - ADMIN ONLY";
-            if (allowInMain)
-                footer += " - ALLOWED IN MAIN";
             if (availableInDM && !availableOnServer)
                 footer += " - ONLY IN DM";
             if (availableInDM && availableOnServer)
                 footer += " - AVAILABLE IN DM";
+
+            if (requiredPermissions.Count > 0) {
+                footer += " - REQUIRES PERMISSIONS: ";
+                for (int i = 0; i < requiredPermissions.Count; i++) {
+                    footer += requiredPermissions [ i ].ToString ().ToUpper ();
+
+                    if (i != requiredPermissions.Count - 1)
+                        footer += ", ";
+                }
+            }
 
             builder.WithFooter (footer);
             return builder.Build ();
         }
 
         public virtual string GetShortHelp () {
-            string text = "`" + shortHelp + helpPrefix + command + "`";
-            return text;
+            return shortHelp;
         }
 
         /// <summary>
@@ -336,7 +341,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         }
 
         public virtual string GetOnlyName() {
-            return shortHelp; // Wrapper functions ftw
+            return command; // Wrapper functions ftw
         }
 
         public void AddOverload(Type type, string description) {
@@ -370,18 +375,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         }
 
         public string Format (string connector = " | ", int minSpaces = 25) {
-            string firstString = GetCommand ();
-            string secondString = GetOnlyName ();
-
-            string result = firstString;
-            int remainingTaps = (int)Math.Floor ((minSpaces - result.Length) / 4d);
-            int remainingSpaces = (minSpaces - result.Length) % 4;
-            for (int i = 0; i < remainingTaps; i++)
-                result += "\t";
-            for (int i = 0; i < remainingSpaces; i++)
-                result += " ";
-            result += connector + secondString;
-            return result;
+            return StringExtensions.UniformStrings (GetCommand (), GetShortHelp (), " | ");
         }
 
         public static bool TryIsolateWrappedCommand(string input, out string cmd, out List<object> args) {

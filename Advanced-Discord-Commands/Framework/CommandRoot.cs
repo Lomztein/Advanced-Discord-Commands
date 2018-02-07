@@ -6,12 +6,21 @@ using System.Threading.Tasks;
 using Discord.WebSocket;
 using Lomztein.AdvDiscordCommands.Extensions;
 using System.Linq;
+using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 
 namespace Lomztein.AdvDiscordCommands.Framework
 {
-    public class CommandRoot {
+    public class CommandRoot : ICommandSet {
+
+        public const char argSeperator = ';';
 
         public List<Command> commands = new List<Command> ();
+
+        public CommandRoot() { }
+        
+        public CommandRoot (List<Command> _commands) {
+            commands = _commands;
+        }
 
         /// <summary>
         /// This is the entrance method for the command system, call this. You can have multiple roots, for instance for different servers, and it should work just fine, since commands get their information from the SocketMessage object.
@@ -23,13 +32,28 @@ namespace Lomztein.AdvDiscordCommands.Framework
             string message = e.Content;
             if (message [ 0 ].IsCommandTrigger ()) {
 
-                FoundCommandResult finalResult = await FindAndExecuteCommand (new CommandMetadata (e, this), message, commands, 0);
-                CommandVariables.Clear (e.Id);
+                string [ ] multiline = message.Split ('|');
+                FoundCommandResult finalResult = null;
+                
+                foreach (string line in multiline) {
+                    string trimmed = line.Trim ('\n', '\t', ' '); // Trim off whitespace for consistancy.
+                    finalResult = await FindAndExecuteCommand (new CommandMetadata (e, this), trimmed, commands, 0);
+                }
 
+                CommandVariables.Clear (e.Id);
                 return finalResult.result;
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// This must be run after the initial commands has been added to the root.
+        /// </summary>
+        public void InitializeCommands () {
+            foreach (Command cmd in commands) {
+                cmd.Initialize ();
+            }
         }
 
         public static async Task<FoundCommandResult> FindAndExecuteCommand(CommandMetadata metadata, string fullCommand, List<Command> commandList, int depth) {
@@ -101,7 +125,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
                 char cur = toSplit [ i ];
 
                 switch (toSplit [ i ]) {
-                    case ';':
+                    case argSeperator:
                         if (balance == 0) {
                             arg = toSplit.Substring (lastCut, i - lastCut);
                             arguments.Add (arg);
@@ -128,6 +152,22 @@ namespace Lomztein.AdvDiscordCommands.Framework
             }
 
             return arguments.ToArray ();
+        }
+
+        public List<Command> GetCommands() {
+            return commands;
+        }
+
+        public void AddCommands(params Command [ ] newCommands) {
+            commands.AddRange (newCommands);
+            foreach (Command cmd in newCommands)
+                cmd.Initialize ();
+        }
+
+        public void RemoveCommands(params Command [ ] toRemove) {
+            foreach (Command cmd in toRemove) {
+                commands.Remove (cmd);
+            }
         }
     }
 }

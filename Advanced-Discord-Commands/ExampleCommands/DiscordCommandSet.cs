@@ -124,7 +124,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Kick() {
                     command = "kick";
                     shortHelp = "Kick user. Requires \"Kick Members\" permission.";
-                    isAdminOnly = true;
+                    requiredPermissions.Add (GuildPermission.KickMembers);
 
                     AddOverload (typeof (bool), "Kicks user for no given reason.");
                     AddOverload (typeof (bool), "Kicks user with a reason.");
@@ -148,7 +148,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Nickname() {
                     command = "nickname";
                     shortHelp = "Set someones nickname.";
-                    isAdminOnly = true;
+                    requiredPermissions.Add (GuildPermission.ManageNicknames);
 
                     AddOverload (typeof (bool), "Set the given users nickname to something new.");
                     AddOverload (typeof (bool), "Reset the given users nickname.");
@@ -178,7 +178,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public AddRole() {
                     command = "addrole";
                     shortHelp = "Adds roles to someone.";
-                    isAdminOnly = true;
+                    requiredPermissions.Add (GuildPermission.ManageRoles);
 
                     AddOverload (typeof (bool), "Add all given roles to the given person.");
                 }
@@ -200,7 +200,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public RemoveRole() {
                     command = "removerole";
                     shortHelp = "Removes roles to someone.";
-                    isAdminOnly = true;
+                    requiredPermissions.Add (GuildPermission.ManageRoles);
 
                     AddOverload (typeof (bool), "Add all given roles to the given person.");
                 }
@@ -221,7 +221,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public DM() {
                     command = "dm";
                     shortHelp = "DM's a person.";
-                    isAdminOnly = true;
+                    requiredPermissions.Add (GuildPermission.Administrator);
 
                     AddOverload (typeof (IUserMessage), "Sends a DM to the given person with the given text.");
                 }
@@ -236,7 +236,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Move() {
                     command = "move";
                     shortHelp = "Move to a different voice channel.";
-                    isAdminOnly = true;
+                    requiredPermissions.Add (GuildPermission.MoveMembers);
 
                     AddOverload (typeof (SocketVoiceChannel), "Moves a user to a different voice channel. Must be in one to begin with.");
                 }
@@ -261,7 +261,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public SetVoice() {
                     command = "setvoice";
                     shortHelp = "Servermute or -deafen someone.";
-                    isAdminOnly = true;
+                    requiredPermissions.Add (GuildPermission.MoveMembers);
+                    requiredPermissions.Add (GuildPermission.DeafenMembers);
 
                     AddOverload (typeof (bool), "Set mute on the given person!");
                     AddOverload (typeof (bool), "Set mute or deafen on the given person, or both at once!");

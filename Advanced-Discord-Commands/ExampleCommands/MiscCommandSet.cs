@@ -24,7 +24,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public Log() {
                 command = "log";
                 shortHelp = "Log something.";
-                isAdminOnly = true;
+                requiredPermissions.Add (Discord.GuildPermission.Administrator);
                 AddOverload (typeof (void), "Logs something to the bot logs.");
             }
 

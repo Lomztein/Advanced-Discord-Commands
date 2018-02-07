@@ -169,7 +169,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 shortHelp = "Set global variable.";
 
                 AddOverload (typeof (object), "Set a variable in the global scope, accessable for the entire Discord server.");
-                isAdminOnly = true;
+                requiredPermissions.Add (Discord.GuildPermission.Administrator);
             }
 
             public Task<Result> Execute(CommandMetadata e, string name, object variable) {
@@ -191,7 +191,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             }
 
             public Task<Result> Execute(CommandMetadata e, string name) {
-                return TaskResult (CommandVariables.Get (e.message.Id, name), "");
+                object variable = CommandVariables.Get (e.message.Id, name);
+                return TaskResult (variable, variable.ToString ());
             }
         }
 
@@ -204,7 +205,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             }
 
             public Task<Result> Execute(CommandMetadata e, string name) {
-                return TaskResult (CommandVariables.Get (e.message.Author.Id, name), "");
+                object variable = CommandVariables.Get (e.message.Id, name);
+                return TaskResult (variable, variable.ToString ());
             }
         }
 
@@ -217,7 +219,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             }
 
             public Task<Result> Execute(CommandMetadata e, string name) {
-                return TaskResult (CommandVariables.Get (0, name), "");
+                object variable = CommandVariables.Get (e.message.Id, name);
+                return TaskResult (variable, variable.ToString ());
             }
         }
 
@@ -251,7 +254,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 shortHelp = "Delete global variable.";
                 AddOverload (typeof (bool), "Delete a variable in the global scope.");
 
-                isAdminOnly = true;
+                requiredPermissions.Add (Discord.GuildPermission.Administrator);
             }
 
             public Task<Result> Execute(CommandMetadata e, string name) {

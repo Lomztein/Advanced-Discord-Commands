@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Advanced Discord Commands\Advanced Discord Commands.csproj" />
+    <ProjectReference Include="..\Advanced-Discord-Commands\Advanced-Discord-Commands.csproj" />
   </ItemGroup>
 
 </Project>

@@ -39,5 +39,17 @@ namespace Lomztein.AdvDiscordCommands.Extensions
 
             return null;
         }
+
+        public static string UniformStrings (string firstString, string secondString, string connector = " - ", int minSpaces = 25) {
+            string result = firstString;
+            int remainingTaps = (int)Math.Floor ((minSpaces - result.Length) / 4d);
+            int remainingSpaces = (minSpaces - result.Length) % 4;
+            for (int i = 0; i < remainingTaps; i++)
+                result += "\t";
+            for (int i = 0; i < remainingSpaces; i++)
+                result += " ";
+            result += connector + secondString;
+            return result;
+        }
     }
 }

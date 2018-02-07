@@ -31,12 +31,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 AddOverload (typeof (string), "Get the combination of two strings.");
             }
 
-            public Task<Result> Execute(CommandMetadata e, double num1, double num2) {
-                return TaskResult (num1 + num2, $"{num1} + {num2} = {num1 + num2}");
-            }
-
             public Task<Result> Execute(CommandMetadata e, params double [ ] numbers) {
                 return TaskResult (numbers.Sum (), $"Sum of given numbes: {numbers.Sum ()}");
+            }
+
+            public Task<Result> Execute(CommandMetadata e, double num1, double num2) {
+                return TaskResult (num1 + num2, $"{num1} + {num2} = {num1 + num2}");
             }
 
             public Task<Result> Execute(CommandMetadata e, string str1, string str2) {

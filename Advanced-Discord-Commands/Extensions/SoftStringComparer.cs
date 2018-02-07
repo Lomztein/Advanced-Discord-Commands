@@ -11,9 +11,9 @@ namespace Lomztein.AdvDiscordCommands.Extensions
                 return false;
 
             if (x.Length > y.Length) {
-                return x.Substring (0, y.Length) == y;
+                return x.StartsWith (y);
             } else if (x.Length < y.Length) {
-                return y.Substring (0, x.Length) == x;
+                return y.StartsWith (x);
             } else {
                 return x == y;
             }

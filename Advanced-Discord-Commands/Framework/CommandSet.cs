@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 
 namespace Lomztein.AdvDiscordCommands.Framework {
 
-    public class CommandSet : Command {
+    public abstract class CommandSet : Command, ICommandSet {
 
         protected List<Command> commandsInSet = new List<Command>();
 
@@ -39,7 +40,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 for (int i = 0; i < arguments.Length; i++) {
                     combinedArgs += arguments [ i ];
                     if (i != arguments.Length - 1)
-                        combinedArgs += ";";
+                        combinedArgs += CommandRoot.argSeperator;
                 }
 
                 string cmd = "";
@@ -81,14 +82,20 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
         private void FeedRecursiveData (Command c) {
             c.helpPrefix = helpPrefix + command + " ";
-            if (!c.isAdminOnly)
-                c.isAdminOnly = isAdminOnly;
+            if (c.requiredPermissions.Count == 0)
+                c.requiredPermissions = requiredPermissions;
 
             c.Initialize ();
         }
 
-        public void RemoveCommand(Command cmd) {
-            commandsInSet.Remove (cmd);
+        public void RemoveCommands(params Command[] commands) {
+            foreach (Command cmd in commands) {
+                commandsInSet.Remove (cmd);
+            }
+        }
+
+        public List<Command> GetCommands() {
+            return commandsInSet;
         }
     }
 }

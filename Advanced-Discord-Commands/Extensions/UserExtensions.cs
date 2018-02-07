@@ -39,5 +39,16 @@ namespace Lomztein.AdvDiscordCommands.Extensions
             while (user.Roles.Contains (role))
                 await user.RemoveRoleAsync (role);
         }
+
+        public static bool HasAllPermissios (this SocketGuildUser user, List<GuildPermission> permissions) {
+            bool hasAll = true;
+            foreach (GuildPermission perm in permissions) {
+                List<GuildPermission> userPermissions = user.GuildPermissions.ToList ();
+                if (!user.GuildPermissions.ToList ().Contains (perm))
+                    hasAll = false;
+            }
+
+            return hasAll;
+        }
     }
 }
