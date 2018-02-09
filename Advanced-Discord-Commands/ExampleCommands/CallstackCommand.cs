@@ -29,7 +29,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 foreach (Callstack.Item item in callstack.items) {
                     string arguments = " ";
                     for (int i = 0; i < item.arguments.Count; i++) {
-                        arguments += item.arguments [ i ] + (i == item.arguments.Count - 1 ? "" : "; ");
+                        arguments += item.arguments [ i ] + (i == item.arguments.Count - 1 ? "" : CommandRoot.argSeperator + " ");
                     }
 
                     message += StringExtensions.UniformStrings (item.command.helpPrefix + item.command.command + arguments, item.returnObj == null ? "null" : item.returnObj.ToString (), " -> ", 50) + "\n";

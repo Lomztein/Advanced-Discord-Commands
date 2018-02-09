@@ -51,6 +51,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
                     new MiscCommandSet (),
                     new VariableCommandSet (),
                     new CallstackCommand (),
+                    new PrintCommand (),
                 }
             };
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Lomztein.AdvDiscordCommands.Framework;
+using Lomztein.AdvDiscordCommands.Extensions;
 
 namespace Lomztein.AdvDiscordCommands.ExampleCommands {
 
@@ -18,7 +19,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 new SetL (), new SetP (), new SetG (),
                 new GetL (), new GetP (), new GetG (),
                 new DelL (), new DelP (), new DelG (),
-                //new ArraySet  (),
+                new ArraySet  (),
             };
         }
 
@@ -40,8 +41,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                     AddOverload (typeof (object), "Create an array containing the given objects.");
                 }
 
-                public Task<Result> Execute(CommandMetadata e, params object [ ] toAdd) {
-                    object [ ] array = new object [ toAdd.Length ];
+                public Task<Result> Execute (CommandMetadata data) {
+                    return TaskResult (new dynamic [ 0 ], "");
+                }
+
+                public Task<Result> Execute(CommandMetadata e, params dynamic [ ] toAdd) {
+                    dynamic [ ] array = new dynamic [ toAdd.Length ];
                     for (int i = 0; i < toAdd.Length; i++) {
                         array [ i ] = toAdd [ i ];
                     }
@@ -56,9 +61,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                     AddOverload (typeof (object), "Add the given objects to a given array and returns it.");
                 }
 
-                public Task<Result> Execute(CommandMetadata e, object [ ] array, params object [ ] toAdd) {
-                    List<object> arr = array.ToList ();
-                    foreach (object obj in toAdd) {
+                public Task<Result> Execute(CommandMetadata e, dynamic [ ] array, params dynamic [ ] toAdd) {
+                    List<dynamic> arr = array.ToList ();
+                    foreach (dynamic obj in toAdd) {
                         arr.Add (obj);
                     }
                     return TaskResult (arr.ToArray (), "");
@@ -73,9 +78,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                     AddOverload (typeof (object), "Removes the given object from an array.");
                 }
 
-                public Task<Result> Execute(CommandMetadata e, object [ ] array, params object [ ] toRemove) {
-                    List<object> arr = array.ToList ();
-                    foreach (object obj in toRemove) {
+                public Task<Result> Execute(CommandMetadata e, dynamic [ ] array, params dynamic [ ] toRemove) {
+                    List<dynamic> arr = array.ToList ();
+                    foreach (dynamic obj in toRemove) {
                         arr.Remove (obj);
                     }
                     return TaskResult (arr.ToArray (), "");
@@ -90,7 +95,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                     AddOverload (typeof (int), "Returns the amount of objects that are in an array.");
                 }
 
-                public Task<Result> Execute(CommandMetadata e, object [ ] array) {
+                public Task<Result> Execute(CommandMetadata e, dynamic [ ] array) {
                     return TaskResult (array.Length, $"Array count: {array.Length}");
                 }
             }
@@ -104,7 +109,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                     catagory = Category.Advanced;
                 }
 
-                public Task<Result> Execute(CommandMetadata e, int index, params object [ ] array) {
+                public Task<Result> Execute(CommandMetadata e, int index, params dynamic [ ] array) {
                     if (array != null && array.Length > 0 && (index < 0 || index >= array.Length)) {
                         return TaskResult (null, "Error - Index null or out of range.");
                     } else {
@@ -121,7 +126,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                     catagory = Category.Advanced;
                 }
 
-                public Task<Result> Execute(CommandMetadata e, object obj, params object [ ] array) {
+                public Task<Result> Execute(CommandMetadata e, object obj, params dynamic [ ] array) {
                     return TaskResult (array.ToList ().IndexOf (obj), "");
                 }
             }
@@ -192,7 +197,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
 
             public Task<Result> Execute(CommandMetadata e, string name) {
                 object variable = CommandVariables.Get (e.message.Id, name);
-                return TaskResult (variable, variable.ToString ());
+                return TaskResult (variable, variable?.ToString ());
             }
         }
 
@@ -205,8 +210,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             }
 
             public Task<Result> Execute(CommandMetadata e, string name) {
-                object variable = CommandVariables.Get (e.message.Id, name);
-                return TaskResult (variable, variable.ToString ());
+                object variable = CommandVariables.Get (e.message.Author.Id, name);
+                return TaskResult (variable, variable?.ToString ());
             }
         }
 
@@ -219,8 +224,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             }
 
             public Task<Result> Execute(CommandMetadata e, string name) {
-                object variable = CommandVariables.Get (e.message.Id, name);
-                return TaskResult (variable, variable.ToString ());
+                object variable = CommandVariables.Get (e.message.GetGuild ().Id, name);
+                return TaskResult (variable, variable?.ToString ());
             }
         }
 

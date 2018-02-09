@@ -9,6 +9,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
     {
         public SocketUserMessage message;
         public CommandRoot root;
+        public int depth = 0;
 
         public CommandMetadata (SocketUserMessage _message, CommandRoot _root) {
             message = _message;

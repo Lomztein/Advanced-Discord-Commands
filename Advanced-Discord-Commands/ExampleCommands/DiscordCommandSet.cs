@@ -245,7 +245,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     try {
                         if (user.VoiceChannel != null) {
                             SocketVoiceChannel previous = user.VoiceChannel;
-                            user.ModifyAsync (delegate (GuildUserProperties properties) {
+                            await user.ModifyAsync (delegate (GuildUserProperties properties) {
                                 properties.Channel = newChannel;
                             });
                             return new Result (previous, $"Succesfully moved **{user.GetShownName ()}** to channel **{newChannel.Name}**");

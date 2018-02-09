@@ -30,7 +30,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             }
         }
 
-        public override async Task<Result> TryExecute (CommandMetadata data, int depth, params object[] arguments) {
+        public override async Task<Result> TryExecute (CommandMetadata data, params object[] arguments) {
             // Standard command format is !command arg1;arg2;arg3
             // Commandset format is !command secondaryCommand arg1;arg2;arg3
             // Would it be possible to have commandSets within commandSets?
@@ -43,10 +43,8 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                         combinedArgs += CommandRoot.argSeperator;
                 }
 
-                string cmd = "";
-
-                List<object> newArguments = CommandRoot.ConstructArguments (combinedArgs, out cmd);
-                return (await CommandRoot.FindAndExecuteCommand (data, cmd, newArguments, commandsInSet, depth)).result;
+                combinedArgs = commandTrigger + combinedArgs;
+                return (await CommandRoot.FindAndExecuteCommand (data, combinedArgs, commandsInSet)).result;
             } else {
                 return new Result (this, "");
             }

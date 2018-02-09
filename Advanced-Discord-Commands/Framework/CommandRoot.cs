@@ -12,9 +12,12 @@ namespace Lomztein.AdvDiscordCommands.Framework
 {
     public class CommandRoot : ICommandSet {
 
-        public const char argSeperator = ';';
+        public const char argSeperator = ' ';
+        public const char lineSeperator = ';';
+        public int maxCommandLength = short.MaxValue;
 
         public List<Command> commands = new List<Command> ();
+        private Dictionary<ulong, int> programCounters = new Dictionary<ulong, int> ();
 
         public CommandRoot() { }
         
@@ -32,12 +35,24 @@ namespace Lomztein.AdvDiscordCommands.Framework
             string message = e.Content;
             if (message [ 0 ].IsCommandTrigger ()) {
 
-                string [ ] multiline = message.Split ('|');
+                string [ ] multiline = message.Split (lineSeperator);
                 FoundCommandResult finalResult = null;
-                
-                foreach (string line in multiline) {
-                    string trimmed = line.Trim ('\n', '\t', ' '); // Trim off whitespace for consistancy.
-                    finalResult = await FindAndExecuteCommand (new CommandMetadata (e, this), trimmed, commands, 0);
+                programCounters.Add (e.Id, 0);
+
+                CommandMetadata metadata = new CommandMetadata (e, this);
+                while (programCounters[e.Id] < multiline.Length) {
+                    int ln = programCounters [ e.Id ];
+                    programCounters [ e.Id ]++;
+
+                    string trimmed = multiline[ln].Trim ('\n', '\t', ' '); // Trim off whitespace for consistancy.
+
+                    try {
+                        finalResult = await FindAndExecuteCommand (metadata, trimmed, commands);
+                    } catch (Exception exception) {
+                        finalResult = new FoundCommandResult (new Command.Result (exception, exception.Message), null);
+                        break;
+                    }
+
                 }
 
                 CommandVariables.Clear (e.Id);
@@ -45,6 +60,16 @@ namespace Lomztein.AdvDiscordCommands.Framework
             }
 
             return null;
+        }
+
+        public void SetProgramCounter (ulong messageId, int position) {
+            if (!programCounters.ContainsKey (messageId))
+                throw new InvalidOperationException ("There is no program with this ID.");
+
+            if (position < 0)
+                throw new InvalidOperationException ("Position cannot be below 0");
+
+            programCounters [ messageId ] = position;
         }
 
         /// <summary>
@@ -56,16 +81,19 @@ namespace Lomztein.AdvDiscordCommands.Framework
             }
         }
 
-        public static async Task<FoundCommandResult> FindAndExecuteCommand(CommandMetadata metadata, string fullCommand, List<Command> commandList, int depth) {
+        public static async Task<FoundCommandResult> FindAndExecuteCommand(CommandMetadata metadata, string fullCommand, List<Command> commandList) {
             string cmd = "";
             List<object> arguments = ConstructArguments (fullCommand.Substring (1), out cmd);
 
             Console.WriteLine (fullCommand + ", " + cmd);
 
-            return await FindAndExecuteCommand (metadata, cmd, arguments, commandList, depth);
+            return await FindAndExecuteCommand (metadata, cmd, arguments, commandList);
         }
 
-        public static async Task<FoundCommandResult> FindAndExecuteCommand(CommandMetadata metadata, string commandName, List<object> arguments, List<Command> commandList, int depth) {
+        private static async Task<FoundCommandResult> FindAndExecuteCommand(CommandMetadata metadata, string commandName, List<object> arguments, List<Command> commandList) {
+            if (metadata.depth > metadata.root.maxCommandLength)
+                throw new OverflowException ("Max command-program depth exceeded.");
+
             for (int i = 0; i < commandList.Count; i++) {
 
                 if (commandList[ i ].command == commandName) {
@@ -79,7 +107,8 @@ namespace Lomztein.AdvDiscordCommands.Framework
                         }
 
                     } else {
-                        FoundCommandResult result = new FoundCommandResult (await commandList [ i ].TryExecute (metadata, depth, arguments.ToArray ()), commandList [ i ]);
+                        metadata.depth++;
+                        FoundCommandResult result = new FoundCommandResult (await commandList [ i ].TryExecute (metadata, arguments.ToArray ()), commandList [ i ]);
                         if (result != null) {
                             return result;
                         }
@@ -118,28 +147,38 @@ namespace Lomztein.AdvDiscordCommands.Framework
         public static string [ ] SplitArgs(string toSplit) {
             List<string> arguments = new List<string> ();
             string arg;
+
+            int quatationBalance = 0;
+
             int balance = 0;
             int lastCut = 0;
 
             for (int i = 0; i < toSplit.Length; i++) {
                 char cur = toSplit [ i ];
 
-                switch (toSplit [ i ]) {
-                    case argSeperator:
-                        if (balance == 0) {
-                            arg = toSplit.Substring (lastCut, i - lastCut);
-                            arguments.Add (arg);
-                            lastCut = i + 1;
-                        }
-                        break;
+                if (cur == '[')
+                    quatationBalance++;
+                if (cur == ']')
+                    quatationBalance--;
 
-                    case '(':
-                        balance++;
-                        break;
+                if (quatationBalance == 0) {
+                    switch (cur) {
+                        case argSeperator:
+                            if (balance == 0) {
+                                arg = toSplit.Substring (lastCut, i - lastCut);
+                                arguments.Add (arg);
+                                lastCut = i + 1;
+                            }
+                            break;
 
-                    case ')':
-                        balance--;
-                        break;
+                        case '(':
+                            balance++;
+                            break;
+
+                        case ')':
+                            balance--;
+                            break;
+                    }
                 }
             }
 

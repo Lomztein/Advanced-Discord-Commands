@@ -47,7 +47,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             }
         }
 
-        public async Task<List<object>> ConvertChainCommandsToObjects(CommandMetadata data, List<object> input, int depth) {
+        public async Task<List<object>> ConvertChainCommandsToObjects(CommandMetadata data, List<object> input) {
             List<object> converted = new List<object> ();
 
             foreach (object obj in input) {
@@ -55,20 +55,37 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 string stringObj = obj.ToString ();
 
                 if (stringObj.Length > 0) {
-                    if (stringObj [ 0 ].IsCommandTrigger ()) {
-                        var foundCommandResult = await CommandRoot.FindAndExecuteCommand (data, stringObj, data.root.commands, depth + 1);
-                        if (foundCommandResult.result != null) {
-                            result = foundCommandResult.result.value;
+
+                    if (stringObj [ 0 ] == '(' && stringObj.Length > 2) { // If it is hard-defined arguments, required for nested commands.
+                        stringObj = stringObj.Substring (1, stringObj.Length - 2);
+                        if (stringObj [ 0 ] == '!') {
+                            var foundCommandResult = await CommandRoot.FindAndExecuteCommand (data, stringObj, data.root.commands);
+
+                            if (foundCommandResult.result != null) {
+                                result = foundCommandResult.result.value;
+                            }
+                        } else {
+                            result = stringObj;
                         }
-                    } else if (stringObj [ 0 ] == '{') {
+                    } else if (stringObj [ 0 ] == '{') { // Synonymous for !var getl.
                         int endIndex = stringObj.IndexOf ('}');
                         if (endIndex != -1) {
                             string varName = stringObj.Substring (1, endIndex - 1);
+
                             result = CommandVariables.Get (data.message.Id, varName);
+                            if (result == null) // If no local variable, fallback to personal.
+                                result = CommandVariables.Get (data.message.Author.Id, varName);
+                            if (result == null) { // If no personal variable, fallback to server.
+                                SocketGuild guild = data.message.GetGuild ();
+                                if (guild != null)
+                                    result = CommandVariables.Get (guild.Id, varName);
+                            }
                         }
-                    } else if (stringObj [ 0 ] == '<') {
+                    } else if (stringObj [ 0 ] == '<') { // If it's a mention of a Discord object.
                         IMentionable mentionable = stringObj.ExtractMentionable (data.message.GetGuild ());
                         result = mentionable;
+                    }else if (stringObj[0] == '[') {
+                        result = stringObj.Substring (1, stringObj.Length - 2);
                     }
                 }
 
@@ -110,8 +127,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                             }
 
                             TryAddToParams (ref parameterList, arg, paramInfo [ i ].ParameterType);
-                        } catch (Exception exc) {
-                            Logging.Log (exc);
+                        } catch {
                             isMethod = false;
                             parameterList.Clear ();
                             break;
@@ -148,18 +164,18 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             }
         }
 
-        public virtual async Task<Result> TryExecute(CommandMetadata data, int depth, params object[] arguments) {
+        public virtual async Task<Result> TryExecute(CommandMetadata data, params object[] arguments) {
             string executionError = AllowExecution (data);
             string executionPrefix = "Failed to execute command " + command;
             if (executionError == "") {
 
-                if (arguments.Length == 1) {
+                /*if (arguments.Length == 1) {
                     string stringArg = arguments [ 0 ].ToString ();
                     if (stringArg [ 0 ] == '(')
                         arguments = CommandRoot.SplitArgs (GetParenthesesArgs (stringArg)).ToArray ();
-                }
+                }*/
 
-                arguments = (await ConvertChainCommandsToObjects (data, arguments.ToList (), depth)).ToArray ();
+                arguments = (await ConvertChainCommandsToObjects (data, arguments.ToList ())).ToArray ();
                 FindMethodResult result = FindMethod (arguments);
                 if (result != null) {
                     try {
@@ -269,7 +285,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                         olText += advanced ? type.Name + " " + name : name;
 
                         if (j != parameters.types.Length - 1)
-                            olText += "; ";
+                            olText += ", ";
                     }
                     olText += ")";
 

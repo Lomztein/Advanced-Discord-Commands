@@ -368,7 +368,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 AddOverload (typeof (bool), "Returns true if given objects are the same.");
             }
 
-            public Task<Result> Execute(CommandMetadata e, object obj1, object obj2) {
+            public Task<Result> Execute(CommandMetadata e, double obj1, double obj2) {
                 return TaskResult (obj1.Equals(obj2), $"{obj1} EQUALS {obj2} = {obj1.Equals (obj2)}");
             }
         }
@@ -421,92 +421,87 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 double xscale = (xend - xstart) / X_RES;
                 double yscale = (yend - ystart) / Y_RES;
 
-                string cmd;
-                List<object> args;
-                if (TryIsolateWrappedCommand (yequals, out cmd, out args)) {
+                try {
+                    using (Bitmap bitmap = new Bitmap (X_RES, Y_RES)) {
+                        int yprev = 0;
+                        for (int y = 0; y < Y_RES; y++) {
+                            for (int x = 0; x < X_RES; x++) {
 
-                    try {
-                        using (Bitmap bitmap = new Bitmap (X_RES, Y_RES)) {
-                            int yprev = 0;
-                            for (int y = 0; y < Y_RES; y++) {
-                                for (int x = 0; x < X_RES; x++) {
-
-                                    if ( 
-                                        x % (int)Math.Abs (X_RES / xrange) == 0 || 
-                                        y % (int)Math.Abs (Y_RES / yrange) == 0
-                                        )
-                                        bitmap.SetPixel (x, y, Color.LightGray);
-                                    else if (y == Y_RES / 2 || x == X_RES / 2) {
-                                        bitmap.SetPixel (x, y, Color.Gray);
-                                    } else {
-                                        bitmap.SetPixel (x, y, Color.White);
-                                    }
+                                if (
+                                    x % (int)Math.Abs (X_RES / xrange) == 0 ||
+                                    y % (int)Math.Abs (Y_RES / yrange) == 0
+                                    )
+                                    bitmap.SetPixel (x, y, Color.LightGray);
+                                else if (y == Y_RES / 2 || x == X_RES / 2) {
+                                    bitmap.SetPixel (x, y, Color.Gray);
+                                } else {
+                                    bitmap.SetPixel (x, y, Color.White);
                                 }
                             }
-
-                            try {
-                                using (Graphics graphics = Graphics.FromImage (bitmap)) {
-                                    using (Font font = new Font ("Areal", 16)) {
-                                        graphics.DrawString ($"({xstart},{ystart})", font, Brushes.Gray, 0, 0);
-
-                                        SizeF lowerSize = graphics.MeasureString ($"({xend},{yend})", font);
-                                        graphics.DrawString ($"({xend},{yend})", font, Brushes.Gray, 512 - lowerSize.Width, 512 - lowerSize.Height);
-                                    }
-                                }
-                            }catch { };
-
-                            for (double x = xstart; x < xend; x += xscale) {
-
-                                int xpix = (int)Math.Round (x / xscale) + X_RES / 2;
-                                System.Tuple<int, bool> res = await CalcY (data, cmd, args, x, xscale, yscale);
-                                int ycur = res.Item1;
-
-                                if (res.Item2) { // Is the result defined?
-                                    int dist = ycur - yprev;
-                                    int sign = Math.Sign (dist);
-                                    dist = Math.Min (Math.Abs (dist), X_RES);
-                                    if (dist == 0)
-                                        dist = 1;
-
-                                    for (int yy = 0; yy < dist; yy++) {
-                                        double fraction = yy / (double)dist * xscale;
-                                        System.Tuple<int, bool> locRes = await CalcY (data, cmd, args, x + fraction, xscale, yscale);
-                                        if (!locRes.Item2)
-                                            break;
-
-                                        int ypix = locRes.Item1;
-
-                                        if (!(
-                                            xpix < 0 || xpix >= X_RES ||
-                                            ypix < 0 || ypix >= Y_RES
-                                            ))
-                                            bitmap.SetPixel (xpix, ypix, Color.Black);
-                                    }
-
-                                    yprev = ycur;
-                                }
-                            }
-
-                            using (MemoryStream stream = new MemoryStream ()) {
-                                bitmap.Save (stream, System.Drawing.Imaging.ImageFormat.Png);
-                                stream.Position = 0;
-                                await data.message.Channel.SendFileAsync (stream, "graph.png");
-                            }
-
-                            return new Result (null, "");
                         }
-                    } catch (Exception exception) {
-                        Logging.Log (exception);
+
+                        try {
+                            using (Graphics graphics = Graphics.FromImage (bitmap)) {
+                                using (Font font = new Font ("Areal", 16)) {
+                                    graphics.DrawString ($"({xstart},{ystart})", font, Brushes.Gray, 0, 0);
+
+                                    SizeF lowerSize = graphics.MeasureString ($"({xend},{yend})", font);
+                                    graphics.DrawString ($"({xend},{yend})", font, Brushes.Gray, 512 - lowerSize.Width, 512 - lowerSize.Height);
+                                }
+                            }
+                        } catch { };
+
+                        for (double x = xstart; x < xend; x += xscale) {
+
+                            int xpix = (int)Math.Round (x / xscale) + X_RES / 2;
+                            System.Tuple<int, bool> res = await CalcY (data, yequals, x, xscale, yscale);
+                            int ycur = res.Item1;
+
+                            if (res.Item2) { // Is the result defined?
+                                int dist = ycur - yprev;
+                                int sign = Math.Sign (dist);
+                                dist = Math.Min (Math.Abs (dist), X_RES);
+                                if (dist == 0)
+                                    dist = 1;
+
+                                for (int yy = 0; yy < dist; yy++) {
+                                    double fraction = yy / (double)dist * xscale;
+                                    System.Tuple<int, bool> locRes = await CalcY (data, yequals, x + fraction, xscale, yscale);
+                                    if (!locRes.Item2)
+                                        break;
+
+                                    int ypix = locRes.Item1;
+
+                                    if (!(
+                                        xpix < 0 || xpix >= X_RES ||
+                                        ypix < 0 || ypix >= Y_RES
+                                        ))
+                                        bitmap.SetPixel (xpix, ypix, Color.Black);
+                                }
+
+                                yprev = ycur;
+                            }
+                        }
+
+                        using (MemoryStream stream = new MemoryStream ()) {
+                            bitmap.Save (stream, System.Drawing.Imaging.ImageFormat.Png);
+                            stream.Position = 0;
+                            await data.message.Channel.SendFileAsync (stream, "graph.png");
+                        }
+
+                        return new Result (null, "");
                     }
+                } catch (Exception exception) {
+                    Logging.Log (exception);
                 }
 
                 return new Result (null, "Function failed, function command might not be a mathematical one.");
             }
 
-            private async Task<System.Tuple<int, bool>> CalcY(CommandMetadata data, string cmd, List<object> args, double x, double xscale, double yscale) {
+            private async Task<System.Tuple<int, bool>> CalcY(CommandMetadata data, string cmd, double x, double xscale, double yscale) {
                 CommandVariables.Set (data.message.Id, "x", x, true);
 
-                var result = await CommandRoot.FindAndExecuteCommand (data, cmd, args, data.root.commands, 1);
+                var result = await CommandRoot.FindAndExecuteCommand (data, cmd, data.root.commands);
                 double y = (double)Convert.ChangeType (result.result.value, typeof (double));
 
                 int ycur = (int)Math.Round (y / yscale) + Y_RES / 2;
