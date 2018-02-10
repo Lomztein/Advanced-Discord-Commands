@@ -44,7 +44,7 @@ In the example commands, we have a set named `!math`, and in that the command `!
 
 * Advanced flow commands, as well as multiline command "programs". At this point we're fairly sure the entire thing is actually turing complete, but don't quote that, because it *might just be wrong.*
 
-A few commands exists in the example commands that can be used for simple advanced stuff, like for loops and if statements. These currently only support single-line commands, but that is something that we'd like to change, but isn't exactly a priority.
+A few commands exists in the example commands that can be used for simple advanced stuff, like for loops and if statements. These currently only support single-line commands, but that is something that we'd like to change, but isn't exactly a priority, since that can be managed with `!flow goto`, explained in the next paragraph.
 
 Commands can be entered in multiple lines at a time, seperated with the well known `;`, this allows multiple commands to be run in direct sequence. This sequence can be modified using `flow goto`, which sets the program counter to the given number, effectively setting the sequence back to that line number.
 
@@ -53,6 +53,15 @@ Commands can be entered in multiple lines at a time, seperated with the well kno
 ### Interacting with the framework.
 
 To interact with the framework, you're going to need to create a `CommandRoot` object, which contains all commands and command sets at the root. To enter a command, just pump the text message into the method `EnterCommand (string message)`, and from there the framework will take over. `EnterCommand` then returns the result, containing the object and message from the last command in the message, or, if a questionmark was given as a single argument, a string of commands in a set if the command was a set, and an embed as the value if the command was a basic command.
+
+For example, a snippet of code from the [Example Bot](ExampleBot/Program.cs):
+
+```cs
+private async Task MessageRecievedEvent(SocketMessage arg) {
+    var result = await commandRoot.EnterCommand (arg as SocketUserMessage);
+    await arg.Channel.SendMessageAsync (result?.message, false, result?.value as Embed);
+}
+```
 
 ### Creating commands is *simple-ish*.
 
@@ -75,8 +84,8 @@ public class Random : Command {
         shortHelp = "Get random numbers.";
 
         AddOverload (typeof (double), "Returns random number between 0 and 1.");
-        AddOverload (typeof (bool), "Returns random number between 0 and given number.");
-        AddOverload (typeof (bool), "Returns random number between the given numbers.");
+        AddOverload (typeof (double), "Returns random number between 0 and given number.");
+        AddOverload (typeof (double), "Returns random number between the given numbers.");
     }
 
     public Task<Result> Execute(CommandMetadata e) {
