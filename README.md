@@ -4,6 +4,8 @@ You know what would be cool and utterly useless in 99% of cases? If you could us
 
 **This framework has all of that and even more!**
 
+This framework is is based on the [Discord.NET API Wrapper by RougeException](https://github.com/RogueException/Discord.Net), but with a bit of elbow-grease and the will of Zues you might be able to port it to a different wrapper.
+
 ## Feature Overview
 
 ### Basic functionality is perfectly simple!
@@ -93,3 +95,5 @@ public class Random : Command {
     }
 }
 ```
+
+Don't actually kick Agesome1, he's pretty cool dude, if a bit of an aquired taste.
