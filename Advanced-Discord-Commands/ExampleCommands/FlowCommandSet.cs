@@ -24,9 +24,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public IsNull() {
                 command = "isnull";
                 shortHelp = "Converts objects to booleans.";
-                AddOverload (typeof (bool), "Returns true if the given object isn't null, false otherwise.");
             }
 
+            [Overload (typeof (bool), "Returns true if the given object isn't null, false otherwise.")]
             public Task<Result> Execute(CommandMetadata e, object obj) {
                 return TaskResult (obj != null, "Object = null: " + (obj != null));
             }
@@ -36,16 +36,16 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public If() {
                 command = "if";
                 shortHelp = "Control command flow.";
-                AddOverload (typeof (object), "Runs the given command if input boolean is true.");
-                AddOverload (typeof (object), "Runs the first command if input boolean is true, otherwise the second.");
             }
 
+            [Overload (typeof (object), "Runs the given command if input boolean is true.")]
             public async Task<Result> Execute(CommandMetadata e, bool boolean, string command) {
                 if (boolean)
                     return (await CommandRoot.FindAndExecuteCommand (e, command, e.root.commands)).result;
                 return new Result (null, "T'was false.");
             }
 
+            [Overload (typeof (object), "Runs the first command if input boolean is true, otherwise the second.")]
             public async Task<Result> Execute(CommandMetadata e, bool boolean, string command1, string command2) {
                 if (boolean)
                     return (await CommandRoot.FindAndExecuteCommand (e, command1, e.root.commands)).result;
@@ -58,15 +58,14 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public Not() {
                 command = "not";
                 shortHelp = "Inverses booleans.";
-
-                AddOverload (typeof (bool), "Inverses a single boolean object.");
-                AddOverload (typeof (bool), "Inverses a list of boolean object indivdually.");
             }
 
+            [Overload (typeof (bool), "Inverses a single boolean object.")]
             public Task<Result> Execute(CommandMetadata e, bool boolean) {
                 return TaskResult (!boolean, $"Not {boolean} = {!boolean}");
             }
 
+            [Overload (typeof (bool), "Inverses a list of boolean object indivdually.")]
             public Task<Result> Execute(CommandMetadata e, bool [ ] booleans) {
                 for (int i = 0; i < booleans.Length; i++) {
                     booleans [ i ] = !booleans [ i ];
@@ -79,15 +78,14 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public And() {
                 command = "and";
                 shortHelp = "Logic gate AND.";
-
-                AddOverload (typeof (bool), "Compares two given booleans.");
-                AddOverload (typeof (bool), "Compares an entire array of booleans.");
             }
 
+            [Overload (typeof (bool), "Compares two given booleans.")]
             public Task<Result> Execute(CommandMetadata e, bool bool1, bool bool2) {
                 return TaskResult (bool1 && bool2, $"{bool1} AND {bool2} = {bool1 && bool2}");
             }
 
+            [Overload (typeof (bool), "Compares an entire array of booleans.")]
             public Task<Result> Execute(CommandMetadata e, params bool [ ] booleans) {
                 return TaskResult (booleans.All (x => x), "");
             }
@@ -97,15 +95,14 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public Or() {
                 command = "or";
                 shortHelp = "Logic gate OR.";
-
-                AddOverload (typeof (bool), "Compares two given booleans.");
-                AddOverload (typeof (bool), "Compares an entire array of booleans.");
             }
 
+            [Overload (typeof (bool), "Compares two given booleans.")]
             public Task<Result> Execute(CommandMetadata e, bool bool1, bool bool2) {
                 return TaskResult (bool1 || bool2, $"{bool1} OR {bool2} = {bool1 || bool2}");
             }
 
+            [Overload (typeof (bool), "Compares an entire array of booleans.")]
             public Task<Result> Execute(CommandMetadata e, params bool [ ] booleans) {
                 return TaskResult (booleans.Any (x => x), "");
             }
@@ -115,15 +112,14 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public For() {
                 command = "for";
                 shortHelp = "Loop given command a set times.";
-
-                AddOverload (typeof (object), "Loop given command the given amount of times with the iteration variable name \"for\".");
-                AddOverload (typeof (object), "Loop given command the given amount of times with a custom iteration variable name.");
             }
 
+            [Overload (typeof (void), "Loop given command the given amount of times with the iteration variable name \"for\".")]
             public async Task<Result> Execute(CommandMetadata data, int amount, string command) {
                 return await Execute (data, "for", amount, command);
             }
 
+            [Overload (typeof (void), "Loop given command the given amount of times with a custom iteration variable name.")]
             public async Task<Result> Execute(CommandMetadata data, string varName, int amount, string command) {
                 if (command.Length > 1 && command [ 0 ].IsCommandTrigger ()) {
                     for (int i = 0; i < amount; i++) {
@@ -140,9 +136,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 command = "foreach";
                 shortHelp = "Loop a given command for each item in an array.";
 
-                AddOverload (typeof (object), "Loop given command for each item in the given array, with the a custom item variable name.");
             }
 
+            [Overload (typeof (void), "Loop given command for each item in the given array, with the a custom item variable name.")]
             public async Task<Result> Execute(CommandMetadata data, string varName, string command, params object [ ] array) {
 
                 foreach (object obj in array) {
@@ -157,17 +153,15 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public Wait() {
                 command = "wait";
                 shortHelp = "Halts command for a while.";
-
-                AddOverload (typeof (void), "Wait for the given amount of secondos.");
-                AddOverload (typeof (object), "Wait the given amount of seconds, then return the given command.");
-                AddOverload (typeof (object), "Wait the given amount of seconds, then return the given object.");
             }
 
+            [Overload (typeof (void), "Wait for the given amount of secondos.")]
             public async Task<Result> Execute (CommandMetadata data, double seconds) {
                 await Task.Delay ((int)Math.Round (seconds * 1000));
                 return new Result (null, "Waited " + seconds + " seconds!");
             }
 
+            [Overload (typeof (object), "Wait the given amount of seconds, then return the given command.")]
             public async Task<Result> Execute(CommandMetadata data, double seconds, string command) {
                 await Task.Delay ((int)Math.Round (seconds * 1000));
 
@@ -179,6 +173,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 return new Result (command, "Waoted " + seconds + " seconds!");
             }
 
+            [Overload (typeof (object), "Wait the given amount of seconds, then return the given object.")]
             public async Task<Result> Execute(CommandMetadata e, double seconds, dynamic obj) {
                 await Task.Delay ((int)Math.Round (seconds * 1000));
                 return new Result (obj, obj.ToString ());
@@ -188,11 +183,10 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
         public class Goto : Command {
             public Goto () {
                 command = "goto";
-                shortHelp = "Move program counter.";
-
-                AddOverload (typeof (void), "Move execution to a specific command line.");
+                shortHelp = "Move line count.";
             }
 
+            [Overload (typeof (void), "Move sequence execution to a specific command line.")]
             public Task<Result> Execute (CommandMetadata data, int line) {
                 data.root.SetProgramCounter (data.message.Id, line);
                 return TaskResult (null, "");

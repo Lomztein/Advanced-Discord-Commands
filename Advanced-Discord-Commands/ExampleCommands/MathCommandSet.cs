@@ -25,20 +25,19 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Add() {
                 command = "add";
                 shortHelp = "Add numbers.";
-
-                AddOverload (typeof (double), "Add two numbers together.");
-                AddOverload (typeof (double), "Get the sum of an array of numbers.");
-                AddOverload (typeof (string), "Get the combination of two strings.");
             }
 
+            [Overload (typeof (double), "Add two numbers together.")]
             public Task<Result> Execute(CommandMetadata e, params double [ ] numbers) {
                 return TaskResult (numbers.Sum (), $"Sum of given numbes: {numbers.Sum ()}");
             }
 
+            [Overload (typeof (double), "Get the sum of an array of numbers.")]
             public Task<Result> Execute(CommandMetadata e, double num1, double num2) {
                 return TaskResult (num1 + num2, $"{num1} + {num2} = {num1 + num2}");
             }
 
+            [Overload (typeof (string), "Get the combination of two strings.")]
             public Task<Result> Execute(CommandMetadata e, string str1, string str2) {
                 return TaskResult (str1 + str2, str1 + str2);
             }
@@ -49,10 +48,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Subtract() {
                 command = "subtract";
                 shortHelp = "Subtract numbers.";
-
-                AddOverload (typeof (double), "Subtract num2 from num1.");
             }
 
+            [Overload (typeof (double), "Subtract num2 from num1.")]
             public Task<Result> Execute(CommandMetadata e, double num1, double num2) {
                 return TaskResult (num1 - num2, $"{num1} - {num2} = {num1 - num2}");
             }
@@ -63,10 +61,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Multiply() {
                 command = "multiply";
                 shortHelp = "Multiply numbers.";
-
-                AddOverload (typeof (double), "Mutliply two numbers.");
             }
 
+            [Overload (typeof (double), "Mutliply two numbers.")]
             public Task<Result> Execute(CommandMetadata e, double num1, double num2) {
                 return TaskResult (num1 * num2, $"{num1} * {num2} = {num1 * num2}");
             }
@@ -77,10 +74,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Divide() {
                 command = "divide";
                 shortHelp = "Divide numbers.";
-
-                AddOverload (typeof (double), "Divide num1 with num2.");
             }
 
+            [Overload (typeof (double), "Divide num1 with num2.")]
             public Task<Result> Execute(CommandMetadata e, double num1, double num2) {
                 return TaskResult (num1 / num2, $"{num1} / {num2} = {num1 / num2}");
             }
@@ -91,10 +87,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Pow() {
                 command = "pow";
                 shortHelp = "Get the power.";
-
-                AddOverload (typeof (double), "Get the num1 to the power of num2.");
             }
 
+            [Overload (typeof (double), "Get the num1 to the power of num2.")]
             public Task<Result> Execute(CommandMetadata e, double num1, double num2) {
                 return TaskResult (Math.Pow (num1, num2), $"{num1}^{num2} = {Math.Pow (num1, num2)}");
             }
@@ -105,15 +100,14 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Log() {
                 command = "log";
                 shortHelp = "Returns logs.";
-
-                AddOverload (typeof (double), "Get the natural logarithm of the given number.");
-                AddOverload (typeof (double), "Get the logarithm of the given number in a specific base.");
             }
 
+            [Overload (typeof (double), "Get the natural logarithm of the given number.")]
             public Task<Result> Execute(CommandMetadata e, double num) {
                 return TaskResult (Math.Log (num), $"Log({num}) = {Math.Log (num)}");
             }
 
+            [Overload (typeof (double), "Get the logarithm of the given number in a specific base.")]
             public Task<Result> Execute(CommandMetadata e, double num, double logBase) {
                 return TaskResult (Math.Log (num, logBase), $"Log{logBase}({num}) = {Math.Log (num, logBase)}");
             }
@@ -124,10 +118,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Mod() {
                 command = "mod";
                 shortHelp = "Returns modulus.";
-
-                AddOverload (typeof (double), "Get the remainder of num1 / num2.");
             }
 
+            [Overload (typeof (double), "Get the remainder of num1 / num2.")]
             public Task<Result> Execute(CommandMetadata e, double num1, double num2) {
                 return TaskResult (num1 % num2, $"{num1} % {num2} = {num1 % num2}");
             }
@@ -138,10 +131,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Sin() {
                 command = "sin";
                 shortHelp = "Anger the gods.";
-
-                AddOverload (typeof (double), "Get the sin of the given angle in radians.");
             }
 
+            [Overload (typeof (double), "Get the sin of the given angle in radians.")]
             public Task<Result> Execute(CommandMetadata e, double num) {
                 return TaskResult (Math.Sin (num), $"SIN ({num}) = {Math.Sin (num)}");
             }
@@ -152,10 +144,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Cos() {
                 command = "cos";
                 shortHelp = "Returns cosine.";
-
-                AddOverload (typeof (double), "Get the cos of the given angle in radians.");
             }
 
+            [Overload (typeof (double), "Get the cos of the given angle in radians.")]
             public Task<Result> Execute(CommandMetadata e, double num) {
                 return TaskResult (Math.Cos (num), $"COS ({num}) = {Math.Cos (num)}");
             }
@@ -166,10 +157,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Tan() {
                 command = "tan";
                 shortHelp = "Get ready for summer.";
-
-                AddOverload (typeof (double), "Get the tan of the given angle in radians.");
             }
 
+            [Overload (typeof (double), "Get the tan of the given angle in radians.")]
             public Task<Result> Execute(CommandMetadata e, double num) {
                 return TaskResult (Math.Tan (num), $"TAN ({num}) = {Math.Tan (num)}");
             }
@@ -180,10 +170,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public ASin() {
                 command = "asin";
                 shortHelp = "Make the gods.. happy?";
-
-                AddOverload (typeof (double), "Get the inverse sin of the given value in radians.");
             }
 
+            [Overload (typeof (double), "Get the inverse sin of the given value in radians.")]
             public Task<Result> Execute(CommandMetadata e, double num) {
                 return TaskResult (Math.Asin (num), $"ASIN ({num}) = {Math.Asin (num)}");
             }
@@ -194,10 +183,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public ACos() {
                 command = "acos";
                 shortHelp = "Returns inverse cosine.";
-
-                AddOverload (typeof (double), "Get the inverse cos of the given value in radians.");
             }
 
+            [Overload (typeof (double), "Get the inverse cos of the given value in radians.")]
             public Task<Result> Execute(CommandMetadata e, double num) {
                 return TaskResult (Math.Acos (num), $"ACOS ({num}) = {Math.Acos (num)}");
             }
@@ -208,10 +196,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public ATan() {
                 command = "atan";
                 shortHelp = "Get ready for winter.";
-
-                AddOverload (typeof (double), "Get the atan of the given value in radians.");
             }
 
+            [Overload (typeof (double), "Get the atan of the given value in radians.")]
             public Task<Result> Execute(CommandMetadata e, double num) {
                 return TaskResult (Math.Atan (num), $"TAN ({num}) = {Math.Atan (num)}");
             }
@@ -221,10 +208,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Deg2Rad() {
                 command = "deg2rad";
                 shortHelp = "Convert degrees to radians.";
-
-                AddOverload (typeof (double), "Convert the given degrees to radians.");
             }
 
+            [Overload (typeof (double), "Convert the given degrees to radians.")]
             public Task<Result> Execute(CommandMetadata e, double degs) {
                 return TaskResult (degs / (180d / Math.PI), $"DEG2RAD ({degs}) = {degs / (180d / Math.PI)}");
             }
@@ -234,10 +220,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Rad2Deg() {
                 command = "rad2deg";
                 shortHelp = "Convert radians to degrees.";
-
-                AddOverload (typeof (double), "Convert the given radians to degrees.");
             }
 
+            [Overload (typeof (double), "Convert the given radians to degrees.")]
             public Task<Result> Execute(CommandMetadata e, double rads) {
                 return TaskResult (rads * (180d / Math.PI), $"RAD2DEG ({rads}) = {rads * (180d / Math.PI)}");
             }
@@ -247,10 +232,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public PI() {
                 command = "pi";
                 shortHelp = "Don't have intercourse with it.";
-
-                AddOverload (typeof (double), "Returns pi.");
             }
 
+            [Overload (typeof (double), "Returns delicious pi.")]
             public Task<Result> Execute(CommandMetadata e) {
                 return TaskResult (Math.PI, "PI = " + Math.PI);
             }
@@ -260,10 +244,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Round() {
                 command = "round";
                 shortHelp = "Round to nearest whole number.";
-
-                AddOverload (typeof (double), "Rounds given input to the nearest whole number.");
             }
 
+            [Overload (typeof (double), "Rounds given input to the nearest whole number.")]
             public Task<Result> Execute(CommandMetadata e, double num) {
                 return TaskResult (Math.Round (num), $"ROUND ({num}) = {Math.Round (num)}");
             }
@@ -273,10 +256,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Floor() {
                 command = "floor";
                 shortHelp = "SuplexFlexDunk.";
-
-                AddOverload (typeof (double), "Floors given input to the nearest whole number below itself.");
             }
 
+            [Overload (typeof (double), "Floors given input to the nearest whole number below itself.")]
             public Task<Result> Execute(CommandMetadata e, double num) {
                 return TaskResult (Math.Floor (num), $"FLOOR ({num}) = {Math.Floor (num)}");
             }
@@ -286,10 +268,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Ceiling() {
                 command = "ceiling";
                 shortHelp = "Shoryuken that sucker.";   
-
-                AddOverload (typeof (double), "Ceils given input to the nearest whole number above itself.");
             }
 
+            [Overload (typeof (double), "Ceils given input to the nearest whole number above itself.")]
             public Task<Result> Execute(CommandMetadata e, double num) {
                 return TaskResult (Math.Ceiling (num), $"ROUND ({num}) = {Math.Ceiling (num)}");
             }
@@ -299,10 +280,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Squareroot() {
                 command = "sqrt";
                 shortHelp = "Get square root.";
-
-                AddOverload (typeof (double), "Returns the square root of the given number.");
             }
 
+            [Overload (typeof (double), "Returns the square root of the given number.")]
             public Task<Result> Execute(CommandMetadata e, double num) {
                 return TaskResult (Math.Sqrt (num), $"SQRT ({num}) = {Math.Sqrt (num)}");
             }
@@ -312,10 +292,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Min() {
                 command = "min";
                 shortHelp = "Gets lowest number.";
-
-                AddOverload (typeof (double), "Returns the lowest number of the given array.");
             }
 
+            [Overload (typeof (double), "Returns the lowest number of the given array.")]
             public Task<Result> Execute(CommandMetadata e, params double [ ] nums) {
                 return TaskResult (nums.Min (), $"Min of given numbers: {nums.Min ()}");
             }
@@ -325,10 +304,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Max() {
                 command = "max";
                 shortHelp = "Gets highest number.";
-
-                AddOverload (typeof (double), "Returns the highest number of the given array.");
             }
 
+            [Overload (typeof (double), "Returns the highest number of the given array.")]
             public Task<Result> Execute(CommandMetadata e, params double [ ] nums) {
                 return TaskResult (nums.Max (), $"Max of given numbers: {nums.Max ()}");
             }
@@ -338,10 +316,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Abs() {
                 command = "abs";
                 shortHelp = "Gets absolute number.";
-
-                AddOverload (typeof (double), "Returns the absolute number of the given array.");
             }
 
+            [Overload (typeof (double), "Returns the absolute number of the given array.")]
             public Task<Result> Execute(CommandMetadata e, double num) {
                 return TaskResult (Math.Abs (num), $"ABS ({num}) = {Math.Abs (num)}");
             }
@@ -351,10 +328,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Sign() {
                 command = "sign";
                 shortHelp = "Gets sign of number.";
-
-                AddOverload (typeof (double), "Returns the sign of the given number.");
             }
 
+            [Overload (typeof (double), "Returns the sign of the given number.")]
             public Task<Result> Execute(CommandMetadata e, double num) {
                 return TaskResult (Math.Sign (num), $"SIGN ({num}) = {Math.Sign (num)}");
             }
@@ -364,10 +340,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Equal() {
                 command = "equals";
                 shortHelp = "Checks equality.";
-
-                AddOverload (typeof (bool), "Returns true if given objects are the same.");
             }
 
+            [Overload (typeof (bool), "Returns true if given objects are the same.")]
             public Task<Result> Execute(CommandMetadata e, double obj1, double obj2) {
                 return TaskResult (obj1.Equals(obj2), $"{obj1} EQUALS {obj2} = {obj1.Equals (obj2)}");
             }
@@ -377,22 +352,21 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Random() {
                 command = "random";
                 shortHelp = "Get random numbers.";
-
-                AddOverload (typeof (double), "Returns random number between 0 and 1.");
-                AddOverload (typeof (bool), "Returns random number between 0 and given number.");
-                AddOverload (typeof (bool), "Returns random number between the given numbers.");
             }
 
+            [Overload (typeof (double), "Returns random number between 0 and 1.")]
             public Task<Result> Execute(CommandMetadata e) {
                 System.Random random = new System.Random ();
                 return TaskResult (random.NextDouble (), "");
             }
 
+            [Overload (typeof (bool), "Returns random number between 0 and given number.")]
             public Task<Result> Execute(CommandMetadata e, double max) {
                 System.Random random = new System.Random ();
                 return TaskResult (random.NextDouble () * max, "");
             }
 
+            [Overload (typeof (bool), "Returns random number between the given numbers.")]
             public Task<Result> Execute(CommandMetadata e, double min, double max) {
                 System.Random random = new System.Random ();
                 return TaskResult (random.NextDouble () * (max + min) - min, "");
@@ -406,10 +380,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Graph() {
                 command = "graph";
                 shortHelp = "Draw a graph of a function.";
-
-                AddOverload (typeof (object), "Draw a graph of the given function within the given range.");
             }
 
+            [Overload (typeof (void), "Draw a graph of the given function within the given range.")]
             public async Task<Result> Execute(CommandMetadata data, double xrange, double yrange, string yequals) {
                 double xstart = -xrange / 2d;
                 double xend = xrange / 2d;

@@ -15,18 +15,16 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             catagory = Category.Utility;
 
             availableInDM = true;
-
-            AddOverload (typeof (ICommandSet), "Reveals a full list of all commands.");
-            AddOverload (typeof (string), "Reveals a list of commands in a given command array.");
-            AddOverload (typeof (string), "Reveals a list of commands in a given command set.");
         }
 
+        [Overload (typeof (ICommandSet), "Reveals a full list of all commands.")]
         public Task<Result> Execute(CommandMetadata data) {
             Result result = Execute (data, data.root.commands.ToArray ()).Result;
             result.value = data.root;
             return Task.FromResult (result);
         }
 
+        [Overload (typeof (string), "Reveals a list of commands in a given command array.")]
         public Task<Result> Execute(CommandMetadata data, params Command [ ] commands) {
             var catagories = commands.Where (x => x.AllowExecution (data) == "").GroupBy (x => x.catagory);
             string result = "```";
@@ -46,8 +44,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             return r;
         }
 
+        [Overload (typeof (string), "Reveals a list of commands in a given command set.")]
         public Task<Result> Execute(SocketUserMessage e, CommandSet set) {
-            return TaskResult (set.GetHelp (e), set.GetHelp (e));
+            return TaskResult (set.GetHelpText (e), set.GetHelpText (e));
         }
     }
 }

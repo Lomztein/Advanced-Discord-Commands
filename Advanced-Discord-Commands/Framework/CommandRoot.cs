@@ -49,7 +49,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
                     try {
                         finalResult = await FindAndExecuteCommand (metadata, trimmed, commands);
                     } catch (Exception exception) {
-                        finalResult = new FoundCommandResult (new Command.Result (exception, exception.Message), null);
+                        finalResult = new FoundCommandResult (new Command.Result (exception, exception.StackTrace.Substring (0, 1995)), null);
                         break;
                     }
 
@@ -101,7 +101,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
 
                         Command command = commandList [ i ];
                         if (command is CommandSet) {
-                            return new FoundCommandResult (new Command.Result (null, command.GetHelp (metadata)), command);
+                            return new FoundCommandResult (new Command.Result (null, command.GetHelpText (metadata)), command);
                         } else {
                             return new FoundCommandResult (new Command.Result (command.GetHelpEmbed (metadata, true), ""), command);
                         }

@@ -33,8 +33,6 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
         public List<GuildPermission> requiredPermissions = new List<GuildPermission>();
 
-        public List<Overload> overloads = new List<Overload> ();
-
         public static List<Callstack> callstacks = new List<Callstack> ();
         public static int maxCallstacks = 64;
 
@@ -51,7 +49,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             List<object> converted = new List<object> ();
 
             foreach (object obj in input) {
-                object result = obj;
+                dynamic result = obj;
                 string stringObj = obj.ToString ();
 
                 if (stringObj.Length > 0) {
@@ -79,6 +77,19 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                                 SocketGuild guild = data.message.GetGuild ();
                                 if (guild != null)
                                     result = CommandVariables.Get (guild.Id, varName);
+                            }
+
+                            if (stringObj.Length > endIndex + 1 && stringObj[endIndex + 1] == '[') {
+                                int squareEnd = stringObj.LastIndexOf (']');
+                                if (squareEnd != -1) {
+
+                                    string number = stringObj.Substring (endIndex + 2, squareEnd - (endIndex + 2));
+                                    if (int.TryParse (number, out int index)) {
+                                        if (result.GetType ().IsArray) {
+                                            result = result [ index ];
+                                        }
+                                    }
+                                }
                             }
                         }
                     } else if (stringObj [ 0 ] == '<') { // If it's a mention of a Discord object.
@@ -238,21 +249,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 callstacks.RemoveAt (maxCallstacks);
         }
 
-        public virtual string GetHelp (SocketMessage e) {
-            string help = "";
-            string executionErrors = AllowExecution (e);
-            if (executionErrors == "") {
-                help += "**" + (helpPrefix + command + " - " + shortHelp) + "**```";
-                AddArgs (ref help);
-                help += "```";
-
-                if (requiredPermissions.Count > 0)
-                    help += "**REQUIRES PERMISSIONS**";
-                return help;
-            } else {
-                return "Failed to execute\n" + executionErrors;
-            }
-        }
+        public virtual string GetHelpText(SocketMessage e) => "";
 
         public Embed GetHelpEmbed(SocketMessage e, bool advanced) {
             EmbedBuilder builder = new EmbedBuilder ();
@@ -268,13 +265,14 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             // This is quite similar to GetArgs and GetHelp together, and the other functions are obsolete due to this.
             MethodInfo [ ] methods = GetType ().GetMethods ().Where (x => x.Name == "Execute").ToArray ();
             for (int i = 0; i < methods.Length; i++) {
-                if (overloads.Count <= i) {
-                    builder.AddField ("Undefined overload", "Blame that lazy bastard of a dev.");
+
+                OverloadAttribute overload = methods [ i ].GetCustomAttribute<OverloadAttribute> ();
+                if (overload == null) {
+                    builder.AddField ("Undefined overload", "Missing overload attribute for Execute method.");
                 } else {
                     MethodInfo info = methods [ i ];
-                    Overload ol = overloads [ i ];
 
-                    var parameters = GetDescriptiveOverloadParameters (i);
+                    var parameters = GetDescriptiveOverloadParameters (info);
                     string olText = advanced ? $"{parameters.returnType} => " : helpPrefix + command;
 
                     olText += " (";
@@ -289,7 +287,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                     }
                     olText += ")";
 
-                    builder.AddField (olText, ol.description);
+                    builder.AddField (olText, overload.Description);
                 }
             }
 
@@ -322,34 +320,17 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         /// </summary>
         /// <param name="overloadIndex"></param>
         /// <returns></returns>
-        public virtual (Type [ ] types, string [ ] names, string returnType) GetDescriptiveOverloadParameters(int overloadIndex) {
+        public virtual (Type [ ] types, string [ ] names, string returnType) GetDescriptiveOverloadParameters(MethodInfo info) {
+
             List<Type> paramTypes = new List<Type> ();
             List<string> paramNames = new List<string> ();
-
-            MethodInfo info = GetType ().GetMethods ().Where (x => x.Name == "Execute").ElementAt (overloadIndex);
 
             foreach (var param in info.GetParameters ()) {
                 paramTypes.Add (param.ParameterType);
                 paramNames.Add (param.Name);
             }
 
-            return (paramTypes.ToArray (), paramNames.ToArray (), overloads[overloadIndex].returnType);
-        }
-
-        public virtual void AddArgs(ref string description) {
-            MethodInfo [ ] methods = GetType ().GetMethods ().Where (x => x.Name == "Execute").ToArray ();
-            for (int i = 0; i < methods.Length; i++) {
-                description += $"{overloads[i].returnType} {GetCommand ()} "; // I have no idea whats going on there.
-                ParameterInfo [ ] paramInfos = methods [ i].GetParameters ();
-                for (int j = 1; j < paramInfos.Length; j++) {
-                    description += $"<{paramInfos[j].Name} {paramInfos[j].ParameterType.Name}>";
-                    if (j != paramInfos.Length - 1)
-                        description += " ; ";
-                    else
-                        description += " ";
-                }
-                description += "- " + overloads[i].description + "\n";
-            }
+            return (paramTypes.ToArray (), paramNames.ToArray (), info.GetCustomAttribute<OverloadAttribute>().ReturnType.Name);
         }
 
         public virtual string GetCommand() {
@@ -358,10 +339,6 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
         public virtual string GetOnlyName() {
             return command; // Wrapper functions ftw
-        }
-
-        public void AddOverload(Type type, string description) {
-            overloads.Add (new Overload (type, description));
         }
 
         public Command CloneCommand() {
@@ -427,5 +404,17 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         }
 
         public override string ToString() => helpPrefix + command;
+
+        [AttributeUsage (AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+
+        protected class OverloadAttribute : Attribute {
+            public Type ReturnType;
+            public string Description;
+
+            public OverloadAttribute (Type _returnType, string _description) {
+                ReturnType = _returnType;
+                Description = _description;
+            }
+        }
     }
 }

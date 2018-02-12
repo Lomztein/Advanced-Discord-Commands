@@ -54,7 +54,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             return helpPrefix + command + " (set)";
         }
 
-        public override string GetHelp(SocketMessage e) {
+        public override string GetHelpText(SocketMessage e) {
             // Display all commands within command.
             string help = "";
             help += ("Commands in the **" + command + "** command set:\n```");

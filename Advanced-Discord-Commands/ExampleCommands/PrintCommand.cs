@@ -12,10 +12,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             command = "print";
             shortHelp = "Prints stuff.";
             catagory = Category.Utility;
-
-            AddOverload (typeof (string), "Prints whatever is put into it, regardless of position in program.");
         }
 
+        [Overload (typeof (string), "Prints whatever is put into it, regardless of position in program.")]
         public Task<Result> Execute(CommandMetadata data, object obj) {
             if (obj != null) {
                 data.message.Channel.SendMessageAsync (obj.ToString ());

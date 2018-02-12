@@ -14,14 +14,14 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             command = "callstack";
             catagory = Category.Advanced;
             shortHelp = "View command chain callstack.";
-            AddOverload (typeof (string), "View the latest executed callstack.");
-            AddOverload (typeof (string), "View the callstack for the command given by the command message ID");
         }
 
+        [Overload (typeof (string), "View the latest executed callstack.")]
         public Task<Result> Execute(CommandMetadata e) {
             return Execute (e, callstacks [ 0 ].chainID);
         }
 
+        [Overload (typeof (string), "View the callstack for the command given by the command message ID")]
         public Task<Result> Execute(CommandMetadata e, ulong id) {
             Callstack callstack = callstacks.Find (x => x.chainID == id);
             if (callstack != null) {

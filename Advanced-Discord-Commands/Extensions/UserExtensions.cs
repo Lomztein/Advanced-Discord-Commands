@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Lomztein.AdvDiscordCommands.Extensions
 {
-    static class UserExtensions
+    public static class UserExtensions
     {
         public static string GetShownName (this IUser user) {
             SocketGuildUser guildUser = user as SocketGuildUser;

@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Lomztein.AdvDiscordCommands.Framework.Interfaces
 {
-    interface ICommandSet
+    public interface ICommandSet
     {
-        List<Command> GetCommands();
+        List<Command> GetCommands ();
 
         void AddCommands(params Command[] newCommands);
 

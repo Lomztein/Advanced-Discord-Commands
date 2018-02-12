@@ -37,14 +37,14 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 public Create() {
                     command = "create";
                     shortHelp = "Create an array.";
-
-                    AddOverload (typeof (object), "Create an array containing the given objects.");
                 }
 
+                [Overload (typeof (object[]), "Create an entirely empty array.")]
                 public Task<Result> Execute (CommandMetadata data) {
                     return TaskResult (new dynamic [ 0 ], "");
                 }
 
+                [Overload (typeof (object[]), "Create an array containing the given objects.")]
                 public Task<Result> Execute(CommandMetadata e, params dynamic [ ] toAdd) {
                     dynamic [ ] array = new dynamic [ toAdd.Length ];
                     for (int i = 0; i < toAdd.Length; i++) {
@@ -58,9 +58,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 public Add() {
                     command = "add";
                     shortHelp = "Add to an array.";
-                    AddOverload (typeof (object), "Add the given objects to a given array and returns it.");
                 }
 
+                [Overload (typeof (object[]), "Add the given objects to a given array and returns it.")]
                 public Task<Result> Execute(CommandMetadata e, dynamic [ ] array, params dynamic [ ] toAdd) {
                     List<dynamic> arr = array.ToList ();
                     foreach (dynamic obj in toAdd) {
@@ -74,10 +74,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 public Remove() {
                     command = "remove";
                     shortHelp = "Remove from an array.";
-
-                    AddOverload (typeof (object), "Removes the given object from an array.");
                 }
 
+                [Overload (typeof (object), "Removes the given object from an array.")]
                 public Task<Result> Execute(CommandMetadata e, dynamic [ ] array, params dynamic [ ] toRemove) {
                     List<dynamic> arr = array.ToList ();
                     foreach (dynamic obj in toRemove) {
@@ -91,10 +90,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 public Count() {
                     command = "count";
                     shortHelp = "Count elements in an array.";
-
-                    AddOverload (typeof (int), "Returns the amount of objects that are in an array.");
                 }
 
+                [Overload (typeof (int), "Returns the amount of objects that are in an array.")]
                 public Task<Result> Execute(CommandMetadata e, dynamic [ ] array) {
                     return TaskResult (array.Length, $"Array count: {array.Length}");
                 }
@@ -105,10 +103,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 public AtIndex() {
                     command = "atindex";
                     shortHelp = "Get object at index from array.";
-                    AddOverload (typeof (object), "Get an object from an array at the given index.");
-                    catagory = Category.Advanced;
                 }
 
+                [Overload (typeof (object), "Get an object from an array at the given index.")]
                 public Task<Result> Execute(CommandMetadata e, int index, params dynamic [ ] array) {
                     if (array != null && array.Length > 0 && (index < 0 || index >= array.Length)) {
                         return TaskResult (null, "Error - Index null or out of range.");
@@ -122,10 +119,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 public IndexOf() {
                     command = "indexof";
                     shortHelp = "Get the index of object array.";
-                    AddOverload (typeof (object), "Get the index of a given object within a given array. Returns -1 if not there.");
-                    catagory = Category.Advanced;
                 }
 
+                [Overload (typeof (int), "Get the index of a given object within a given array. Returns -1 if not there.")]
                 public Task<Result> Execute(CommandMetadata e, object obj, params dynamic [ ] array) {
                     return TaskResult (array.ToList ().IndexOf (obj), "");
                 }
@@ -136,10 +132,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public SetL() {
                 command = "setl";
                 shortHelp = "Set local variable.";
-
-                AddOverload (typeof (object), "Set a variable in the local scope, only accessable from current command chain.");
             }
 
+            [Overload (typeof (object), "Set a variable in the local scope, only accessable from current command chain.")]
             public Task<Result> Execute(CommandMetadata e, string name, object variable) {
                 try {
                     CommandVariables.Set (e.message.Id, name, variable, false);
@@ -154,10 +149,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public SetP() {
                 command = "setp";
                 shortHelp = "Set personal variable.";
-
-                AddOverload (typeof (object), "Set a variable in the personal scope, only accessable for current user.");
             }
 
+            [Overload(typeof (object), "Set a variable in the personal scope, only accessable for current user.")]
             public Task<Result> Execute(CommandMetadata e, string name, object variable) {
                 try {
                     CommandVariables.Set (e.message.Author.Id, name, variable, false);
@@ -173,10 +167,10 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 command = "setg";
                 shortHelp = "Set global variable.";
 
-                AddOverload (typeof (object), "Set a variable in the global scope, accessable for the entire Discord server.");
                 requiredPermissions.Add (Discord.GuildPermission.Administrator);
             }
 
+            [Overload (typeof (object), "Set a variable in the global scope, accessable for the entire Discord server.")]
             public Task<Result> Execute(CommandMetadata e, string name, object variable) {
                 try {
                     CommandVariables.Set (0, name, variable, false);
@@ -191,10 +185,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public GetL() {
                 command = "getl";
                 shortHelp = "Get local variable.";
-
-                AddOverload (typeof (object), "Get a variable in the local scope.");
             }
 
+            [Overload (typeof (object), "Get a variable in the local scope.")]
             public Task<Result> Execute(CommandMetadata e, string name) {
                 object variable = CommandVariables.Get (e.message.Id, name);
                 return TaskResult (variable, variable?.ToString ());
@@ -205,10 +198,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public GetP() {
                 command = "getp";
                 shortHelp = "Get personal variable.";
-
-                AddOverload (typeof (object), "Get a variable in the personal scope.");
             }
 
+            [Overload (typeof (object), "Get a variable in the personal scope.")]
             public Task<Result> Execute(CommandMetadata e, string name) {
                 object variable = CommandVariables.Get (e.message.Author.Id, name);
                 return TaskResult (variable, variable?.ToString ());
@@ -219,10 +211,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public GetG() {
                 command = "getg";
                 shortHelp = "Get global variable.";
-
-                AddOverload (typeof (object), "Get a variable in the global scope.");
             }
 
+            [Overload (typeof (object), "Get a variable in the global scope.")]
             public Task<Result> Execute(CommandMetadata e, string name) {
                 object variable = CommandVariables.Get (e.message.GetGuild ().Id, name);
                 return TaskResult (variable, variable?.ToString ());
@@ -233,9 +224,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public DelL() {
                 command = "dell";
                 shortHelp = "Delete local variable.";
-                AddOverload (typeof (bool), "Delete a variable in the local scope.");
             }
 
+            [Overload (typeof (bool), "Delete a variable in the local scope.")]
             public Task<Result> Execute(CommandMetadata e, string name) {
                 return TaskResult (CommandVariables.Delete (e.message.Id, name), "");
             }
@@ -245,9 +236,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public DelP() {
                 command = "delp";
                 shortHelp = "Delete personal variable.";
-                AddOverload (typeof (bool), "Delete a variable in the personal scope.");
             }
 
+            [Overload (typeof (bool), "Delete a variable in the personal scope.")]
             public Task<Result> Execute(CommandMetadata e, string name) {
                 return TaskResult (CommandVariables.Delete (e.message.Author.Id, name), "");
             }
@@ -257,11 +248,11 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public DelG() {
                 command = "delg";
                 shortHelp = "Delete global variable.";
-                AddOverload (typeof (bool), "Delete a variable in the global scope.");
 
                 requiredPermissions.Add (Discord.GuildPermission.Administrator);
             }
 
+            [Overload (typeof (bool), "Delete a variable in the global scope.")]
             public Task<Result> Execute(CommandMetadata e, string name) {
                 return TaskResult (CommandVariables.Delete (0, name), "");
             }

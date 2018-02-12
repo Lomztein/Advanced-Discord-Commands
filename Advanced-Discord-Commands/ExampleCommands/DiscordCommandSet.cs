@@ -40,21 +40,21 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     command = "find";
                     shortHelp = "Use this to find users.";
 
-                    AddOverload (typeof (SocketGuildUser), "Find user by ID.");
-                    AddOverload (typeof (SocketGuildUser), "Find user by name.");
-                    AddOverload (typeof (SocketGuildUser[]), "Find users by role.");
                 }
 
+                [Overload (typeof (SocketGuildUser), "Find user by ID")]
                 public async Task<Result> Execute(CommandMetadata e, ulong id) {
                     IUser user = await e.message.Channel.GetUserAsync (id);
                     return new Result (user, user.GetShownName ());
                 }
 
+                [Overload (typeof (SocketGuildUser), "Find user by name.")]
                 public Task<Result> Execute(CommandMetadata e, string name) {
                     IUser user = (e.message.GetGuild ()?.Users.Where (x => x.GetShownName () == name).FirstOrDefault ());
                     return TaskResult (user, user.GetShownName ());
                 }
 
+                [Overload (typeof (SocketGuildUser [ ]), "Find users by role.")]
                 public Task<Result> Execute(CommandMetadata e, SocketRole role) {
                     return TaskResult (role.Guild.Users.Where (x => x.Roles.Contains (role)).ToArray (), "");
                 }
@@ -64,24 +64,23 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Random() {
                     command = "random";
                     shortHelp = "Get random user.";
-
-                    AddOverload (typeof (SocketGuildUser), "Get a completely random online user from the server.");
-                    AddOverload (typeof (SocketGuildUser), "Get a random online user who is a member of the given role.");
-                    AddOverload (typeof (SocketGuildUser), "Get a random user from the given array of users.");
                 }
 
+                [Overload (typeof (SocketGuildUser), "Get a completely random online user from the server.")]
                 public Task<Result> Execute(CommandMetadata e) {
                     System.Random random = new System.Random ();
                     IEnumerable<SocketGuildUser> users = (e.message.GetGuild ()?.Users.Where (x => x.Status == UserStatus.Online));
                     return TaskResult (users.ElementAt (random.Next (0, users.Count ())), "");
                 }
 
+                [Overload (typeof (SocketGuildUser), "Get a random online user who is a member of the given role.")]
                 public Task<Result> Execute(CommandMetadata e, SocketRole role) {
                     System.Random random = new System.Random ();
                     IEnumerable<SocketGuildUser> users = role.Guild.Users.Where (x => x.Roles.Contains (role)).Where (x => x.Status == UserStatus.Online);
                     return TaskResult (users.ElementAt (random.Next (0, users.Count ())), "");
                 }
 
+                [Overload (typeof (SocketGuildUser), "Get a random user from the given array of users.")]
                 public Task<Result> Execute(CommandMetadata e, params IUser [ ] users) {
                     System.Random random = new System.Random ();
                     return TaskResult (users.ElementAt (random.Next (0, users.Count ())), "");
@@ -89,13 +88,13 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             }
 
             public class Name : Command {
+
                 public Name() {
                     command = "name";
                     shortHelp = "Get user name.";
-
-                    AddOverload (typeof (string), "Get the name of a user, nickname if there is one.");
                 }
 
+                [Overload (typeof (string), "Get the name of a user, nickname if there is one.")]
                 public Task<Result> Execute(CommandMetadata e, IUser user) {
                     string name = user.GetShownName ();
                     return TaskResult (name, name);
@@ -106,11 +105,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Online() {
                     command = "online";
                     shortHelp = "Is user online.";
-
-                    AddOverload (typeof (bool), "Returns true if the given user by name is online, false if not.");
-                    AddOverload (typeof (bool), "Returns true if the given user is online, false if not.");
                 }
 
+                [Overload (typeof (bool), "Returns true if the given user by name is online, false if not.")]
                 public Task<Result> Execute(CommandMetadata e, IUser user) {
                     if (user != null) {
                         return TaskResult (user.Status == UserStatus.Online, "");
@@ -125,15 +122,14 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     command = "kick";
                     shortHelp = "Kick user. Requires \"Kick Members\" permission.";
                     requiredPermissions.Add (GuildPermission.KickMembers);
-
-                    AddOverload (typeof (bool), "Kicks user for no given reason.");
-                    AddOverload (typeof (bool), "Kicks user with a reason.");
                 }
 
+                [Overload (typeof (bool), "Kicks user for no given reason.")]
                 public Task<Result> Execute(CommandMetadata e, SocketGuildUser user) {
                     return Execute (e, user, "");
                 }
 
+                [Overload (typeof (bool), "Kicks user with a reason.")]
                 public async Task<Result> Execute(CommandMetadata e, SocketGuildUser user, string reason) {
                     try {
                     await user.KickAsync (reason);
@@ -148,12 +144,11 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Nickname() {
                     command = "nickname";
                     shortHelp = "Set someones nickname.";
-                    requiredPermissions.Add (GuildPermission.ManageNicknames);
 
-                    AddOverload (typeof (bool), "Set the given users nickname to something new.");
-                    AddOverload (typeof (bool), "Reset the given users nickname.");
+                    requiredPermissions.Add (GuildPermission.ManageNicknames);
                 }
 
+                [Overload (typeof (bool), "Set the given users nickname to something new.")]
                 public async Task<Result> Execute(CommandMetadata e, SocketGuildUser user, string nickname) {
                     try {
                         await user.ModifyAsync (delegate (GuildUserProperties properties) {
@@ -168,6 +163,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     }
                 }
 
+                [Overload (typeof (bool), "Reset the given users nickname.")]
                 public Task<Result> Execute(CommandMetadata e, SocketGuildUser user) {
                     return Execute (e, user, "");
                 }
@@ -179,10 +175,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     command = "addrole";
                     shortHelp = "Adds roles to someone.";
                     requiredPermissions.Add (GuildPermission.ManageRoles);
-
-                    AddOverload (typeof (bool), "Add all given roles to the given person.");
                 }
 
+                [Overload (typeof (bool), "Add all given roles to the given person.")]
                 public async Task<Result> Execute(CommandMetadata e, SocketGuildUser user, params SocketRole[] roles) {
                     try {
                         foreach (SocketRole role in roles) {
@@ -199,12 +194,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
                 public RemoveRole() {
                     command = "removerole";
-                    shortHelp = "Removes roles to someone.";
-                    requiredPermissions.Add (GuildPermission.ManageRoles);
+                    shortHelp = "Removes roles from someone.";
 
-                    AddOverload (typeof (bool), "Add all given roles to the given person.");
+                    requiredPermissions.Add (GuildPermission.ManageRoles);
                 }
 
+                [Overload (typeof (bool), "Add all given roles to the given person.")]
                 public async Task<Result> Execute(CommandMetadata e, SocketGuildUser user, params SocketRole [ ] roles) {
                     try {
                         foreach (SocketRole role in roles) {
@@ -222,10 +217,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     command = "dm";
                     shortHelp = "DM's a person.";
                     requiredPermissions.Add (GuildPermission.Administrator);
-
-                    AddOverload (typeof (IUserMessage), "Sends a DM to the given person with the given text.");
                 }
 
+                [Overload (typeof (IUserMessage), "Sends a DM to the given person with the given text.")]
                 public async Task<Result> Execute(CommandMetadata e, SocketGuildUser user, string contents) {
                     IUserMessage message = await MessageControl.SendMessage (user, contents);
                     return new Result (message, "Succesfully send a DM.");
@@ -237,10 +231,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     command = "move";
                     shortHelp = "Move to a different voice channel.";
                     requiredPermissions.Add (GuildPermission.MoveMembers);
-
-                    AddOverload (typeof (SocketVoiceChannel), "Moves a user to a different voice channel. Must be in one to begin with.");
                 }
 
+                [Overload (typeof (SocketVoiceChannel), "Moves a user to a different voice channel. Must be in one to begin with.")]
                 public async Task<Result> Execute(CommandMetadata e, SocketGuildUser user, SocketVoiceChannel newChannel) {
                     try {
                         if (user.VoiceChannel != null) {
@@ -261,14 +254,13 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public SetVoice() {
                     command = "setvoice";
                     shortHelp = "Servermute or -deafen someone.";
+
                     requiredPermissions.Add (GuildPermission.MoveMembers);
                     requiredPermissions.Add (GuildPermission.DeafenMembers);
-
-                    AddOverload (typeof (bool), "Set mute on the given person!");
-                    AddOverload (typeof (bool), "Set mute or deafen on the given person, or both at once!");
                 }
 
                 // Optionables are neat, but they don't mesh particularily well with commands. Could perhaps use reflection.
+                [Overload (typeof (bool), "Set mute on the given person!")]
                 public Task<Result> Execute(CommandMetadata e, SocketGuildUser user, bool mute) {
                     try {
                         user.ModifyAsync (delegate (GuildUserProperties properties) {
@@ -280,6 +272,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     }
                 }
 
+                [Overload (typeof (bool), "Set mute or deafen on the given person, or both at once!")]
                 public Task<Result> Execute(CommandMetadata e, SocketGuildUser user, bool mute, bool deafen) {
                     try {
                         user.ModifyAsync (delegate (GuildUserProperties properties) {
@@ -309,20 +302,19 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Find() {
                     command = "find";
                     shortHelp = "Find role.";
-
-                    AddOverload (typeof (SocketRole), "Find role by given ID.");
-                    AddOverload (typeof (SocketRole), "Find role by given name.");
-                    AddOverload (typeof (SocketRole[]), "Get all roles of the given user.");
                 }
 
+                [Overload (typeof (SocketRole), "Find role by given ID.")]
                 public Task<Result> Execute(CommandMetadata e, ulong id) {
                     return TaskResult (e.message.GetGuild ()?.GetRole (id), "");
                 }
 
+                [Overload (typeof (SocketRole), "Find role by given name.")]
                 public Task<Result> Execute(CommandMetadata e, string rolename) {
                     return TaskResult (e.message.GetGuild ()?.Roles.Where (x => x.Name.ToUpper () == rolename.ToUpper ()).FirstOrDefault (), "");
                 }
 
+                [Overload (typeof (SocketRole [ ]), "Get all roles of the given user.")]
                 public Task<Result> Execute(CommandMetadata e, SocketGuildUser user) {
                     return TaskResult (user.Roles.ToArray (), "");
                 }
@@ -332,10 +324,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Members() {
                     command = "members";
                     shortHelp = "Get role members.";
-
-                    AddOverload (typeof (SocketGuildUser), "");
                 }
 
+                [Overload (typeof (SocketGuildUser), "Get all members of the given role.")]
                 public Task<Result> Execute(CommandMetadata e, SocketRole role) {
                     return TaskResult (role.Members.ToArray (), "");
                 }
@@ -357,15 +348,14 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Find() {
                     command = "find";
                     shortHelp = "Find channel.";
-
-                    AddOverload (typeof (SocketChannel), "Find channel by given ID.");
-                    AddOverload (typeof (SocketChannel), "Find channel by given name.");
                 }
 
+                [Overload (typeof (SocketChannel), "Find channel by given ID.")]
                 public Task<Result> Execute(CommandMetadata e, ulong id) {
                     return TaskResult (e.message.GetGuild ()?.GetChannel (id), "");
                 }
 
+                [Overload (typeof (SocketChannel), "Find channel by given name.")]
                 public Task<Result> Execute(CommandMetadata e, string name) {
                     SoftStringComparer comparer = new SoftStringComparer ();
                     return TaskResult (e.message.GetGuild ()?.Channels.Where (x => comparer.Equals (x.Name, name)).FirstOrDefault (), "");
@@ -375,11 +365,10 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public class Members : Command {
                 public Members() {
                     command = "members";
-                    shortHelp = "Get role members.";
-
-                    AddOverload (typeof (SocketGuildUser[]), "");
+                    shortHelp = "Get channel members.";
                 }
 
+                [Overload (typeof (SocketGuildUser [ ]), "Get")]
                 public Task<Result> Execute(CommandMetadata e, SocketChannel channel) {
                     return TaskResult (channel.Users.ToArray (), "");
                 }
@@ -389,10 +378,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Name() {
                     command = "name";
                     shortHelp = "Get channel name.";
-
-                    AddOverload (typeof (string), "Get the name of the given channel");
                 }
 
+                [Overload (typeof (string), "Get the name of the given channel")]
                 public Task<Result> Execute(CommandMetadata e, SocketGuildChannel channel) {
                     return TaskResult (channel.Name, "");
                 }
@@ -402,10 +390,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Type() {
                     command = "type";
                     shortHelp = "Get channel type.";
-
-                    AddOverload (typeof (SocketGuildChannel), "Get the type of given channel, either \"TEXT\" or \"VOICE\".");
                 }
 
+                [Overload (typeof (SocketGuildChannel), "Get the type of given channel, either \"TEXT\" or \"VOICE\".")]
                 public Task<Result> Execute(CommandMetadata e, SocketGuildChannel channel) {
                     if (channel is SocketVoiceChannel) {
                         return TaskResult (channel as SocketVoiceChannel, "VOICE");
@@ -420,11 +407,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Create() {
                     command = "create";
                     shortHelp = "Create new text channel.";
-
-                    AddOverload (typeof (ITextChannel), "Create a new text channel with the given name.");
-                    AddOverload (typeof (ITextChannel), "Create a new text channel with the given name and topic.");
                 }
 
+                [Overload (typeof (ITextChannel), "Create a new text channel with the given name.")]
                 public async Task<Result> Execute(CommandMetadata e, string name, string topic) {
                     try {
                         RestTextChannel channel = await (e.message.Channel as SocketTextChannel)?.Guild.CreateTextChannelAsync (name);
@@ -437,6 +422,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     }
                 }
 
+                [Overload (typeof (ITextChannel), "Create a new text channel with the given name and topic.")]
                 public async Task<Result> Execute(CommandMetadata e, string name) {
                     try {
                         RestTextChannel channel = await (e.message.Channel as SocketTextChannel)?.Guild.CreateTextChannelAsync (name);
@@ -463,10 +449,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Get() {
                     command = "get";
                     shortHelp = "Returns the server object.";
-
-                    AddOverload (typeof (SocketGuild), "Returns the server object.");
                 }
 
+                [Overload (typeof (SocketGuild), "Returns the server object.")]
                 public Task<Result> Execute(CommandMetadata e) {
                     SocketGuild guild = (e.message.Channel as SocketTextChannel)?.Guild;
                     return TaskResult (guild, guild.Name);
@@ -478,10 +463,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Name() {
                     command = "name";
                     shortHelp = "Get server name.";
-
-                    AddOverload (typeof (string), "Returns the server name.");
                 }
 
+                [Overload (typeof (string), "Returns the server name.")]
                 public Task<Result> Execute(CommandMetadata e) {
                     SocketGuild guild = (e.message.Channel as SocketTextChannel)?.Guild;
                     return TaskResult (guild.Name, guild.Name);
@@ -492,10 +476,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Channels() {
                     command = "channels";
                     shortHelp = "Get all channels.";
-
-                    AddOverload (typeof (SocketGuildChannel[]), "Returns all channels on the server.");
                 }
 
+                [Overload (typeof (SocketGuildChannel [ ]), "Returns all channels on the server.")]
                 public Task<Result> Execute(CommandMetadata e) {
                     SocketGuild guild = (e.message.Channel as SocketTextChannel)?.Guild;
                     return TaskResult (guild.Channels.ToArray (), "");
@@ -506,10 +489,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public Members() {
                     command = "members";
                     shortHelp = "Get all members.";
-
-                    AddOverload (typeof (SocketGuildUser [ ]), "Returns all members on the server.");
                 }
 
+                [Overload (typeof (SocketGuildUser [ ]), "Returns all members on the server.")]
                 public Task<Result> Execute(CommandMetadata e) {
                     SocketGuild guild = (e.message.Channel as SocketTextChannel)?.Guild;
                     string members = "";
@@ -523,10 +505,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 public AFKChannel() {
                     command = "afkchannel";
                     shortHelp = "Get AFK Channel";
-
-                    AddOverload (typeof (SocketVoiceChannel), "Get the AFK channel if there is one, returns null otherwise.");
                 }
 
+                [Overload (typeof (SocketVoiceChannel), "Get the AFK channel if there is one, returns null otherwise.")]
                 public Task<Result> Execute(CommandMetadata e) {
                     SocketGuild guild = e.message.GetGuild ();
                     return TaskResult (guild?.AFKChannel, guild?.AFKChannel.Name);
@@ -539,10 +520,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 command = "mention";
                 shortHelp = "Mentions mentionable Discord objects.";
                 catagory = Category.Utility;
-
-                AddOverload (typeof (string), "Mention all given objects.");
             }
 
+            [Overload (typeof (string), "Mention all given objects.")]
             public Task<Result> Execute(CommandMetadata e, params IMentionable[] mentionables) {
                 string total = "";
                 foreach (IMentionable mention in mentionables) {
@@ -556,10 +536,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public ID() {
                 command = "id";
                 shortHelp = "Get the ID of given Discord object.";
-
-                AddOverload (typeof (ulong), "Return the ID of the given object.");
             }
 
+            [Overload (typeof (ulong), "Return the ID of the given object.")]
             public Task<Result> Execute(CommandMetadata e, SocketEntity<ulong> obj) {
                 return TaskResult (obj.Id, obj.Id.ToString ());
             }
@@ -569,10 +548,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public Delete() {
                 command = "delete";
                 shortHelp = "Delete deletable Discord objects.";
-
-                AddOverload (typeof (object), "Delete whatever deletable object is given.");
             }
 
+            [Overload (typeof (object), "Delete whatever deletable object is given.")]
             public async Task<Result> Execute(CommandMetadata e, IDeletable deletable) {
                 await deletable.DeleteAsync ();
                 return new Result (null, "Succesfully deleted the given object.");
