@@ -73,7 +73,7 @@ private async Task MessageRecievedEvent(SocketMessage arg) {
 
 * Not strictly required, but it's recommended that you add overload descriptions using `AddOverload (Type returnType, string description)` in the constructor. These define the return type and individual overload description for self-documenting porpourses.
 
-* Returning Task<Result> can be done using either the helper method TaskResult if the command is syncronous, or directly returning a `Result` if the command is asyncronous. Result is a simple datacarrier, which contains a returned object, and a returned message to be send to Discord chat once the command has been executed.
+* Returning the Result can be done using either the helper method TaskResult if the command is syncronous, or directly returning a `Result` if the command is asyncronous. Result is a simple datacarrier, which contains a returned object, and a returned message to be send to Discord chat once the command has been executed.
 
 **For instance, how about this example command with three different overloads, which returns random numbers?**
 
@@ -82,22 +82,21 @@ public class Random : Command {
     public Random() {
         command = "random";
         shortHelp = "Get random numbers.";
-
-        AddOverload (typeof (double), "Returns random number between 0 and 1.");
-        AddOverload (typeof (double), "Returns random number between 0 and given number.");
-        AddOverload (typeof (double), "Returns random number between the given numbers.");
     }
 
+    [Overload (typeof (double), "Returns random number between 0 and 1.")]
     public Task<Result> Execute(CommandMetadata e) {
         System.Random random = new System.Random ();
         return TaskResult (random.NextDouble (), "");
     }
 
+    [Overload (typeof (double), "Returns random number between 0 and given number.")]
     public Task<Result> Execute(CommandMetadata e, double max) {
         System.Random random = new System.Random ();
         return TaskResult (random.NextDouble () * max, "");
     }
-
+    
+    [Overload (typeof (double), "Returns random number between the given numbers.")]
     public Task<Result> Execute(CommandMetadata e, double min, double max) {
         System.Random random = new System.Random ();
         return TaskResult (random.NextDouble () * (max + min) - min, "");
