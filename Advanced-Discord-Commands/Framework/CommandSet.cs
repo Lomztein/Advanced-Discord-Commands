@@ -11,7 +11,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
     public abstract class CommandSet : Command, ICommandSet {
 
-        protected List<Command> commandsInSet = new List<Command>();
+        public List<Command> commandsInSet = new List<Command>();
 
         public CommandSet() {
             command = "commandset";
@@ -44,7 +44,8 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 }
 
                 combinedArgs = commandTrigger + combinedArgs;
-                return (await CommandRoot.FindAndExecuteCommand (data, combinedArgs, commandsInSet)).result;
+                var result = await CommandRoot.FindAndExecuteCommand (data, combinedArgs, commandsInSet);
+                return result?.result;
             } else {
                 return new Result (this, "");
             }
@@ -52,22 +53,6 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
         public override string GetCommand() {
             return helpPrefix + command + " (set)";
-        }
-
-        public override string GetHelpText(SocketMessage e) {
-            // Display all commands within command.
-            string help = "";
-            help += ("Commands in the **" + command + "** command set:\n```");
-            foreach (Command c in commandsInSet) {
-                if (c.AllowExecution (e) == "") {
-                    help += c.Format () + "\n";
-                }
-            }
-            if (help == "Commands in the **" + command + "** command set:\n```") { // Ew
-                return "This set contains no available commands.";
-            } else {
-                return help + "```";
-            }
         }
 
         public void AddCommands(params Command [ ] procCommands) {

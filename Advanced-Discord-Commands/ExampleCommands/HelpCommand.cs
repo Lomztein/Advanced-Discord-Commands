@@ -26,27 +26,15 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
 
         [Overload (typeof (string), "Reveals a list of commands in a given command array.")]
         public Task<Result> Execute(CommandMetadata data, params Command [ ] commands) {
-            var catagories = commands.Where (x => x.AllowExecution (data) == "").GroupBy (x => x.catagory);
-            string result = "```";
-
-            foreach (var catagory in catagories) {
-                result += catagory.ElementAt (0).catagory.ToString () + " Commands\n";
-                foreach (var item in catagory) {
-                    result += item.Format () + "\n";
-                }
-                result += "\n";
-            }
-            result += "```";
-            bool anyFound = result != "``````";
-
             // I mean, it works, right?
-            Task<Result> r = anyFound ? TaskResult (result, result) : TaskResult ("", "This command set contains no available commands.");
+            string result = Command.ListCommands (data, commands.First ().command, commands);
+            Task<Result> r = TaskResult (result, result);
             return r;
         }
 
         [Overload (typeof (string), "Reveals a list of commands in a given command set.")]
-        public Task<Result> Execute(SocketUserMessage e, CommandSet set) {
-            return TaskResult (set.GetHelpText (e), set.GetHelpText (e));
+        public Task<Result> Execute(CommandMetadata e, CommandSet set) {
+            return TaskResult (CommandSet.ListCommands (e, set), CommandSet.ListCommands (e, set));
         }
     }
 }

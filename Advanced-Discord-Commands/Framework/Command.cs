@@ -17,7 +17,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         public static char commandTrigger = '!';
 
         public enum Category {
-            None, Utility, Fun, Set, Advanced, Admin 
+            Miscilaneous, Utility, Fun, Set, Advanced, Admin 
         }
 
         public const int CHARS_TO_HELP = 4;
@@ -25,7 +25,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         public string command = null;
         public string shortHelp = null;
         public string helpPrefix = commandTrigger.ToString ();
-        public Category catagory = Category.None;
+        public Category catagory = Category.Miscilaneous;
 
         public bool availableInDM = false;
         public bool availableOnServer = true;
@@ -403,10 +403,45 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             }
         }
 
+        public static string ListCommands(CommandMetadata data, params CommandSet [ ] sets) {
+            List<Command> combined = new List<Command> ();
+            foreach (CommandSet set in sets)
+                combined.AddRange (set.commandsInSet);
+            return ListCommands (data, sets.First ().command, combined.ToArray ());
+        }
+
+        public static string ListCommands(CommandMetadata data, string name, params Command[] commands) {
+            // Display all commands within command.
+            string result = "";
+
+            List<Command> withoutDublicates = new List<Command> ();
+            foreach (Command cmd in commands) {
+                if (!withoutDublicates.Exists (x => x.command == cmd.command))
+                    withoutDublicates.Add (cmd);
+            }
+
+            result += ("Commands in the **" + name + "** command set:\n```");
+
+            var catagories = withoutDublicates.Where (x => x.AllowExecution (data) == "").GroupBy (x => x.catagory);
+
+            foreach (var catagory in catagories) {
+                result += catagory.ElementAt (0).catagory.ToString () + " Commands\n";
+                foreach (var item in catagory) {
+                    result += item.Format () + "\n";
+                }
+                result += "\n";
+            }
+
+            if (result == "Commands in the **" + name + "** command set:\n```") { // Ew
+                return "This set contains no available commands.";
+            }
+
+            return result + "```";
+        }
+
         public override string ToString() => helpPrefix + command;
 
         [AttributeUsage (AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
-
         protected class OverloadAttribute : Attribute {
             public Type ReturnType;
             public string Description;

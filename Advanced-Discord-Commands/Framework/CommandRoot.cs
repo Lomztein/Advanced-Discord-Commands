@@ -101,7 +101,8 @@ namespace Lomztein.AdvDiscordCommands.Framework
 
                         Command command = commandList [ i ];
                         if (command is CommandSet) {
-                            return new FoundCommandResult (new Command.Result (null, command.GetHelpText (metadata)), command);
+                            CommandSet [ ] totalFromDublicates = commandList.Where (x => x.command == commandName).Cast<CommandSet>().ToArray ();
+                            return new FoundCommandResult (new Command.Result (null, Command.ListCommands (metadata, totalFromDublicates)), command);
                         } else {
                             return new FoundCommandResult (new Command.Result (command.GetHelpEmbed (metadata, true), ""), command);
                         }
@@ -109,7 +110,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
                     } else {
                         metadata.depth++;
                         FoundCommandResult result = new FoundCommandResult (await commandList [ i ].TryExecute (metadata, arguments.ToArray ()), commandList [ i ]);
-                        if (result != null) {
+                        if (result.result != null) {
                             return result;
                         }
                     }

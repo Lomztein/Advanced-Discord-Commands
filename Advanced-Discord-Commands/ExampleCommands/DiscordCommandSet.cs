@@ -519,7 +519,6 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public Mention() {
                 command = "mention";
                 shortHelp = "Mentions mentionable Discord objects.";
-                catagory = Category.Utility;
             }
 
             [Overload (typeof (string), "Mention all given objects.")]

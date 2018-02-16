@@ -42,16 +42,24 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
         }
 
         private void PopulateCommands() {
+            DiscordCommandSet set1 = new DiscordCommandSet ();
+            DiscordCommandSet set2 = new DiscordCommandSet ();
+
+            set1.commandsInSet.RemoveAt (0);
+            set2.commandsInSet.RemoveAt (1);
+
             commandRoot = new CommandRoot { // Initialize root and add all example commands.
                 commands = new List<Command> {
                     new HelpCommand (),
-                    new DiscordCommandSet (),
                     new FlowCommandSet (),
                     new MathCommandSet (),
                     new MiscCommandSet (),
                     new VariableCommandSet (),
                     new CallstackCommand (),
                     new PrintCommand (),
+
+                    set1,
+                    set2,
                 }
             };
 
