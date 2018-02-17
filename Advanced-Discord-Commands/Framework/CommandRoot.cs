@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-using Discord.WebSocket;
+﻿using Discord.WebSocket;
 using Lomztein.AdvDiscordCommands.Extensions;
-using System.Linq;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Lomztein.AdvDiscordCommands.Framework
-{
+namespace Lomztein.AdvDiscordCommands.Framework {
     public class CommandRoot : ICommandSet {
 
         public const char argSeperator = ' ';
@@ -28,21 +25,21 @@ namespace Lomztein.AdvDiscordCommands.Framework
         /// <summary>
         /// This is the entrance method for the command system, call this. You can have multiple roots, for instance for different servers, and it should work just fine, since commands get their information from the SocketMessage object.
         /// </summary>
-        /// <param name="e"></param>
-        /// <returns></returns>
-        public async Task<Command.Result> EnterCommand (SocketUserMessage e) {
+        /// <param name="userMessage"></param>
+        /// <returns>Returns the result of the command, if one is found. Otherwise null.</returns>
+        public async Task<Command.Result> EnterCommand (SocketUserMessage userMessage) {
 
-            string message = e.Content;
+            string message = userMessage.Content;
             if (message [ 0 ].IsCommandTrigger ()) {
 
                 string [ ] multiline = message.Split (lineSeperator);
                 FoundCommandResult finalResult = null;
-                programCounters.Add (e.Id, 0);
+                programCounters.Add (userMessage.Id, 0);
 
-                CommandMetadata metadata = new CommandMetadata (e, this);
-                while (programCounters[e.Id] < multiline.Length) {
-                    int ln = programCounters [ e.Id ];
-                    programCounters [ e.Id ]++;
+                CommandMetadata metadata = new CommandMetadata (userMessage, this);
+                while (programCounters[userMessage.Id] < multiline.Length) {
+                    int ln = programCounters [ userMessage.Id ];
+                    programCounters [ userMessage.Id ]++;
 
                     string trimmed = multiline[ln].Trim ('\n', '\t', ' '); // Trim off whitespace for consistancy.
 
@@ -55,8 +52,8 @@ namespace Lomztein.AdvDiscordCommands.Framework
 
                 }
 
-                CommandVariables.Clear (e.Id);
-                return finalResult.result;
+                CommandVariables.Clear (userMessage.Id);
+                return finalResult?.result;
             }
 
             return null;
@@ -70,6 +67,10 @@ namespace Lomztein.AdvDiscordCommands.Framework
                 throw new InvalidOperationException ("Position cannot be below 0");
 
             programCounters [ messageId ] = position;
+        }
+
+        public void EndProgram (ulong messageId) {
+            SetProgramCounter (messageId, int.MaxValue);
         }
 
         /// <summary>

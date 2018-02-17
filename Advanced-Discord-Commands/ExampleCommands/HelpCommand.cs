@@ -19,22 +19,21 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
 
         [Overload (typeof (ICommandSet), "Reveals a full list of all commands.")]
         public Task<Result> Execute(CommandMetadata data) {
-            Result result = Execute (data, data.root.commands.ToArray ()).Result;
-            result.value = data.root;
-            return Task.FromResult (result);
+            string result = ListCommands (data, "root", data.root.commands.ToArray ());
+            return TaskResult (data.root, result);
         }
 
         [Overload (typeof (string), "Reveals a list of commands in a given command array.")]
         public Task<Result> Execute(CommandMetadata data, params Command [ ] commands) {
             // I mean, it works, right?
-            string result = Command.ListCommands (data, commands.First ().command, commands);
+            string result = ListCommands (data, "given", commands);
             Task<Result> r = TaskResult (result, result);
             return r;
         }
 
         [Overload (typeof (string), "Reveals a list of commands in a given command set.")]
         public Task<Result> Execute(CommandMetadata e, CommandSet set) {
-            return TaskResult (CommandSet.ListCommands (e, set), CommandSet.ListCommands (e, set));
+            return TaskResult (ListCommands (e, set), ListCommands (e, set));
         }
     }
 }
