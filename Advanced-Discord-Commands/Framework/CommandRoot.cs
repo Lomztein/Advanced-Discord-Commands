@@ -29,6 +29,9 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         /// <returns>Returns the result of the command, if one is found. Otherwise null.</returns>
         public async Task<Command.Result> EnterCommand (SocketUserMessage userMessage) {
 
+            if (string.IsNullOrWhiteSpace (userMessage.Content))
+                return null;
+
             string message = userMessage.Content;
             if (message [ 0 ].IsCommandTrigger ()) {
 
@@ -46,7 +49,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                     try {
                         finalResult = await FindAndExecuteCommand (metadata, trimmed, commands);
                     } catch (Exception exception) {
-                        finalResult = new FoundCommandResult (new Command.Result (exception, exception.StackTrace.Substring (0, 1995)), null);
+                        finalResult = new FoundCommandResult (new Command.Result (exception, (exception.Message + " - " + exception.StackTrace).Substring (0, 1995)), null);
                         break;
                     }
 
