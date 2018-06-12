@@ -31,7 +31,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         public List<GuildPermission> requiredPermissions = new List<GuildPermission>();
 
         public static List<Callstack> callstacks = new List<Callstack> ();
-        public static int maxCallstacks = 64;
+        public const int maxCallstacks = 64;
 
         public class FindMethodResult {
             public MethodInfo method;
@@ -107,21 +107,21 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             dynamic parameterList = new List<object> ();
 
             foreach (MethodInfo inf in infos) {
-                List<Parameter> paramInfo = GetMethodParameters (inf);
+                ExecuteMethodInfo paramInfo = GetExecuteMethodInfo (inf);
 
-                bool anyParams = paramInfo.Any (x => x.HasAttribute (typeof (ParamArrayAttribute)));
-                bool isMethod = paramInfo.Count - 1 == arguments.Length || (anyParams && arguments.Length >= paramInfo.Count); // Have to off-by-one since all commands gets the CommandMetadata parsed through.
+                bool anyParams = paramInfo.parameters.Any (x => x.HasAttribute (typeof (ParamArrayAttribute)));
+                bool isMethod = paramInfo.parameters.Length - 1 == arguments.Length || (anyParams && arguments.Length >= paramInfo.parameters.Length); // Have to off-by-one since all commands gets the CommandMetadata parsed through.
 
                 if (isMethod == true) {
                     // Go through all parameters except the first one.
-                    for (int i = 1; i < paramInfo.Count; i++) {
+                    for (int i = 1; i < paramInfo.parameters.Length; i++) {
                         try {
                             int argIndex = i - 1;
                             object arg = arguments [ argIndex ];
 
                             // Is the parameter given the params attribute? If so then pack all the remaining arguments into an array.
-                            if (paramInfo [ i ].HasAttribute (typeof (ParamArrayAttribute)) && !arguments [ argIndex ].GetType ().IsArray) {
-                                Type elementType = paramInfo [ i ].type.GetElementType ();
+                            if (paramInfo.parameters[ i ].HasAttribute (typeof (ParamArrayAttribute)) && !arguments [ argIndex ].GetType ().IsArray) {
+                                Type elementType = paramInfo.parameters[ i ].type.GetElementType ();
 
                                 // Since lists are easier to work with, but not quite straightforward to create dynamically, do this.
                                 dynamic dyn = Activator.CreateInstance (typeof (List<>).MakeGenericType (elementType));
@@ -132,7 +132,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                                 arg = dyn.ToArray ();
                             }
 
-                            TryAddToParams (ref parameterList, arg, paramInfo [ i ].type);
+                            TryAddToParams (ref parameterList, arg, paramInfo.parameters[ i ].type);
                         } catch {
                             isMethod = false;
                             parameterList.Clear ();
@@ -157,7 +157,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         private object TryConvert(object toConvert, Type type) {
             try {
                 if (toConvert != null) {
-                    dynamic obj = Convert.ChangeType (toConvert, type);
+                    object obj = Convert.ChangeType (toConvert, type);
                     return obj;
                 } else {
                     throw new Exception ();
@@ -266,17 +266,17 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 } else {
                     MethodInfo info = methods [ i ];
 
-                    var parameters = GetDescriptiveOverloadParameters (info);
-                    string olText = advanced ? $"{parameters.returnType} => " : this.GetPrefix () + Name;
+                    ExecuteMethodInfo executeMethodInfo = GetExecuteMethodInfo (info);
+                    string olText = advanced ? $"{executeMethodInfo} => " : this.GetPrefix () + Name;
 
                     olText += " (";
-                    for (int j = 1; j < parameters.types.Length; j++) { // Remember to ignore first parameter, it being the SocketUserMessage.
-                        Type type = parameters.types[j];
-                        string name = parameters.names [ j ];
+                    for (int j = 1; j < executeMethodInfo.parameters.Length; j++) { // Remember to ignore first parameter, it being the SocketUserMessage.
+                        Type type = executeMethodInfo.parameters[j].type;
+                        string name = executeMethodInfo.parameters [ j ].name;
 
                         olText += advanced ? type.Name + " " + name : name;
 
-                        if (j != parameters.types.Length - 1)
+                        if (j != executeMethodInfo.parameters.Length - 1)
                             olText += ", ";
                     }
                     olText += ")";
@@ -303,24 +303,6 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
             builder.WithFooter (footer);
             return builder.Build ();
-        }
-
-        /// <summary>
-        /// This is supposed to be used with the autodocumentation functions, NOT with any actual functionalitety, since it doesn't return any parameter metadata, only type and name.
-        /// </summary>
-        /// <param name="overloadIndex"></param>
-        /// <returns></returns>
-        public virtual (Type [ ] types, string [ ] names, string returnType) GetDescriptiveOverloadParameters(MethodInfo info) {
-
-            List<Type> paramTypes = new List<Type> ();
-            List<string> paramNames = new List<string> ();
-
-            foreach (var param in info.GetParameters ()) {
-                paramTypes.Add (param.ParameterType);
-                paramNames.Add (param.Name);
-            }
-
-            return (paramTypes.ToArray (), paramNames.ToArray (), info.GetCustomAttribute<OverloadAttribute>().ReturnType.Name);
         }
 
         public virtual string GetCommand() {
@@ -377,31 +359,41 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
             public string name;
             public Type type;
-            public List<Type> attributes = new List<Type> ();
+            public Attribute[] attributes = new Attribute[0];
 
-            public Parameter(string _name, Type _type, params Type[] _attributes) {
+            public Parameter(string _name, Type _type, Attribute[] _attributes) {
                 name = _name;
                 type = _type;
-
-                foreach (Type attribute in _attributes) {
-                    attributes.Add (attribute);
-                }
+                attributes = _attributes;
             }
 
-            public bool HasAttribute(Type attributeType) => attributes.Contains (attributeType);
+            public bool HasAttribute(Type attributeType) => attributes.Any (x => x.GetType () == attributeType);
 
         }
 
-        public virtual List<Parameter> GetMethodParameters (MethodInfo info) {
+        public class ExecuteMethodInfo {
+
+            public Type ReturnType { get => methodInfo.ReturnType; }
+            public Parameter[] parameters;
+            public MethodInfo methodInfo;
+
+            public ExecuteMethodInfo (MethodInfo _methodInfo, Parameter[] parameters) {
+
+            }
+
+        }
+
+        public virtual ExecuteMethodInfo GetExecuteMethodInfo (MethodInfo info) {
             List<Parameter> parameters = new List<Parameter> ();
 
             ParameterInfo[] paramInfos = info.GetParameters ();
             foreach (ParameterInfo paramInfo in paramInfos) {
-                Parameter parameter = new Parameter (paramInfo.Name, paramInfo.ParameterType, paramInfo.CustomAttributes.Select (x => x.AttributeType).ToArray ());
+                Parameter parameter = new Parameter (paramInfo.Name, paramInfo.ParameterType, paramInfo.GetCustomAttributes ().ToArray ());
                 parameters.Add (parameter);
             }
 
-            return parameters;
+
+            return new ExecuteMethodInfo (info, parameters.ToArray ());
         }
 
         public static string ListCommands(CommandMetadata data, params ICommandSet [ ] sets) {
