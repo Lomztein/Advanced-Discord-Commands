@@ -8,17 +8,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Lomztein.AdvDiscordCommands.Misc;
+using Lomztein.AdvDiscordCommands.Framework.Categories;
+using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 
 namespace Lomztein.AdvDiscordCommands.ExampleCommands
 {
     public class DiscordCommandSet : CommandSet
     {
         public DiscordCommandSet() {
-            command = "discord";
-            shortHelp = "Commands about Discord. These only return objects.";
-            catagory = Category.Advanced;
+            Name = "discord";
+            Description = "Commands about Discord. These only return objects.";
+            Category = StandardCategories.Advanced;
 
-            commandsInSet = new List<Command> {
+            commandsInSet = new List<ICommand> {
                 new UserSet (), new ChannelSet (), new RoleSet (), new ServerSet (),
                 new Mention (), new ID (), new Delete (),
             };
@@ -26,20 +28,21 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
         public class UserSet : CommandSet {
             public UserSet() {
-                command = "user";
-                shortHelp = "User related commands.";
+                base.Name = "user";
+                Description = "User related commands.";
+                Category = StandardCategories.Advanced;
 
-                commandsInSet = new List<Command> {
-                    new Find (), new Random (), new Name (), new Online (), new Kick (), new Nickname (),
+                commandsInSet = new List<ICommand> {
+                    new Find (), new Random (), new Username (), new Online (), new Kick (), new Nickname (),
                     new AddRole (), new RemoveRole (), new DM (), new Move (), new SetVoice (),
                 };
             }
 
             public class Find : Command {
                 public Find() {
-                    command = "find";
-                    shortHelp = "Use this to find users.";
-
+                    Name = "find";
+                    Description = "Use this to find users.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (SocketGuildUser), "Find user by ID")]
@@ -62,8 +65,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
             public class Random : Command {
                 public Random() {
-                    command = "random";
-                    shortHelp = "Get random user.";
+                    Name = "random";
+                    Description = "Get random user.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (SocketGuildUser), "Get a completely random online user from the server.")]
@@ -87,11 +91,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 }
             }
 
-            public class Name : Command {
+            public class Username : Command {
 
-                public Name() {
-                    command = "name";
-                    shortHelp = "Get user name.";
+                public Username() {
+                    Name = "name";
+                    Description = "Get user name.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (string), "Get the name of a user, nickname if there is one.")]
@@ -103,8 +108,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
             public class Online : Command {
                 public Online() {
-                    command = "online";
-                    shortHelp = "Is user online.";
+                    Name = "online";
+                    Description = "Is user online.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (bool), "Returns true if the given user by name is online, false if not.")]
@@ -119,8 +125,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
             public class Kick : Command {
                 public Kick() {
-                    command = "kick";
-                    shortHelp = "Kick user. Requires \"Kick Members\" permission.";
+                    Name = "kick";
+                    Description = "Kick user. Requires \"Kick Members\" permission.";
+                    Category = StandardCategories.Advanced;
                     requiredPermissions.Add (GuildPermission.KickMembers);
                 }
 
@@ -142,8 +149,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
             public class Nickname : Command {
                 public Nickname() {
-                    command = "nickname";
-                    shortHelp = "Set someones nickname.";
+                    Name = "nickname";
+                    Description = "Set someones nickname.";
+                    Category = StandardCategories.Advanced;
 
                     requiredPermissions.Add (GuildPermission.ManageNicknames);
                 }
@@ -172,8 +180,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public class AddRole : Command {
 
                 public AddRole() {
-                    command = "addrole";
-                    shortHelp = "Adds roles to someone.";
+                    Name = "addrole";
+                    Description = "Adds roles to someone.";
+                    Category = StandardCategories.Advanced;
                     requiredPermissions.Add (GuildPermission.ManageRoles);
                 }
 
@@ -193,8 +202,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public class RemoveRole : Command {
 
                 public RemoveRole() {
-                    command = "removerole";
-                    shortHelp = "Removes roles from someone.";
+                    Name = "removerole";
+                    Description = "Removes roles from someone.";
+                    Category = StandardCategories.Advanced;
 
                     requiredPermissions.Add (GuildPermission.ManageRoles);
                 }
@@ -214,8 +224,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
             public class DM : Command {
                 public DM() {
-                    command = "dm";
-                    shortHelp = "DM's a person.";
+                    Name = "dm";
+                    Description = "DM's a person.";
+                    Category = StandardCategories.Advanced;
                     requiredPermissions.Add (GuildPermission.Administrator);
                 }
 
@@ -228,8 +239,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
             public class Move : Command {
                 public Move() {
-                    command = "move";
-                    shortHelp = "Move to a different voice channel.";
+                    Name = "move";
+                    Description = "Move to a different voice channel.";
+                    Category = StandardCategories.Advanced;
                     requiredPermissions.Add (GuildPermission.MoveMembers);
                 }
 
@@ -252,8 +264,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
             public class SetVoice : Command {
                 public SetVoice() {
-                    command = "setvoice";
-                    shortHelp = "Servermute or -deafen someone.";
+                    Name = "setvoice";
+                    Description = "Servermute or -deafen someone.";
+                    Category = StandardCategories.Advanced;
 
                     requiredPermissions.Add (GuildPermission.MoveMembers);
                     requiredPermissions.Add (GuildPermission.DeafenMembers);
@@ -290,18 +303,20 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
         public class RoleSet : CommandSet {
 
             public RoleSet() {
-                command = "role";
-                shortHelp = "Role related commands.";
+                Name = "role";
+                Description = "Role related commands.";
+                Category = StandardCategories.Advanced;
 
-                commandsInSet = new List<Command> {
+                commandsInSet = new List<ICommand> {
                     new Find (), new Members (),
                 };
             }
 
             public class Find : Command {
                 public Find() {
-                    command = "find";
-                    shortHelp = "Find role.";
+                    Name = "find";
+                    Description = "Find role.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (SocketRole), "Find role by given ID.")]
@@ -322,8 +337,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
             public class Members : Command {
                 public Members() {
-                    command = "members";
-                    shortHelp = "Get role members.";
+                    Name = "members";
+                    Description = "Get role members.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (SocketGuildUser), "Get all members of the given role.")]
@@ -336,18 +352,20 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
         public class ChannelSet : CommandSet {
 
             public ChannelSet() {
-                command = "channel";
-                shortHelp = "Channel related commands.";
+                base.Name = "channel";
+                Description = "Channel related commands.";
+                Category = StandardCategories.Advanced;
 
-                commandsInSet = new List<Command> {
-                    new Find (), new Members (), new Name (), new Type (), new Create (),
+                commandsInSet = new List<ICommand> {
+                    new Find (), new Members (), new Channelname (), new Type (), new Create (),
                 };
             }
 
             public class Find : Command {
                 public Find() {
-                    command = "find";
-                    shortHelp = "Find channel.";
+                    Name = "find";
+                    Description = "Find channel.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (SocketChannel), "Find channel by given ID.")]
@@ -364,8 +382,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
             public class Members : Command {
                 public Members() {
-                    command = "members";
-                    shortHelp = "Get channel members.";
+                    Name = "members";
+                    Description = "Get channel members.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (SocketGuildUser [ ]), "Get")]
@@ -374,10 +393,11 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 }
             }
 
-            public class Name : Command {
-                public Name() {
-                    command = "name";
-                    shortHelp = "Get channel name.";
+            public class Channelname : Command {
+                public Channelname() {
+                    Name = "name";
+                    Description = "Get channel name.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (string), "Get the name of the given channel")]
@@ -388,8 +408,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
             public class Type : Command {
                 public Type() {
-                    command = "type";
-                    shortHelp = "Get channel type.";
+                    Name = "type";
+                    Description = "Get channel type.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (SocketGuildChannel), "Get the type of given channel, either \"TEXT\" or \"VOICE\".")]
@@ -405,8 +426,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
             public class Create : Command {
                 public Create() {
-                    command = "create";
-                    shortHelp = "Create new text channel.";
+                    Name = "create";
+                    Description = "Create new text channel.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (ITextChannel), "Create a new text channel with the given name.")]
@@ -437,18 +459,20 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
         public class ServerSet : CommandSet {
 
             public ServerSet() {
-                command = "server";
-                shortHelp = "Server related commands.";
+                Name = "server";
+                Description = "Server related commands.";
+                Category = StandardCategories.Advanced;
 
-                commandsInSet = new List<Command> {
-                    new Get (), new Name (), new Channels (), new Members (), new AFKChannel (),
+                commandsInSet = new List<ICommand> {
+                    new Get (), new Servername (), new Channels (), new Members (), new AFKChannel (),
                 };
             }
 
             public class Get : Command {
                 public Get() {
-                    command = "get";
-                    shortHelp = "Returns the server object.";
+                    Name = "get";
+                    Description = "Returns the server object.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (SocketGuild), "Returns the server object.")]
@@ -458,11 +482,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 }
             }
 
-            public class Name : Command {
+            public class Servername : Command {
 
-                public Name() {
-                    command = "name";
-                    shortHelp = "Get server name.";
+                public Servername() {
+                    Name = "name";
+                    Description = "Get server name.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (string), "Returns the server name.")]
@@ -474,8 +499,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
             public class Channels : Command {
                 public Channels() {
-                    command = "channels";
-                    shortHelp = "Get all channels.";
+                    Name = "channels";
+                    Description = "Get all channels.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (SocketGuildChannel [ ]), "Returns all channels on the server.")]
@@ -487,8 +513,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
             public class Members : Command {
                 public Members() {
-                    command = "members";
-                    shortHelp = "Get all members.";
+                    Name = "members";
+                    Description = "Get all members.";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (SocketGuildUser [ ]), "Returns all members on the server.")]
@@ -503,8 +530,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
             public class AFKChannel : Command {
                 public AFKChannel() {
-                    command = "afkchannel";
-                    shortHelp = "Get AFK Channel";
+                    Name = "afkchannel";
+                    Description = "Get AFK Channel";
+                    Category = StandardCategories.Advanced;
                 }
 
                 [Overload (typeof (SocketVoiceChannel), "Get the AFK channel if there is one, returns null otherwise.")]
@@ -517,8 +545,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
         public class Mention : Command {
             public Mention() {
-                command = "mention";
-                shortHelp = "Mentions mentionable Discord objects.";
+                Name = "mention";
+                Description = "Mentions mentionable Discord objects.";
+                    Category = StandardCategories.Advanced;
             }
 
             [Overload (typeof (string), "Mention all given objects.")]
@@ -533,20 +562,22 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
         public class ID : Command {
             public ID() {
-                command = "id";
-                shortHelp = "Get the ID of given Discord object.";
+                Name = "id";
+                Description = "Get the ID of given Discord object.";
+                    Category = StandardCategories.Advanced;
             }
 
             [Overload (typeof (ulong), "Return the ID of the given object.")]
-            public Task<Result> Execute(CommandMetadata e, SocketEntity<ulong> obj) {
+            public Task<Result> Execute(CommandMetadata e, IEntity<ulong> obj) {
                 return TaskResult (obj.Id, obj.Id.ToString ());
             }
         }
 
         public class Delete : Command {
             public Delete() {
-                command = "delete";
-                shortHelp = "Delete deletable Discord objects.";
+                Name = "delete";
+                Description = "Delete deletable Discord objects.";
+                    Category = StandardCategories.Advanced;
             }
 
             [Overload (typeof (object), "Delete whatever deletable object is given.")]

@@ -6,6 +6,7 @@ using Lomztein.AdvDiscordCommands.Framework;
 using Lomztein.AdvDiscordCommands.ExampleCommands;
 using System.Collections.Generic;
 using System.IO;
+using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 
 namespace Lomztein.AdvDiscordCommands.ExampleBot {
     class Program {
@@ -42,24 +43,16 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
         }
 
         private void PopulateCommands() {
-            DiscordCommandSet set1 = new DiscordCommandSet ();
-            DiscordCommandSet set2 = new DiscordCommandSet ();
-
-            set1.commandsInSet.RemoveAt (0);
-            set2.commandsInSet.RemoveAt (1);
 
             commandRoot = new CommandRoot { // Initialize root and add all example commands.
-                commands = new List<Command> {
+                commands = new List<ICommand> {
                     new HelpCommand (),
                     new FlowCommandSet (),
                     new MathCommandSet (),
-                    new MiscCommandSet (),
                     new VariableCommandSet (),
                     new CallstackCommand (),
                     new PrintCommand (),
-
-                    set1,
-                    set2,
+                    new DiscordCommandSet (),
                 }
             };
 

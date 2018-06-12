@@ -4,12 +4,12 @@ using System.Text;
 
 namespace Lomztein.AdvDiscordCommands.Framework.Interfaces
 {
-    public interface ICommandSet
+    public interface ICommandSet : INamed
     {
-        List<Command> GetCommands ();
+        List<ICommand> GetCommands ();
 
-        void AddCommands(params Command[] newCommands);
+        void AddCommands(params ICommand[] newCommands);
 
-        void RemoveCommands(params Command[] commands);
+        void RemoveCommands(params ICommand[] commands);
     }
 }

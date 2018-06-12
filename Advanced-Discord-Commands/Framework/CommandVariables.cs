@@ -19,7 +19,8 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                     return variables [ ID ] [ name ];
                 }
             }
-            return null;
+
+            throw new InvalidOperationException ($"No variable by name {name} exists.");
         }
 
         public static async Task<object> AsyncGet(ulong ID, string name, int maxWaitSecs = 10) {

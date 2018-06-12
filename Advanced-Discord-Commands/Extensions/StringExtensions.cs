@@ -32,8 +32,7 @@ namespace Lomztein.AdvDiscordCommands.Extensions
                         return guild.GetTextChannel (ulong.Parse (ext.Substring (2)));
 
                 }
-            } catch (Exception e) {
-                Logging.Log (e);
+            } catch (Exception) {
                 return null;
             }
 

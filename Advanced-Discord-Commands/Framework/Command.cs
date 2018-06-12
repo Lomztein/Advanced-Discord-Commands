@@ -9,23 +9,20 @@ using System.Reflection;
 
 using Lomztein.AdvDiscordCommands.Extensions;
 using Lomztein.AdvDiscordCommands.Misc;
+using Lomztein.AdvDiscordCommands.Framework.Interfaces;
+using Lomztein.AdvDiscordCommands.Framework.Categories;
 
 namespace Lomztein.AdvDiscordCommands.Framework {
 
-    public abstract class Command {
+    public abstract class Command : ICommand, ICommandChild {
 
-        public static char commandTrigger = '!';
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string[] Aliases { get; set; }
 
-        public enum Category {
-            Miscilaneous, Utility, Fun, Set, Advanced, Admin 
-        }
-
-        public const int CHARS_TO_HELP = 4;
-
-        public string command = null;
-        public string shortHelp = null;
-        public string helpPrefix = commandTrigger.ToString ();
-        public Category catagory = Category.Miscilaneous;
+        public ICategory Category { get; set; }
+        public ICommandParent CommandParent { get; set; }
+        public ICommandRoot ParentRoot { get; internal set; }
 
         public bool availableInDM = false;
         public bool availableOnServer = true;
@@ -85,9 +82,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
                                     string number = stringObj.Substring (endIndex + 2, squareEnd - (endIndex + 2));
                                     if (int.TryParse (number, out int index)) {
-                                        if (result.GetType ().IsArray) {
-                                            result = result [ index ];
-                                        }
+                                        result = result [ index ];
                                     }
                                 }
                             }
@@ -108,25 +103,25 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
         public FindMethodResult FindMethod(params object [ ] arguments) {
             // All end-command code is written as "Execute" functions, in order for the reflection to easily find it. Alternatively use attributes.
-            MethodInfo [ ] infos = GetType ().GetMethods ().Where (x => x.Name == "Execute").ToArray ();
+            MethodInfo [ ] infos = GetExecuteMethods ();
             dynamic parameterList = new List<object> ();
 
             foreach (MethodInfo inf in infos) {
-                ParameterInfo [ ] paramInfo = inf.GetParameters ();
+                List<Parameter> paramInfo = GetMethodParameters (inf);
 
-                bool anyParams = paramInfo.Any (x => x.IsDefined (typeof (ParamArrayAttribute)));
-                bool isMethod = paramInfo.Length - 1 == arguments.Length || (anyParams && arguments.Length >= paramInfo.Length); // Have to off-by-one since all commands gets the SocketUserMessage parsed through.
+                bool anyParams = paramInfo.Any (x => x.HasAttribute (typeof (ParamArrayAttribute)));
+                bool isMethod = paramInfo.Count - 1 == arguments.Length || (anyParams && arguments.Length >= paramInfo.Count); // Have to off-by-one since all commands gets the CommandMetadata parsed through.
 
                 if (isMethod == true) {
                     // Go through all parameters except the first one.
-                    for (int i = 1; i < paramInfo.Length; i++) {
+                    for (int i = 1; i < paramInfo.Count; i++) {
                         try {
                             int argIndex = i - 1;
                             object arg = arguments [ argIndex ];
 
                             // Is the parameter given the params attribute? If so then pack all the remaining arguments into an array.
-                            if (paramInfo [ i ].IsDefined (typeof (ParamArrayAttribute)) && !arguments [ argIndex ].GetType ().IsArray) {
-                                Type elementType = paramInfo [ i ].ParameterType.GetElementType ();
+                            if (paramInfo [ i ].HasAttribute (typeof (ParamArrayAttribute)) && !arguments [ argIndex ].GetType ().IsArray) {
+                                Type elementType = paramInfo [ i ].type.GetElementType ();
 
                                 // Since lists are easier to work with, but not quite straightforward to create dynamically, do this.
                                 dynamic dyn = Activator.CreateInstance (typeof (List<>).MakeGenericType (elementType));
@@ -137,7 +132,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                                 arg = dyn.ToArray ();
                             }
 
-                            TryAddToParams (ref parameterList, arg, paramInfo [ i ].ParameterType);
+                            TryAddToParams (ref parameterList, arg, paramInfo [ i ].type);
                         } catch {
                             isMethod = false;
                             parameterList.Clear ();
@@ -175,16 +170,10 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             }
         }
 
-        public virtual async Task<Result> TryExecute(CommandMetadata data, params object[] arguments) {
-            string executionError = AllowExecution (data);
-            string executionPrefix = "Failed to execute command " + command;
+        public virtual async Task<Result> TryExecute(CommandMetadata data, params object [ ] arguments) {
+            string executionError = AllowExecution (data.message);
+            string executionPrefix = "Failed to execute command " + Name;
             if (executionError == "") {
-
-                /*if (arguments.Length == 1) {
-                    string stringArg = arguments [ 0 ].ToString ();
-                    if (stringArg [ 0 ] == '(')
-                        arguments = CommandRoot.SplitArgs (GetParenthesesArgs (stringArg)).ToArray ();
-                }*/
 
                 arguments = (await ConvertChainCommandsToObjects (data, arguments.ToList ())).ToArray ();
                 FindMethodResult result = FindMethod (arguments);
@@ -193,11 +182,11 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
                         result.parameters.Insert (0, data);
                         Result task = await (result.method.Invoke (this, result.parameters.ToArray ()) as Task<Result>);
-                        AddToCallstack (data.message.Id, new Callstack.Item (this, result.parameters.GetRange(1, result.parameters.Count - 1).Select (x => x.ToString ()).ToList (), task.message, task.value));
+                        AddToCallstack (data.message.Id, new Callstack.Item (this, result.parameters.GetRange (1, result.parameters.Count - 1).Select (x => x.ToString ()).ToList (), task.message, task.value));
                         return task;
 
-                    } catch (Exception exc) {
-                        Logging.Log (exc);
+                    } catch (TargetInvocationException exception) {
+                        throw exception.InnerException;
                     }
                 } else {
                     return new Result (null, $"{executionPrefix}: \n\tNo suitable command overload found.");
@@ -205,14 +194,16 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             } else {
                 return new Result (null, $"{executionPrefix}: Failed to execute: {executionError}");
             }
-            return null;
         }
 
         public Task<Result> TaskResult(object value, string message) {
             return Task.FromResult (new Result (value, message));
         }
 
-        public virtual string AllowExecution (SocketMessage e) {
+        public virtual string AllowExecution (IMessage e) {
+
+            if (e.Id == 0) // If it is a fake message, then just continue.
+                return "";
 
             string errors = string.Empty;
 
@@ -237,6 +228,11 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         public virtual void Initialize () {
         }
 
+        private MethodInfo[] GetExecuteMethods () {
+            MethodInfo [ ] infos = GetType ().GetMethods ().Where (x => x.IsDefined (typeof (OverloadAttribute))).ToArray ();
+            return infos;
+        }
+
         public static void AddToCallstack(ulong chainID, Callstack.Item item) {
             Callstack curStack = callstacks.Find (x => x.chainID == chainID);
             if (curStack == null) {
@@ -249,9 +245,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 callstacks.RemoveAt (maxCallstacks);
         }
 
-        public virtual string GetHelpText(SocketMessage e) => "";
-
-        public Embed GetHelpEmbed(SocketMessage e, bool advanced) {
+        public Embed GetHelpEmbed(IMessage e, bool advanced) {
             EmbedBuilder builder = new EmbedBuilder ();
             if (!commandEnabled) {
                 builder.WithTitle ("Not enabled on this server.");
@@ -259,11 +253,11 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             }
 
             builder.WithAuthor ("Bot Command Help") // lolwhat.
-                .WithTitle ($"Command \"{helpPrefix}{command}\"")
-                .WithDescription (shortHelp);
+                .WithTitle ($"Command \"{this.GetPrefix ()}{Name}\"")
+                .WithDescription (Description);
 
             // This is quite similar to GetArgs and GetHelp together, and the other functions are obsolete due to this.
-            MethodInfo [ ] methods = GetType ().GetMethods ().Where (x => x.Name == "Execute").ToArray ();
+            MethodInfo [ ] methods = GetExecuteMethods ();
             for (int i = 0; i < methods.Length; i++) {
 
                 OverloadAttribute overload = methods [ i ].GetCustomAttribute<OverloadAttribute> ();
@@ -273,7 +267,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                     MethodInfo info = methods [ i ];
 
                     var parameters = GetDescriptiveOverloadParameters (info);
-                    string olText = advanced ? $"{parameters.returnType} => " : helpPrefix + command;
+                    string olText = advanced ? $"{parameters.returnType} => " : this.GetPrefix () + Name;
 
                     olText += " (";
                     for (int j = 1; j < parameters.types.Length; j++) { // Remember to ignore first parameter, it being the SocketUserMessage.
@@ -311,10 +305,6 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             return builder.Build ();
         }
 
-        public virtual string GetShortHelp () {
-            return shortHelp;
-        }
-
         /// <summary>
         /// This is supposed to be used with the autodocumentation functions, NOT with any actual functionalitety, since it doesn't return any parameter metadata, only type and name.
         /// </summary>
@@ -334,15 +324,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         }
 
         public virtual string GetCommand() {
-            return helpPrefix + command;
-        }
-
-        public virtual string GetOnlyName() {
-            return command; // Wrapper functions ftw
-        }
-
-        public Command CloneCommand() {
-            return this.MemberwiseClone () as Command;
+            return this.GetPrefix () + Name;
         }
 
         public static string GetParenthesesArgs(string input) {
@@ -368,19 +350,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         }
 
         public string Format (string connector = " | ", int minSpaces = 25) {
-            return StringExtensions.UniformStrings (GetCommand (), GetShortHelp (), " | ");
-        }
-
-        public static bool TryIsolateWrappedCommand(string input, out string cmd, out List<object> args) {
-            cmd = "";
-            args = new List<object> ();
-
-            if (input.Length > 1 && input [ 1 ].IsCommandTrigger ()) {
-                args = CommandRoot.ConstructArguments (GetParenthesesArgs (input), out cmd);
-                cmd = cmd.Substring (1);
-                return true;
-            }
-            return false;
+            return StringExtensions.UniformStrings (GetCommand (), Description, " | ");
         }
 
         public class Overload {
@@ -403,29 +373,60 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             }
         }
 
-        public static string ListCommands(CommandMetadata data, params CommandSet [ ] sets) {
-            List<Command> combined = new List<Command> ();
-            foreach (CommandSet set in sets)
-                combined.AddRange (set.commandsInSet);
-            return ListCommands (data, sets.First ().command, combined.ToArray ());
+        public class Parameter {
+
+            public string name;
+            public Type type;
+            public List<Type> attributes = new List<Type> ();
+
+            public Parameter(string _name, Type _type, params Type[] _attributes) {
+                name = _name;
+                type = _type;
+
+                foreach (Type attribute in _attributes) {
+                    attributes.Add (attribute);
+                }
+            }
+
+            public bool HasAttribute(Type attributeType) => attributes.Contains (attributeType);
+
         }
 
-        public static string ListCommands(CommandMetadata data, string name, params Command[] commands) {
+        public virtual List<Parameter> GetMethodParameters (MethodInfo info) {
+            List<Parameter> parameters = new List<Parameter> ();
+
+            ParameterInfo[] paramInfos = info.GetParameters ();
+            foreach (ParameterInfo paramInfo in paramInfos) {
+                Parameter parameter = new Parameter (paramInfo.Name, paramInfo.ParameterType, paramInfo.CustomAttributes.Select (x => x.AttributeType).ToArray ());
+                parameters.Add (parameter);
+            }
+
+            return parameters;
+        }
+
+        public static string ListCommands(CommandMetadata data, params ICommandSet [ ] sets) {
+            List<ICommand> combined = new List<ICommand> ();
+            foreach (CommandSet set in sets)
+                combined.AddRange (set.commandsInSet);
+            return ListCommands (data, sets.First ().Name, combined.ToArray ());
+        }
+
+        public static string ListCommands(CommandMetadata data, string name, params ICommand[] commands) {
             // Display all commands within command.
             string result = "";
 
             List<Command> withoutDublicates = new List<Command> ();
             foreach (Command cmd in commands) {
-                if (!withoutDublicates.Exists (x => x.command == cmd.command))
+                if (!withoutDublicates.Exists (x => x.Name == cmd.Name))
                     withoutDublicates.Add (cmd);
             }
 
             result += ("Commands in the **" + name + "** command set:\n```");
 
-            var catagories = withoutDublicates.Where (x => x.AllowExecution (data) == "").GroupBy (x => x.catagory);
+            var catagories = withoutDublicates.Where (x => x.AllowExecution (data.message) == "").GroupBy (x => x.Category);
 
             foreach (var catagory in catagories) {
-                result += catagory.ElementAt (0).catagory.ToString () + " Commands\n";
+                result += catagory.ElementAt (0).Category.Name + " Commands\n";
                 foreach (var item in catagory) {
                     result += item.Format () + "\n";
                 }
@@ -439,7 +440,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             return result + "```";
         }
 
-        public override string ToString() => helpPrefix + command;
+        public override string ToString() => this.GetPrefix () + Name;
 
         [AttributeUsage (AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
         protected class OverloadAttribute : Attribute {

@@ -4,14 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Lomztein.AdvDiscordCommands.Framework;
+using Lomztein.AdvDiscordCommands.Framework.Categories;
 
 namespace Lomztein.AdvDiscordCommands.ExampleCommands
 {
     public class PrintCommand : Command {
         public PrintCommand() {
-            command = "print";
-            shortHelp = "Prints stuff.";
-            catagory = Category.Utility;
+            Name = "print";
+            Description = "Prints stuff.";
+            Category = StandardCategories.Advanced;
         }
 
         [Overload (typeof (string), "Prints whatever is put into it, regardless of position in program.")]

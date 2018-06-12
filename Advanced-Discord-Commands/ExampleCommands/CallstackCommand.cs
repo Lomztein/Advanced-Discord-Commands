@@ -1,6 +1,7 @@
 ﻿using Discord.WebSocket;
 using Lomztein.AdvDiscordCommands.Extensions;
 using Lomztein.AdvDiscordCommands.Framework;
+using Lomztein.AdvDiscordCommands.Framework.Categories;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,9 +12,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
     public class CallstackCommand : Command {
 
         public CallstackCommand() {
-            command = "callstack";
-            catagory = Category.Advanced;
-            shortHelp = "View command chain callstack.";
+            Name = "callstack";
+            Category = StandardCategories.Advanced;
+            Description = "View command chain callstack.";
         }
 
         [Overload (typeof (string), "View the latest executed callstack.")]
@@ -32,7 +33,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                         arguments += item.arguments [ i ] + (i == item.arguments.Count - 1 ? "" : CommandRoot.argSeperator + " ");
                     }
 
-                    message += StringExtensions.UniformStrings (item.command.helpPrefix + item.command.command + arguments, item.returnObj == null ? "null" : item.returnObj.ToString (), " -> ", 50) + "\n";
+                    message += StringExtensions.UniformStrings (item.command.GetPrefix () + item.command.Name + arguments, item.returnObj == null ? "null" : item.returnObj.ToString (), " -> ", 50) + "\n";
                 }
                 message += "```";
                 return TaskResult (message, message);
