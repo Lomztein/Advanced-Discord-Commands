@@ -6,15 +6,22 @@ using System.Threading.Tasks;
 using System.Drawing;
 using System.IO;
 using Lomztein.AdvDiscordCommands.Framework;
-using Lomztein.AdvDiscordCommands.Misc;
 using Lomztein.AdvDiscordCommands.Framework.Categories;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
+using Discord;
 
 namespace Lomztein.AdvDiscordCommands.ExampleCommands {
     public class MathCommandSet : CommandSet {
+
+        private static readonly Category BasicCategory = new Category ("Basic", "The most basic arithmatic commands, you might be able to do 4th grade homework with this.");
+        private static readonly Category ScienceCategory = new Category ("Science", "More complicated arithmatic commands, used commonly in higher mathematics.");
+        private static readonly Category TrigonometyCategory = new Category ("Trigonometry", "Everyones favorite highschool subjects.");
+        private static readonly Category ConstantsCategory = new Category ("Constants", "Commands that return a single constant, such as PI.");
+        private static readonly Category FunctionsCategory = new Category ("Functions", "Commands that modify the given number into something new and fancy.");
+
         public MathCommandSet() {
             Name = "math";
-            Description = "Math related commands. Works with floating point numbers.";
+            Description = "Floating point mathematics.";
             Category = StandardCategories.Advanced;
 
             commandsInSet = new List<ICommand> {
@@ -27,20 +34,23 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Add() {
                 Name = "add";
                 Description = "Add numbers.";
-                Category = StandardCategories.Advanced;
+                Category = BasicCategory;
             }
 
             [Overload (typeof (double), "Get the sum of an array of numbers.")]
+            [Example ("4", "\"2 + 2 = 4\"", "2", "2")]
             public Task<Result> Execute(CommandMetadata e, double num1, double num2) {
                 return TaskResult (num1 + num2, $"{num1} + {num2} = {num1 + num2}");
             }
 
             [Overload (typeof (double), "Add two numbers together.")]
+            [Example ("10", "\"Sum of given numbers: 10\"", "1", "2", "3", "4")]
             public Task<Result> Execute(CommandMetadata e, params double[] numbers) {
                 return TaskResult (numbers.Sum (), $"Sum of given numbes: {numbers.Sum ()}");
             }
 
             [Overload (typeof (string), "Get the combination of two strings.")]
+            [Example ("FirstSecond", "FirstSecond", "First", "Second")]
             public Task<Result> Execute(CommandMetadata e, string str1, string str2) {
                 return TaskResult (str1 + str2, str1 + str2);
             }
@@ -51,7 +61,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Subtract() {
                 Name = "subtract";
                 Description = "Subtract numbers.";
-                Category = StandardCategories.Advanced;
+                Category = BasicCategory;
             }
 
             [Overload (typeof (double), "Subtract num2 from num1.")]
@@ -65,7 +75,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Multiply() {
                 Name = "multiply";
                 Description = "Multiply numbers.";
-                Category = StandardCategories.Advanced;
+                Category = BasicCategory;
             }
 
             [Overload (typeof (double), "Mutliply two numbers.")]
@@ -79,7 +89,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Divide() {
                 Name = "divide";
                 Description = "Divide numbers.";
-                Category = StandardCategories.Advanced;
+                Category = BasicCategory;
             }
 
             [Overload (typeof (double), "Divide num1 with num2.")]
@@ -93,7 +103,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Pow() {
                 Name = "pow";
                 Description = "Get the power.";
-                Category = StandardCategories.Advanced;
+                Category = ScienceCategory;
             }
 
             [Overload (typeof (double), "Get the num1 to the power of num2.")]
@@ -107,7 +117,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Log() {
                 Name = "log";
                 Description = "Returns logs.";
-                Category = StandardCategories.Advanced;
+                Category = ScienceCategory;
             }
 
             [Overload (typeof (double), "Get the natural logarithm of the given number.")]
@@ -126,7 +136,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Mod() {
                 Name = "mod";
                 Description = "Returns modulus.";
-                Category = StandardCategories.Advanced;
+                Category = ScienceCategory;
             }
 
             [Overload (typeof (double), "Get the remainder of num1 / num2.")]
@@ -140,7 +150,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Sin() {
                 Name = "sin";
                 Description = "Anger the gods.";
-                Category = StandardCategories.Advanced;
+                Category = TrigonometyCategory;
             }
 
             [Overload (typeof (double), "Get the sin of the given angle in radians.")]
@@ -154,7 +164,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Cos() {
                 Name = "cos";
                 Description = "Returns cosine.";
-                Category = StandardCategories.Advanced;
+                Category = TrigonometyCategory;
             }
 
             [Overload (typeof (double), "Get the cos of the given angle in radians.")]
@@ -168,7 +178,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Tan() {
                 Name = "tan";
                 Description = "Get ready for summer.";
-                Category = StandardCategories.Advanced;
+                Category = TrigonometyCategory;
             }
 
             [Overload (typeof (double), "Get the tan of the given angle in radians.")]
@@ -182,7 +192,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public ASin() {
                 Name = "asin";
                 Description = "Make the gods.. happy?";
-                Category = StandardCategories.Advanced;
+                Category = TrigonometyCategory;
             }
 
             [Overload (typeof (double), "Get the inverse sin of the given value in radians.")]
@@ -196,7 +206,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public ACos() {
                 Name = "acos";
                 Description = "Returns inverse cosine.";
-                Category = StandardCategories.Advanced;
+                Category = TrigonometyCategory;
             }
 
             [Overload (typeof (double), "Get the inverse cos of the given value in radians.")]
@@ -210,7 +220,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public ATan() {
                 Name = "atan";
                 Description = "Get ready for winter.";
-                Category = StandardCategories.Advanced;
+                Category = TrigonometyCategory;
             }
 
             [Overload (typeof (double), "Get the atan of the given value in radians.")]
@@ -223,7 +233,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Deg2Rad() {
                 Name = "deg2rad";
                 Description = "Convert degrees to radians.";
-                Category = StandardCategories.Advanced;
+                Category = TrigonometyCategory;
             }
 
             [Overload (typeof (double), "Convert the given degrees to radians.")]
@@ -236,7 +246,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Rad2Deg() {
                 Name = "rad2deg";
                 Description = "Convert radians to degrees.";
-                Category = StandardCategories.Advanced;
+                Category = TrigonometyCategory;
             }
 
             [Overload (typeof (double), "Convert the given radians to degrees.")]
@@ -248,8 +258,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
         public class PI : Command {
             public PI() {
                 Name = "pi";
-                Description = "Don't have intercourse with it.";
-                Category = StandardCategories.Advanced;
+                Description = "I do like pie!";
+                Category = ConstantsCategory;
             }
 
             [Overload (typeof (double), "Returns delicious pi.")]
@@ -261,8 +271,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
         public class Round : Command {
             public Round() {
                 Name = "round";
-                Description = "Round to nearest whole number.";
-                Category = StandardCategories.Advanced;
+                Description = "Round the given number.";
+                Category = FunctionsCategory;
             }
 
             [Overload (typeof (double), "Rounds given input to the nearest whole number.")]
@@ -275,7 +285,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Floor() {
                 Name = "floor";
                 Description = "SuplexFlexDunk.";
-                Category = StandardCategories.Advanced;
+                Category = FunctionsCategory;
             }
 
             [Overload (typeof (double), "Floors given input to the nearest whole number below itself.")]
@@ -288,7 +298,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Ceiling() {
                 Name = "ceiling";
                 Description = "Shoryuken that sucker.";
-                Category = StandardCategories.Advanced;
+                Category = FunctionsCategory;
             }
 
             [Overload (typeof (double), "Ceils given input to the nearest whole number above itself.")]
@@ -301,7 +311,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Squareroot() {
                 Name = "sqrt";
                 Description = "Get square root.";
-                Category = StandardCategories.Advanced;
+                Category = ScienceCategory;
             }
 
             [Overload (typeof (double), "Returns the square root of the given number.")]
@@ -314,7 +324,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Min() {
                 Name = "min";
                 Description = "Gets lowest number.";
-                Category = StandardCategories.Advanced;
+                Category = FunctionsCategory;
             }
 
             [Overload (typeof (double), "Returns the lowest number of the given array.")]
@@ -327,7 +337,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Max() {
                 Name = "max";
                 Description = "Gets highest number.";
-                Category = StandardCategories.Advanced;
+                Category = FunctionsCategory;
             }
 
             [Overload (typeof (double), "Returns the highest number of the given array.")]
@@ -340,7 +350,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Abs() {
                 Name = "abs";
                 Description = "Gets absolute number.";
-                Category = StandardCategories.Advanced;
+                Category = FunctionsCategory;
             }
 
             [Overload (typeof (double), "Returns the absolute number of the given array.")]
@@ -353,7 +363,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Sign() {
                 Name = "sign";
                 Description = "Gets sign of number.";
-                Category = StandardCategories.Advanced;
+                Category = FunctionsCategory;
             }
 
             [Overload (typeof (double), "Returns the sign of the given number.")]
@@ -366,7 +376,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Equal() {
                 Name = "equals";
                 Description = "Checks equality.";
-                Category = StandardCategories.Advanced;
+                Category = BasicCategory;
             }
 
             [Overload (typeof (bool), "Returns true if given objects are the same.")]
@@ -380,7 +390,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Random() {
                 Name = "random";
                 Description = "Get random numbers.";
-                Category = StandardCategories.Advanced;
+                Category = FunctionsCategory;
             }
 
             [Overload (typeof (double), "Returns random number between 0 and 1.")]
@@ -409,7 +419,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Graph() {
                 Name = "graph";
                 Description = "Draw a graph of a function.";
-                Category = StandardCategories.Advanced;
+                Category = FunctionsCategory;
             }
 
             [Overload (typeof (void), "Draw a graph of the given function within the given range.")]
@@ -430,7 +440,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                         for (int y = 0; y < Y_RES; y++) {
                             for (int x = 0; x < X_RES; x++) {
 
-                                bitmap.SetPixel (x, y, Color.White);
+                                bitmap.SetPixel (x, y, System.Drawing.Color.White);
 
                                 int offsetX = (int)(((double)x / X_RES) * X_RES - (X_RES / 2d));
                                 int offsetY = (int)(((double)y / Y_RES) * Y_RES - (Y_RES / 2d));
@@ -439,10 +449,10 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                                     (offsetX % (int)Math.Round (X_RES / xrange)) == 0 ||
                                     (offsetY % (int)Math.Round (Y_RES / yrange)) == 0
                                     )
-                                    bitmap.SetPixel (x, y, Color.LightGray);
+                                    bitmap.SetPixel (x, y, System.Drawing.Color.LightGray);
 
                                 if (offsetX == 0 || offsetY == 0)
-                                    bitmap.SetPixel (x, y, Color.Gray);
+                                    bitmap.SetPixel (x, y, System.Drawing.Color.Gray);
                             }
                         }
 
@@ -482,7 +492,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                                         xpix < 0 || xpix >= X_RES ||
                                         ypix < 0 || ypix >= Y_RES
                                         ))
-                                        bitmap.SetPixel (xpix, ypix, Color.Black);
+                                        bitmap.SetPixel (xpix, ypix, System.Drawing.Color.Black);
                                 }
 
                                 yprev = ycur;
@@ -492,7 +502,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                         using (MemoryStream stream = new MemoryStream ()) {
                             bitmap.Save (stream, System.Drawing.Imaging.ImageFormat.Png);
                             stream.Position = 0;
-                            await data.message.Channel.SendFileAsync (stream, "graph.png");
+                            await data.Message.Channel.SendFileAsync (stream, "graph.png");
                         }
 
                         return new Result (null, "");
@@ -503,10 +513,10 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             }
 
             private async Task<System.Tuple<int, bool>> CalcY(CommandMetadata data, string cmd, double x, double xscale, double yscale) {
-                CommandVariables.Set (data.message.Id, "x", x, true);
+                CommandVariables.Set (data.Message.Id, "x", x, true);
 
-                var result = await data.root.EnterCommand (cmd, data.message);
-                double y = (double)Convert.ChangeType (result.value, typeof (double));
+                var result = await data.Root.EnterCommand (cmd, data.Message as IUserMessage);
+                double y = (double)Convert.ChangeType (result?.Value, typeof (double));
 
                 int ycur = (int)Math.Round (y / yscale) + Y_RES / 2;
 

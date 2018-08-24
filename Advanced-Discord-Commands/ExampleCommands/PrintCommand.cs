@@ -18,10 +18,10 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
         [Overload (typeof (string), "Prints whatever is put into it, regardless of position in program.")]
         public Task<Result> Execute(CommandMetadata data, object obj) {
             if (obj != null) {
-                data.message.Channel.SendMessageAsync (obj.ToString ());
+                data.Message.Channel.SendMessageAsync (obj.ToString ());
                 return TaskResult (obj.ToString (), "");
             } else {
-                data.message.Channel.SendMessageAsync ("null");
+                data.Message.Channel.SendMessageAsync ("null");
                 return TaskResult ("null", "");
             }
         }

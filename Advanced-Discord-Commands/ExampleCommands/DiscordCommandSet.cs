@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Lomztein.AdvDiscordCommands.Misc;
 using Lomztein.AdvDiscordCommands.Framework.Categories;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 
@@ -17,7 +16,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
     {
         public DiscordCommandSet() {
             Name = "discord";
-            Description = "Commands about Discord. These only return objects.";
+            Description = "Discord-related commands.";
             Category = StandardCategories.Advanced;
 
             commandsInSet = new List<ICommand> {
@@ -47,13 +46,13 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
                 [Overload (typeof (SocketGuildUser), "Find user by ID")]
                 public async Task<Result> Execute(CommandMetadata e, ulong id) {
-                    IUser user = await e.message.Channel.GetUserAsync (id);
+                    IUser user = await e.Message.Channel.GetUserAsync (id);
                     return new Result (user, user.GetShownName ());
                 }
 
                 [Overload (typeof (SocketGuildUser), "Find user by name.")]
                 public Task<Result> Execute(CommandMetadata e, string name) {
-                    IUser user = (e.message.GetGuild ()?.Users.Where (x => x.GetShownName () == name).FirstOrDefault ());
+                    IUser user = (e.Message.GetGuild ()?.Users.Where (x => x.GetShownName () == name).FirstOrDefault ());
                     return TaskResult (user, user.GetShownName ());
                 }
 
@@ -73,7 +72,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 [Overload (typeof (SocketGuildUser), "Get a completely random online user from the server.")]
                 public Task<Result> Execute(CommandMetadata e) {
                     System.Random random = new System.Random ();
-                    IEnumerable<SocketGuildUser> users = (e.message.GetGuild ()?.Users.Where (x => x.Status == UserStatus.Online));
+                    IEnumerable<SocketGuildUser> users = (e.Message.GetGuild ()?.Users.Where (x => x.Status == UserStatus.Online));
                     return TaskResult (users.ElementAt (random.Next (0, users.Count ())), "");
                 }
 
@@ -126,9 +125,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public class Kick : Command {
                 public Kick() {
                     Name = "kick";
-                    Description = "Kick user. Requires \"Kick Members\" permission.";
+                    Description = "Kicks a user if permitted.";
                     Category = StandardCategories.Advanced;
-                    requiredPermissions.Add (GuildPermission.KickMembers);
+                    RequiredPermissions.Add (GuildPermission.KickMembers);
                 }
 
                 [Overload (typeof (bool), "Kicks user for no given reason.")]
@@ -153,7 +152,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     Description = "Set someones nickname.";
                     Category = StandardCategories.Advanced;
 
-                    requiredPermissions.Add (GuildPermission.ManageNicknames);
+                    RequiredPermissions.Add (GuildPermission.ManageNicknames);
                 }
 
                 [Overload (typeof (bool), "Set the given users nickname to something new.")]
@@ -183,7 +182,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     Name = "addrole";
                     Description = "Adds roles to someone.";
                     Category = StandardCategories.Advanced;
-                    requiredPermissions.Add (GuildPermission.ManageRoles);
+                    RequiredPermissions.Add (GuildPermission.ManageRoles);
                 }
 
                 [Overload (typeof (bool), "Add all given roles to the given person.")]
@@ -206,7 +205,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     Description = "Removes roles from someone.";
                     Category = StandardCategories.Advanced;
 
-                    requiredPermissions.Add (GuildPermission.ManageRoles);
+                    RequiredPermissions.Add (GuildPermission.ManageRoles);
                 }
 
                 [Overload (typeof (bool), "Add all given roles to the given person.")]
@@ -227,12 +226,15 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     Name = "dm";
                     Description = "DM's a person.";
                     Category = StandardCategories.Advanced;
-                    requiredPermissions.Add (GuildPermission.Administrator);
+                    RequiredPermissions.Add (GuildPermission.Administrator);
+
+                    Aliases = new string[] { "pm" };
                 }
 
                 [Overload (typeof (IUserMessage), "Sends a DM to the given person with the given text.")]
-                public async Task<Result> Execute(CommandMetadata e, SocketGuildUser user, string contents) {
-                    IUserMessage message = await MessageControl.SendMessage (user, contents);
+                [Example ("IUserMessage", "Succesfully sent a DM.", "@Usermention", "Hello Usermention!")]
+                public async Task<Result> Execute(CommandMetadata e, SocketGuildUser user, string text) {
+                    IUserMessage message = await user.SendMessageAsync (text);
                     return new Result (message, "Succesfully send a DM.");
                 }
             }
@@ -240,9 +242,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public class Move : Command {
                 public Move() {
                     Name = "move";
-                    Description = "Move to a different voice channel.";
+                    Description = "Move to voice channel.";
                     Category = StandardCategories.Advanced;
-                    requiredPermissions.Add (GuildPermission.MoveMembers);
+                    RequiredPermissions.Add (GuildPermission.MoveMembers);
                 }
 
                 [Overload (typeof (SocketVoiceChannel), "Moves a user to a different voice channel. Must be in one to begin with.")]
@@ -265,11 +267,11 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public class SetVoice : Command {
                 public SetVoice() {
                     Name = "setvoice";
-                    Description = "Servermute or -deafen someone.";
+                    Description = "Servermute/deafen someone.";
                     Category = StandardCategories.Advanced;
 
-                    requiredPermissions.Add (GuildPermission.MoveMembers);
-                    requiredPermissions.Add (GuildPermission.DeafenMembers);
+                    RequiredPermissions.Add (GuildPermission.MoveMembers);
+                    RequiredPermissions.Add (GuildPermission.DeafenMembers);
                 }
 
                 // Optionables are neat, but they don't mesh particularily well with commands. Could perhaps use reflection.
@@ -321,12 +323,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
                 [Overload (typeof (SocketRole), "Find role by given ID.")]
                 public Task<Result> Execute(CommandMetadata e, ulong id) {
-                    return TaskResult (e.message.GetGuild ()?.GetRole (id), "");
+                    return TaskResult (e.Message.GetGuild ()?.GetRole (id), "");
                 }
 
                 [Overload (typeof (SocketRole), "Find role by given name.")]
                 public Task<Result> Execute(CommandMetadata e, string rolename) {
-                    return TaskResult (e.message.GetGuild ()?.Roles.Where (x => x.Name.ToUpper () == rolename.ToUpper ()).FirstOrDefault (), "");
+                    return TaskResult (e.Message.GetGuild ()?.Roles.Where (x => x.Name.ToUpper () == rolename.ToUpper ()).FirstOrDefault (), "");
                 }
 
                 [Overload (typeof (SocketRole [ ]), "Get all roles of the given user.")]
@@ -370,13 +372,13 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
                 [Overload (typeof (SocketChannel), "Find channel by given ID.")]
                 public Task<Result> Execute(CommandMetadata e, ulong id) {
-                    return TaskResult (e.message.GetGuild ()?.GetChannel (id), "");
+                    return TaskResult (e.Message.GetGuild ()?.GetChannel (id), "");
                 }
 
                 [Overload (typeof (SocketChannel), "Find channel by given name.")]
                 public Task<Result> Execute(CommandMetadata e, string name) {
                     SoftStringComparer comparer = new SoftStringComparer ();
-                    return TaskResult (e.message.GetGuild ()?.Channels.Where (x => comparer.Equals (x.Name, name)).FirstOrDefault (), "");
+                    return TaskResult (e.Message.GetGuild ()?.Channels.Where (x => comparer.Equals (x.Name, name)).FirstOrDefault (), "");
                 }
             }
 
@@ -413,7 +415,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     Category = StandardCategories.Advanced;
                 }
 
-                [Overload (typeof (SocketGuildChannel), "Get the type of given channel, either \"TEXT\" or \"VOICE\".")]
+                [Overload (typeof (SocketGuildChannel), "Get the type of given channel, either \"TEXT\", \"VOICE\", or \"CATEGORY\".")]
                 public Task<Result> Execute(CommandMetadata e, SocketGuildChannel channel) {
                     if (channel is SocketVoiceChannel) {
                         return TaskResult (channel as SocketVoiceChannel, "VOICE");
@@ -434,7 +436,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 [Overload (typeof (ITextChannel), "Create a new text channel with the given name.")]
                 public async Task<Result> Execute(CommandMetadata e, string name, string topic) {
                     try {
-                        RestTextChannel channel = await (e.message.Channel as SocketTextChannel)?.Guild.CreateTextChannelAsync (name);
+                        RestTextChannel channel = await (e.Message.Channel as SocketTextChannel)?.Guild.CreateTextChannelAsync (name);
                         await channel.ModifyAsync (delegate (TextChannelProperties properties) {
                             properties.Topic = topic;
                         });
@@ -447,7 +449,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 [Overload (typeof (ITextChannel), "Create a new text channel with the given name and topic.")]
                 public async Task<Result> Execute(CommandMetadata e, string name) {
                     try {
-                        RestTextChannel channel = await (e.message.Channel as SocketTextChannel)?.Guild.CreateTextChannelAsync (name);
+                        RestTextChannel channel = await (e.Message.Channel as SocketTextChannel)?.Guild.CreateTextChannelAsync (name);
                         return new Result (channel, "Succesfully created a new text channel: " + channel.Mention);
                     } catch (Exception exc) {
                         return new Result (exc, "Failed to create new channel - " + exc.Message);
@@ -477,7 +479,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
                 [Overload (typeof (SocketGuild), "Returns the server object.")]
                 public Task<Result> Execute(CommandMetadata e) {
-                    SocketGuild guild = (e.message.Channel as SocketTextChannel)?.Guild;
+                    SocketGuild guild = (e.Message.Channel as SocketTextChannel)?.Guild;
                     return TaskResult (guild, guild.Name);
                 }
             }
@@ -492,7 +494,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
                 [Overload (typeof (string), "Returns the server name.")]
                 public Task<Result> Execute(CommandMetadata e) {
-                    SocketGuild guild = (e.message.Channel as SocketTextChannel)?.Guild;
+                    SocketGuild guild = (e.Message.Channel as SocketTextChannel)?.Guild;
                     return TaskResult (guild.Name, guild.Name);
                 }
             }
@@ -506,7 +508,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
                 [Overload (typeof (SocketGuildChannel [ ]), "Returns all channels on the server.")]
                 public Task<Result> Execute(CommandMetadata e) {
-                    SocketGuild guild = (e.message.Channel as SocketTextChannel)?.Guild;
+                    SocketGuild guild = (e.Message.Channel as SocketTextChannel)?.Guild;
                     return TaskResult (guild.Channels.ToArray (), "");
                 }
             }
@@ -520,7 +522,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
                 [Overload (typeof (SocketGuildUser [ ]), "Returns all members on the server.")]
                 public Task<Result> Execute(CommandMetadata e) {
-                    SocketGuild guild = (e.message.Channel as SocketTextChannel)?.Guild;
+                    SocketGuild guild = (e.Message.Channel as SocketTextChannel)?.Guild;
                     string members = "";
                     guild?.Users.ToList ().ForEach (x => members += x.GetShownName () + ", ");
 
@@ -537,7 +539,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 
                 [Overload (typeof (SocketVoiceChannel), "Get the AFK channel if there is one, returns null otherwise.")]
                 public Task<Result> Execute(CommandMetadata e) {
-                    SocketGuild guild = e.message.GetGuild ();
+                    SocketGuild guild = e.Message.GetGuild ();
                     return TaskResult (guild?.AFKChannel, guild?.AFKChannel.Name);
                 }
             }
@@ -546,7 +548,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
         public class Mention : Command {
             public Mention() {
                 Name = "mention";
-                Description = "Mentions mentionable Discord objects.";
+                Description = "Mentions given objects.";
                     Category = StandardCategories.Advanced;
             }
 
@@ -563,7 +565,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
         public class ID : Command {
             public ID() {
                 Name = "id";
-                Description = "Get the ID of given Discord object.";
+                Description = "Get the ID of given object.";
                     Category = StandardCategories.Advanced;
             }
 
@@ -576,8 +578,11 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
         public class Delete : Command {
             public Delete() {
                 Name = "delete";
-                Description = "Delete deletable Discord objects.";
-                    Category = StandardCategories.Advanced;
+                Description = "Delete deletable objects.";
+                Category = StandardCategories.Advanced;
+
+                RequiredPermissions.Add (GuildPermission.ManageChannels);
+                RequiredPermissions.Add (GuildPermission.ManageMessages);
             }
 
             [Overload (typeof (object), "Delete whatever deletable object is given.")]

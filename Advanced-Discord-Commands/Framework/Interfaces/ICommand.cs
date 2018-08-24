@@ -1,23 +1,33 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
 using Lomztein.AdvDiscordCommands.Framework.Categories;
 
 namespace Lomztein.AdvDiscordCommands.Framework.Interfaces {
-    public interface ICommand : INamed {
-
-        string[] Aliases { get; set; }
+    public interface ICommand : ICommandChild, INamed {
 
         ICategory Category { get; set; }
 
         void Initialize();
 
-        string GetCommand();
+        string GetCommand(ulong? owner);
 
-        Embed GetHelpEmbed(IMessage e, bool advanced);
-        string Format(string connector = " | ", int minSpaces = 25);
+        Task<Result> TryExecute(CommandMetadata data, params object[] arguments);
 
-        Task<Command.Result> TryExecute(CommandMetadata data, params object[] arguments);
-        string AllowExecution(IMessage e);
+        bool IsCommand(string name);
+
+        CommandOverload[] GetOverloads();
+
+        bool AvailableInDM { get; set; }
+        bool AvailableOnServer { get; set; }
+        bool CommandEnabled { get; set; }
+
+        List<GuildPermission> RequiredPermissions { get; set; }
+
+        Embed GetDocumentationEmbed(CommandMetadata metadata);
+
+        string AllowExecution(CommandMetadata metadata);
+
     }
 }

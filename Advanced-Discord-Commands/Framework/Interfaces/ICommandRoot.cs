@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Discord;
+using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Lomztein.AdvDiscordCommands.Framework.Interfaces
 {
-    public interface ICommandRoot : ICommandParent
+    public interface ICommandRoot : ICommandSet, ICommandParent
     {
-        char Trigger { get; set; }
-        char HiddenTrigger { get; set; }
+        Task<Result> EnterCommand(string input, IUserMessage userMessage);
     }
 }

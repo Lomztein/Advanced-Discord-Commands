@@ -11,9 +11,13 @@ using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 
 namespace Lomztein.AdvDiscordCommands.ExampleCommands {
     public class FlowCommandSet : CommandSet {
+
+        private static readonly Category BooleanCategory = new Category ("Boolean", "Commands focused on boolean operations, essentially asking true or false to whatever is given to them.");
+        private static readonly Category ControlCategory = new Category ("Control", "Commands used to control the flow of command chains, as well as looping over a single command multiple times.");
+
         public FlowCommandSet() {
             Name = "flow";
-            Description = "Commands controlling chain flow.";
+            Description = "Commands controlling flow.";
             Category = StandardCategories.Advanced;
 
             commandsInSet = new List<ICommand> {
@@ -24,8 +28,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
         public class IsNull : Command {
             public IsNull() {
                 Name = "isnull";
-                Description = "Converts objects to booleans.";
-                Category = StandardCategories.Advanced;
+                Description = "Does object exist?.";
+                Category = BooleanCategory;
             }
 
             [Overload (typeof (bool), "Returns true if the given object isn't null, false otherwise.")]
@@ -38,22 +42,22 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public If() {
                 Name = "if";
                 Description = "Control command flow.";
-                Category = StandardCategories.Advanced;
+                Category = BooleanCategory;
             }
 
             [Overload (typeof (object), "Runs the given command if input boolean is true.")]
             public async Task<Result> Execute(CommandMetadata e, bool boolean, string command) {
                 if (boolean)
-                    return (await CommandRoot.FindAndExecuteCommand (e, command, e.root.commands)).result;
+                    return (await e.Executor.EnterCommand (command, e.Message, e.Root, e.Owner, e.Root.GetCommands ()));
                 return new Result (null, "T'was false.");
             }
 
             [Overload (typeof (object), "Runs the first command if input boolean is true, otherwise the second.")]
             public async Task<Result> Execute(CommandMetadata e, bool boolean, string command1, string command2) {
                 if (boolean)
-                    return (await CommandRoot.FindAndExecuteCommand (e, command1, e.root.commands)).result;
+                    return (await e.Executor.EnterCommand (command1, e.Message, e.Root, e.Owner, e.Root.GetCommands ()));
                 else
-                    return (await CommandRoot.FindAndExecuteCommand (e, command2, e.root.commands)).result;
+                    return (await e.Executor.EnterCommand (command2, e.Message, e.Root, e.Owner, e.Root.GetCommands ()));
             }
         }
 
@@ -61,7 +65,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Not() {
                 Name = "not";
                 Description = "Inverses booleans.";
-                Category = StandardCategories.Advanced;
+                Category = BooleanCategory;
             }
 
             [Overload (typeof (bool), "Inverses a single boolean object.")]
@@ -82,7 +86,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public And() {
                 Name = "and";
                 Description = "Logic gate AND.";
-                Category = StandardCategories.Advanced;
+                Category = BooleanCategory;
             }
 
             [Overload (typeof (bool), "Compares two given booleans.")]
@@ -100,7 +104,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Or() {
                 Name = "or";
                 Description = "Logic gate OR.";
-                Category = StandardCategories.Advanced;
+                Category = BooleanCategory;
             }
 
             [Overload (typeof (bool), "Compares two given booleans.")]
@@ -117,8 +121,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
         public class For : Command {
             public For() {
                 Name = "for";
-                Description = "Loop given command a set times.";
-                Category = StandardCategories.Advanced;
+                Description = "Run a command a set times.";
+                Category = ControlCategory;
             }
 
             [Overload (typeof (void), "Loop given command the given amount of times with the iteration variable name \"for\".")]
@@ -128,10 +132,10 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
 
             [Overload (typeof (void), "Loop given command the given amount of times with a custom iteration variable name.")]
             public async Task<Result> Execute(CommandMetadata data, string varName, int amount, string command) {
-                if (command.Length > 1 && command[0].IsCommandTrigger (ParentRoot)) {
+                if (command.Length > 1 && command[0].IsCommandTrigger (data.Message.GetGuild ()?.Id, data.Executor)) {
                     for (int i = 0; i < amount; i++) {
-                        CommandVariables.Set (data.message.Id, varName, i, true);
-                        await CommandRoot.FindAndExecuteCommand (data, command, data.root.commands);
+                        CommandVariables.Set (data.Message.Id, varName, i, true);
+                        await data.Executor.EnterCommand (command, data.Message, data.Root, data.Owner, data.Root.GetCommands ());
                     }
                 }
                 return new Result (null, "");
@@ -141,17 +145,16 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
         public class Foreach : Command {
             public Foreach() {
                 Name = "foreach";
-                Description = "Loop a given command for each item in an array.";
-                Category = StandardCategories.Advanced;
-
+                Description = "Iterate over an array.";
+                Category = ControlCategory;
             }
 
             [Overload (typeof (void), "Loop given command for each item in the given array, with the a custom item variable name.")]
             public async Task<Result> Execute(CommandMetadata data, string varName, string command, params object[] array) {
 
                 foreach (object obj in array) {
-                    CommandVariables.Set (data.message.Id, varName, obj, true);
-                    await CommandRoot.FindAndExecuteCommand (data, command, data.root.commands);
+                    CommandVariables.Set (data.Message.Id, varName, obj, true);
+                    await data.Executor.EnterCommand (command, data.Message, data.Root, data.Owner, data.Root.GetCommands ());
                 }
                 return new Result (null, "");
             }
@@ -161,31 +164,22 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Wait() {
                 Name = "wait";
                 Description = "Halts command for a while.";
-                Category = StandardCategories.Advanced;
+                Category = ControlCategory;
             }
 
-            [Overload (typeof (void), "Wait for the given amount of secondos.")]
+            [Overload (typeof (void), "Wait for the given amount of seconds.")]
+            [Example ("", "\"Waited 10 seconds!\"", "10")]
             public async Task<Result> Execute(CommandMetadata data, double seconds) {
                 await Task.Delay ((int)Math.Round (seconds * 1000));
                 return new Result (null, "Waited " + seconds + " seconds!");
             }
 
-            [Overload (typeof (object), "Wait the given amount of seconds, then return the given command.")]
-            public async Task<Result> Execute(CommandMetadata data, double seconds, string command) {
+            [Overload (typeof (object), "Wait for the given amount of seconds, then execute the given command.")]
+            [Example ("\"Exammple Text\"", "\"Exammple Text\"", "10", "[!print Example Text]")]
+            public async Task<Result> Execute (CommandMetadata data, double seconds, string command) {
                 await Task.Delay ((int)Math.Round (seconds * 1000));
-
-                if (command.Length > 1 && command[1].IsCommandTrigger (ParentRoot)) {
-
-                    var res = await CommandRoot.FindAndExecuteCommand (data, command, data.root.commands);
-                    return new Result (res.result, res.result.message);
-                }
-                return new Result (command, "Waoted " + seconds + " seconds!");
-            }
-
-            [Overload (typeof (object), "Wait the given amount of seconds, then return the given object.")]
-            public async Task<Result> Execute(CommandMetadata e, double seconds, dynamic obj) {
-                await Task.Delay ((int)Math.Round (seconds * 1000));
-                return new Result (obj, obj.ToString ());
+                Result result = await data.Executor.EnterCommand (command, data.Message, data.Root, data.Owner, data.Root.GetCommands ());
+                return new Result (result?.Value, result?.Message);
             }
         }
 
@@ -193,12 +187,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public Goto() {
                 Name = "goto";
                 Description = "Move line count.";
-                Category = StandardCategories.Advanced;
+                Category = ControlCategory;
             }
 
             [Overload (typeof (void), "Move sequence execution to a specific command line.")]
             public Task<Result> Execute(CommandMetadata data, uint line) {
-                data.root.SetProgramCounter (data, line);
+                data.SetProgramCounter (line);
                 return TaskResult (null, "");
             }
         }

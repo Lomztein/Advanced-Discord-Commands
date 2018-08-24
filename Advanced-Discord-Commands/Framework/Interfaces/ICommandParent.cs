@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Discord;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,6 +7,6 @@ namespace Lomztein.AdvDiscordCommands.Framework.Interfaces
 {
     public interface ICommandParent
     {
-        string GetChildPrefix();
+        string GetChildPrefix(ulong? ownerID);
     }
 }

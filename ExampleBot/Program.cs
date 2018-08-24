@@ -44,7 +44,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
 
         private void PopulateCommands() {
 
-            commandRoot = new CommandRoot { // Initialize root and add all example commands.
+            commandRoot = new CommandRoot (null, new Executor ()) { // Initialize root and add all example commands.
                 commands = new List<ICommand> {
                     new HelpCommand (),
                     new FlowCommandSet (),
@@ -60,8 +60,13 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
         }
 
         private async Task MessageRecievedEvent(SocketMessage arg) {
-            var result = await commandRoot.EnterCommand (arg as SocketUserMessage); // CommandRoot.EnterCommand takes in the full string and takes over from there.
-            await arg.Channel.SendMessageAsync (result?.message, false, result?.value as Embed); // Command help in case of a set be in the message, and if a single command be as the results value as an Embed, because Embeds are cool.
+            try {
+
+            var result = await commandRoot.EnterCommand (arg.Content, arg as SocketUserMessage); // CommandRoot.EnterCommand takes in the full string and takes over from there.
+            await arg.Channel.SendMessageAsync (result == null ? "" : result.Message ?? "", false, result?.Value as Embed); // Command help in case of a set be in the message, and if a single command be as the results value as an Embed, because Embeds are cool.
+            } catch (Exception exc) {
+                Console.WriteLine (exc.Message + " - " + exc.StackTrace);
+            }
         }
     }
 }

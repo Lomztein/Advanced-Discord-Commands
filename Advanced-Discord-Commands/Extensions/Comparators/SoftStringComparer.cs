@@ -20,7 +20,7 @@ namespace Lomztein.AdvDiscordCommands.Extensions
         }
 
         public int GetHashCode(string obj) {
-            throw new NotImplementedException ();
+            return 0;
         }
     }
 }

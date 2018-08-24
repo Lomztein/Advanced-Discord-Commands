@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using Lomztein.AdvDiscordCommands.Autodocumentation;
 using Lomztein.AdvDiscordCommands.Extensions;
 using Lomztein.AdvDiscordCommands.Framework.Categories;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
@@ -34,29 +35,40 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             }
         }
 
+        // The parsing is currently very reliant on how the rest of the code works, I'd like to change that somehow.
         public override async Task<Result> TryExecute (CommandMetadata data, params object[] arguments) {
             // Standard command format is !command arg1;arg2;arg3
             // Commandset format is !command secondaryCommand arg1;arg2;arg3
             // Would it be possible to have commandSets within commandSets?
             if (arguments.Length != 0) {
 
-                string combinedArgs = "";
-                for (int i = 0; i < arguments.Length; i++) {
-                    combinedArgs += arguments [ i ];
-                    if (i != arguments.Length - 1)
-                        combinedArgs += CommandRoot.argSeperator;
+                string zeroArgString = arguments[0].ToString ();
+                int spaceIndex = zeroArgString.IndexOfAny (CharExtensions.WhitespaceChars);
+
+                string command = zeroArgString.Substring (0, spaceIndex != -1 ? spaceIndex : zeroArgString.Length).Trim ();
+                List<object> newArgs = new List<object> ();
+
+                if (spaceIndex != -1) {
+                    newArgs.Add (zeroArgString.Substring (spaceIndex + 1).Trim (CharExtensions.WhitespaceChars));
                 }
 
-                combinedArgs = ParentRoot.Trigger + combinedArgs;
-                var result = await CommandRoot.FindAndExecuteCommand (data, combinedArgs, commandsInSet);
-                return result?.result;
+                for (int i = 1; i < arguments.Length; i++)
+                    newArgs.Add (arguments[i]);
+                arguments = newArgs.ToArray ();
+
+                command = data.Executor.GetTrigger (data.Message.GetGuild ()?.Id) + command;
+
+                Execution execution = data.Executor.CreateExecution (data, command, arguments, commandsInSet);
+                var result = await data.Executor.Execute (execution);
+
+                return result;
             } else {
                 return new Result (this, "");
             }
         }
 
-        public override string GetCommand() {
-            return this.GetPrefix () + Name + " (set)";
+        public override string GetCommand(ulong? owner) {
+            return this.GetPrefix (owner) + Name + " (set)";
         }
 
         public void AddCommands(params ICommand [ ] procCommands) {
@@ -81,6 +93,9 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             return commandsInSet;
         }
 
-        public string GetChildPrefix() => this.GetPrefix () + Name + " ";
+        public string GetChildPrefix(ulong? owner) => this.GetPrefix (owner) + Name + " ";
+
+        public override Embed GetDocumentationEmbed(CommandMetadata metadata) => this.ListCommands (metadata);
+
     }
 }

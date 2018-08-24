@@ -11,6 +11,11 @@ using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 namespace Lomztein.AdvDiscordCommands.ExampleCommands {
 
     public class VariableCommandSet : CommandSet {
+
+        public static readonly Category ArrayCategory = new Category ("Array", "Commands revolving around the use of arrays, single variables that contain other variables.");
+        public static readonly Category LocalCategory = new Category ("Local", "Commands that are message-specific, where everything is automatically deleted after all commands has finished executing.");
+        public static readonly Category PersonalCategory = new Category ("Personal", "Commands that are user-specific, which can be controlled and accessed by only the one declaring them");
+        public static readonly Category GlobalCategory = new Category ("Global", "Commands that are server-specific, declared and set by only server moderators, but can be accessed by anyone.");
         public VariableCommandSet() {
 
             Name = "var";
@@ -26,10 +31,14 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
         }
 
         public class ArraySet : CommandSet {
+
+            public static readonly Category ModifyCategory = new Category ("Modify", "Commands used to modify arrays, by adding or removing new elements.");
+            public static readonly Category InfomationCategory = new Category ("Information", "Commands used to gather information about the arrays given to them.");
+
             public ArraySet() {
                 Name = "array";
                 Description = "Set for manipulating arrays.";
-                Category = StandardCategories.Advanced;
+                Category = ArrayCategory;
 
                 commandsInSet = new List<ICommand> {
                     new Create (), new Add (), new Remove (), new Count (), new IndexOf (), new AtIndex (),
@@ -40,7 +49,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 public Create() {
                     Name = "create";
                     Description = "Create an array.";
-                    Category = StandardCategories.Advanced;
+                    Category = ModifyCategory;
                 }
 
                 [Overload (typeof (object[]), "Create an entirely empty array.")]
@@ -62,7 +71,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 public Add() {
                     Name = "add";
                     Description = "Add to an array.";
-                    Category = StandardCategories.Advanced;
+                    Category = ModifyCategory;
                 }
 
                 [Overload (typeof (object[]), "Add the given objects to a given array and returns it.")]
@@ -79,7 +88,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 public Remove() {
                     Name = "remove";
                     Description = "Remove from an array.";
-                    Category = StandardCategories.Advanced;
+                    Category = ModifyCategory;
                 }
 
                 [Overload (typeof (object), "Removes the given object from an array.")]
@@ -96,7 +105,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 public Count() {
                     Name = "count";
                     Description = "Count elements in an array.";
-                    Category = StandardCategories.Advanced;
+                    Category = InfomationCategory;
                 }
 
                 [Overload (typeof (int), "Returns the amount of objects that are in an array.")]
@@ -109,8 +118,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public class AtIndex : Command {
                 public AtIndex() {
                     Name = "atindex";
-                    Description = "Get object at index from array.";
-                    Category = StandardCategories.Advanced;
+                    Description = "Get object at index.";
+                    Category = InfomationCategory;
                 }
 
                 [Overload (typeof (object), "Get an object from an array at the given index.")]
@@ -126,8 +135,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public class IndexOf : Command {
                 public IndexOf() {
                     Name = "indexof";
-                    Description = "Get the index of object array.";
-                    Category = StandardCategories.Advanced;
+                    Description = "Get the index of object.";
+                    Category = InfomationCategory;
                 }
 
                 [Overload (typeof (int), "Get the index of a given object within a given array. Returns -1 if not there.")]
@@ -141,12 +150,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public SetL() {
                 Name = "setl";
                 Description = "Set local variable.";
-                Category = StandardCategories.Advanced;
+                Category = LocalCategory;
             }
 
             [Overload (typeof (void), "Set a variable in the local scope, only accessable from current command chain.")]
             public Task<Result> Execute(CommandMetadata e, string name, object variable) {
-                CommandVariables.Set (e.message.Id, name, variable, false);
+                CommandVariables.Set (e.Message.Id, name, variable, false);
                 return TaskResult (null, $"Succesfully set local variable {name} to {variable}");
             }
         }
@@ -155,12 +164,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public SetP() {
                 Name = "setp";
                 Description = "Set personal variable.";
-                Category = StandardCategories.Advanced;
+                Category = PersonalCategory;
             }
 
             [Overload (typeof (void), "Set a variable in the personal scope, only accessable for current user.")]
             public Task<Result> Execute(CommandMetadata e, string name, object variable) {
-                CommandVariables.Set (e.message.Author.Id, name, variable, false);
+                CommandVariables.Set (e.Message.Author.Id, name, variable, false);
                 return TaskResult (null, $"Succesfully set personal variable {name} to {variable}");
             }
         }
@@ -170,13 +179,13 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 Name = "setg";
                 Description = "Set global variable.";
 
-                requiredPermissions.Add (Discord.GuildPermission.Administrator);
-                Category = StandardCategories.Advanced;
+                RequiredPermissions.Add (Discord.GuildPermission.Administrator);
+                Category = GlobalCategory;
             }
 
             [Overload (typeof (void), "Set a variable in the global scope, accessable for the entire Discord server.")]
             public Task<Result> Execute(CommandMetadata e, string name, object variable) {
-                CommandVariables.Set (e.message.GetGuild ().Id, name, variable, false);
+                CommandVariables.Set (e.Message.GetGuild ().Id, name, variable, false);
                 return TaskResult (null, $"Succesfully set global variable {name} to {variable}");
             }
         }
@@ -185,12 +194,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public GetL() {
                 Name = "getl";
                 Description = "Get local variable.";
-                Category = StandardCategories.Advanced;
+                Category = LocalCategory;
             }
 
             [Overload (typeof (object), "Get a variable in the local scope.")]
             public Task<Result> Execute(CommandMetadata e, string name) {
-                object variable = CommandVariables.Get (e.message.Id, name);
+                object variable = CommandVariables.Get (e.Message.Id, name);
                 return TaskResult (variable, variable?.ToString ());
             }
         }
@@ -199,12 +208,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public GetP() {
                 Name = "getp";
                 Description = "Get personal variable.";
-                Category = StandardCategories.Advanced;
+                Category = PersonalCategory;
             }
 
             [Overload (typeof (object), "Get a variable in the personal scope.")]
             public Task<Result> Execute(CommandMetadata e, string name) {
-                object variable = CommandVariables.Get (e.message.Author.Id, name);
+                object variable = CommandVariables.Get (e.Message.Author.Id, name);
                 return TaskResult (variable, variable?.ToString ());
             }
         }
@@ -213,12 +222,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public GetG() {
                 Name = "getg";
                 Description = "Get global variable.";
-                Category = StandardCategories.Advanced;
+                Category = GlobalCategory;
             }
 
             [Overload (typeof (object), "Get a variable in the global scope.")]
             public Task<Result> Execute(CommandMetadata e, string name) {
-                object variable = CommandVariables.Get (e.message.GetGuild ().Id, name);
+                object variable = CommandVariables.Get (e.Message.GetGuild ().Id, name);
                 return TaskResult (variable, variable?.ToString ());
             }
         }
@@ -227,12 +236,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public DelL() {
                 Name = "dell";
                 Description = "Delete local variable.";
-                Category = StandardCategories.Advanced;
+                Category = LocalCategory;
             }
 
             [Overload (typeof (bool), "Delete a variable in the local scope.")]
             public Task<Result> Execute(CommandMetadata e, string name) {
-                return TaskResult (CommandVariables.Delete (e.message.Id, name), "");
+                return TaskResult (CommandVariables.Delete (e.Message.Id, name), "");
             }
         }
 
@@ -240,12 +249,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public DelP() {
                 Name = "delp";
                 Description = "Delete personal variable.";
-                Category = StandardCategories.Advanced;
+                Category = PersonalCategory;
             }
 
             [Overload (typeof (bool), "Delete a variable in the personal scope.")]
             public Task<Result> Execute(CommandMetadata e, string name) {
-                return TaskResult (CommandVariables.Delete (e.message.Author.Id, name), "");
+                return TaskResult (CommandVariables.Delete (e.Message.Author.Id, name), "");
             }
         }
 
@@ -254,13 +263,13 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 Name = "delg";
                 Description = "Delete global variable.";
 
-                requiredPermissions.Add (Discord.GuildPermission.Administrator);
-                Category = StandardCategories.Advanced;
+                RequiredPermissions.Add (Discord.GuildPermission.Administrator);
+                Category = GlobalCategory;
             }
 
             [Overload (typeof (bool), "Delete a variable in the global scope.")]
             public Task<Result> Execute(CommandMetadata e, string name) {
-                return TaskResult (CommandVariables.Delete (e.message.GetGuild ().Id, name), "");
+                return TaskResult (CommandVariables.Delete (e.Message.GetGuild ().Id, name), "");
             }
         }
     }

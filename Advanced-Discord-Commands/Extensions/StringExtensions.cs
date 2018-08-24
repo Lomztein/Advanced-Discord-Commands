@@ -1,14 +1,13 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Lomztein.AdvDiscordCommands.Misc;
+using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Lomztein.AdvDiscordCommands.Extensions
 {
-    public static class StringExtensions
-    {
+    public static class StringExtensions {
         public static IMentionable ExtractMentionable(this string mention, SocketGuild guild) {
             int start = mention.IndexOf ('<');
             int end = mention.IndexOf ('>');
@@ -39,7 +38,7 @@ namespace Lomztein.AdvDiscordCommands.Extensions
             return null;
         }
 
-        public static string UniformStrings (string firstString, string secondString, string connector = " - ", int minSpaces = 25) {
+        public static string UniformStrings(string firstString, string secondString, string connector = " - ", int minSpaces = 25) {
             string result = firstString;
             int remainingTaps = (int)Math.Floor ((minSpaces - result.Length) / 4d);
             int remainingSpaces = (minSpaces - result.Length) % 4;
@@ -49,6 +48,36 @@ namespace Lomztein.AdvDiscordCommands.Extensions
                 result += " ";
             result += connector + secondString;
             return result;
+        }
+
+        public static string ExtractCommandName(this string fullCommand, ulong? owner, IExecutor executor) {
+            if (!string.IsNullOrEmpty (fullCommand)) {
+                if (fullCommand[0].IsCommandTrigger (owner, executor)) {
+
+                    int spaceIndex = fullCommand.IndexOfAny (CharExtensions.WhitespaceChars);
+                    if (spaceIndex == -1)
+                        return fullCommand.Substring (1);
+                    else
+                        return fullCommand.Substring (1, spaceIndex - 1);
+
+                }
+            }
+
+            return null;
+        }
+
+        public static string ExtractArgumentPart(this string fullCommand) {
+
+            if (!string.IsNullOrEmpty (fullCommand)) {
+                int spaceIndex = fullCommand.IndexOfAny (CharExtensions.WhitespaceChars);
+                if (spaceIndex == -1)
+                    return null;
+                else
+                    return fullCommand.Substring (spaceIndex + 1);
+            }
+
+            return null;
+
         }
     }
 }

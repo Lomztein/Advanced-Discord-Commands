@@ -9,4 +9,8 @@
     <PackageReference Include="Discord.Net" Version="2.0.0-beta" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Framework\Execution\" />
+  </ItemGroup>
+
 </Project>
