@@ -11,6 +11,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
         public string Message { get; private set; }
         public Exception Exception { get; private set; }
         public bool HiddenExecution { get; private set; }
+        public bool Succesful { get => Value != null || !string.IsNullOrEmpty (Message) || Exception != null; }
 
         public Result(object value, string message) {
             Value = value;

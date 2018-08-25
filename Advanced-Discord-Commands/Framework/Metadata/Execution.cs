@@ -14,6 +14,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
         public ICommand Command { get; private set; }
         public object[] Arguments { get; private set; }
         public CommandMetadata Metadata { get; private set; }
+        public bool Executable { get => Command != null && Arguments != null && Metadata != null; }
 
         public bool IsDocumentationRequest { get => Arguments.Length == 1 && Arguments[0].ToString () == Executor.commandHelp.ToString (); }
 
@@ -27,6 +28,9 @@ namespace Lomztein.AdvDiscordCommands.Framework
 
         public async Task<Result> TryExecute() {
 
+            if (!Executable)
+                throw new InvalidExecutionException ("Unable to execute. Execution is not executable, either due to a null command, arguments list, or metadata");
+
             if (IsDocumentationRequest)
                 return new Result (Command.GetDocumentationEmbed (Metadata), "");
 
@@ -39,5 +43,11 @@ namespace Lomztein.AdvDiscordCommands.Framework
 
             return commandResult;
         }
+    }
+
+    public class InvalidExecutionException : Exception {
+
+        public InvalidExecutionException(string message) : base (message) { }
+
     }
 }

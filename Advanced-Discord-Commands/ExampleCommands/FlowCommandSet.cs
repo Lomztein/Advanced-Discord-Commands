@@ -47,17 +47,23 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
 
             [Overload (typeof (object), "Runs the given command if input boolean is true.")]
             public async Task<Result> Execute(CommandMetadata e, bool boolean, string command) {
-                if (boolean)
-                    return (await e.Executor.EnterCommand (command, e.Message, e.Root, e.Owner, e.Root.GetCommands ()));
+                if (boolean) {
+                    Execution execution = e.Executor.CreateExecution (e, command, e.Root.GetCommands ());
+                    return await e.Executor.Execute (execution);
+                }
                 return new Result (null, "T'was false.");
             }
 
             [Overload (typeof (object), "Runs the first command if input boolean is true, otherwise the second.")]
             public async Task<Result> Execute(CommandMetadata e, bool boolean, string command1, string command2) {
-                if (boolean)
-                    return (await e.Executor.EnterCommand (command1, e.Message, e.Root, e.Owner, e.Root.GetCommands ()));
-                else
-                    return (await e.Executor.EnterCommand (command2, e.Message, e.Root, e.Owner, e.Root.GetCommands ()));
+                if (boolean) {
+                    Execution execution = e.Executor.CreateExecution (e, command1, e.Root.GetCommands ());
+                    return await e.Executor.Execute (execution);
+                }
+                else {
+                    Execution execution = e.Executor.CreateExecution (e, command2, e.Root.GetCommands ());
+                    return await e.Executor.Execute (execution);
+                }
             }
         }
 
@@ -135,7 +141,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 if (command.Length > 1 && command[0].IsCommandTrigger (data.Message.GetGuild ()?.Id, data.Executor)) {
                     for (int i = 0; i < amount; i++) {
                         CommandVariables.Set (data.Message.Id, varName, i, true);
-                        await data.Executor.EnterCommand (command, data.Message, data.Root, data.Owner, data.Root.GetCommands ());
+
+                        Execution execution = data.Executor.CreateExecution (data, command, data.Root.GetCommands ());
+                        await data.Executor.Execute (execution);
                     }
                 }
                 return new Result (null, "");
@@ -154,7 +162,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
 
                 foreach (object obj in array) {
                     CommandVariables.Set (data.Message.Id, varName, obj, true);
-                    await data.Executor.EnterCommand (command, data.Message, data.Root, data.Owner, data.Root.GetCommands ());
+
+                    Execution execution = data.Executor.CreateExecution (data, command, data.Root.GetCommands ());
+                    await data.Executor.Execute (execution);
                 }
                 return new Result (null, "");
             }
@@ -178,8 +188,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             [Example ("\"Exammple Text\"", "\"Exammple Text\"", "10", "[!print Example Text]")]
             public async Task<Result> Execute (CommandMetadata data, double seconds, string command) {
                 await Task.Delay ((int)Math.Round (seconds * 1000));
-                Result result = await data.Executor.EnterCommand (command, data.Message, data.Root, data.Owner, data.Root.GetCommands ());
-                return new Result (result?.Value, result?.Message);
+
+                Execution execution = data.Executor.CreateExecution (data, command, data.Root.GetCommands ());
+                return await data.Executor.Execute (execution);
             }
         }
 

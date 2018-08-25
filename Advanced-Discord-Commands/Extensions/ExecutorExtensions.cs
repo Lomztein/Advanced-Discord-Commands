@@ -9,30 +9,33 @@ using System.Threading.Tasks;
 
 namespace Lomztein.AdvDiscordCommands.Extensions
 {
-    public static class ExecutorExtensions
-    {
+    public static class ExecutorExtensions {
         public async static Task<Result> EnterCommand(this IExecutor executor, string fullCommand, IMessage message, ICommandRoot root, ulong? owner, List<ICommand> commandList) {
             CommandMetadata metadata = new CommandMetadata (message, root, executor, owner);
 
             string[] multiline = executor.ParseMultiline (fullCommand);
             Result result = null;
 
-            while (metadata.ProgramCounter < multiline.Length) {
-                int counter = (int)metadata.ProgramCounter;
-                string line = multiline[counter];
+            try {
+                while (metadata.ProgramCounter < multiline.Length) {
+                    int counter = (int)metadata.ProgramCounter;
+                    string line = multiline[counter];
 
-                object[] arguments = executor.ParseArguments (line).Cast<object> ().ToArray ();
+                    object[] arguments = executor.ParseArguments (line).Cast<object> ().ToArray ();
 
-                try {
                     Execution execution = CreateExecution (executor, metadata, line, commandList);
-                    result = await executor.Execute (execution);
-                } catch (Exception exception) {
-                    return new Result (exception);
-                }
 
-                metadata.ChangeProgramCounter (1);
+                    if (execution.Executable)
+                        result = await executor.Execute (execution);
+
+                    metadata.ChangeProgramCounter (1);
+                }
+            } catch (Exception exception) {
+                metadata.AbortProgram ();
+                result = new Result (exception);
             }
 
+            CommandVariables.Clear (metadata.Message.Id);
             return result;
         }
 

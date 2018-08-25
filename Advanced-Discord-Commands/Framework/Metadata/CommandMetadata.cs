@@ -26,6 +26,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
         public void ChangeDepth(int change) => Depth += change;
         public void ChangeProgramCounter(uint change) => ProgramCounter += change;
         public void SetProgramCounter(uint position) => ProgramCounter = position;
+        public void AbortProgram() => SetProgramCounter (uint.MaxValue);
 
     }
 }
