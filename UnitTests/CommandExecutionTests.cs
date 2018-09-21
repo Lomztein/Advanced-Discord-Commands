@@ -1,6 +1,8 @@
 ﻿using Discord.WebSocket;
 using Lomztein.AdvDiscordCommands.ExampleCommands;
+using Lomztein.AdvDiscordCommands.Extensions;
 using Lomztein.AdvDiscordCommands.Framework;
+using Lomztein.AdvDiscordCommands.Framework.Execution;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 using Lomztein.AdvDiscordCommands.Tests.Fakes;
 using Microsoft.CSharp.RuntimeBinder;
@@ -29,11 +31,11 @@ namespace Lomztein.AdvDiscordCommands.Tests
         [InlineData ("!flow wait 5, [!print lol]", "lol")]
         public async void TestMathExecution (string input, object expectedResult) {
 
-            CommandRoot testRoot = new CommandRoot (new List<ICommand> () { new MathCommandSet (), new VariableCommandSet (), new FlowCommandSet (), new PrintCommand () }, new Executor ());
+            CommandRoot testRoot = new CommandRoot (new List<ICommand> () { new MathCommandSet (), new VariableCommandSet (), new FlowCommandSet (), new PrintCommand () });
             testRoot.InitializeCommands ();
 
             FakeUserMessage message = new FakeUserMessage (input);
-            var result = await testRoot.EnterCommand (message.Content, message);
+            var result = await testRoot.EnterCommand (message.Content, message, null);
 
             Assert.Equal (expectedResult, result?.Value);
 
@@ -46,11 +48,11 @@ namespace Lomztein.AdvDiscordCommands.Tests
         [InlineData ("!var setl x, 0", typeof (ArgumentException))]
         public async void TestExceptionHandling (string input, Type expectedException) {
 
-            CommandRoot testRoot = new CommandRoot (new List<ICommand> () { new MathCommandSet (), new VariableCommandSet (), new FlowCommandSet () }, new Executor ());
+            CommandRoot testRoot = new CommandRoot (new List<ICommand> () { new MathCommandSet (), new VariableCommandSet (), new FlowCommandSet () });
             testRoot.InitializeCommands ();
 
             FakeUserMessage message = new FakeUserMessage (input);
-            var result = await testRoot.EnterCommand (message.Content, message);
+            var result = await testRoot.EnterCommand (message.Content, message, null);
 
             Assert.True (expectedException.IsInstanceOfType (result.Exception));
         }

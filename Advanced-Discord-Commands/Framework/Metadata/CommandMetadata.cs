@@ -4,6 +4,7 @@ using System.Text;
 using Discord.WebSocket;
 using Discord;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
+using Lomztein.AdvDiscordCommands.Framework.Execution;
 
 namespace Lomztein.AdvDiscordCommands.Framework
 {
@@ -11,15 +12,24 @@ namespace Lomztein.AdvDiscordCommands.Framework
 
         public IMessage Message { get; private set; }
         public ICommandRoot Root { get; private set; }
-        public IExecutor Executor { get; private set; }
+
         public ulong? Owner { get; private set; }
         public int Depth { get; private set; }
         public uint ProgramCounter { get; private set; }
 
-        public CommandMetadata (IMessage _message, ICommandRoot _root, IExecutor _executor, ulong? _owner) {
+        public string Content { get => Message.Content; }
+        public IUser Author { get => Message.Author; }
+        public ulong AuthorID { get => Message.Author.Id; }
+        public ulong ID { get => Message.Id; }
+
+        public ISplitter Splitter { get => Root.Splitter; }
+        public IExtractor Extractor { get => Root.Extractor; }
+        public ISearcher Searcher { get => Root.Searcher; }
+        public IExecutor Executor { get => Root.Executor; }
+
+        public CommandMetadata (IMessage _message, ICommandRoot _root, ulong? _owner) {
             Message = _message;
             Root = _root;
-            this.Executor = _executor;
             Owner = _owner;
         }
 

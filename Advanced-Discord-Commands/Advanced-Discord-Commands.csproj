@@ -5,12 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CoreCompat.System.Drawing.v2" Version="5.2.0-preview1-r131" />
-    <PackageReference Include="Discord.Net" Version="2.0.0-beta" />
+    <Compile Remove="Framework\Metadata\ExecutionFactory.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Framework\Execution\" />
+    <PackageReference Include="CoreCompat.System.Drawing.v2" Version="5.2.0-preview1-r131" />
+    <PackageReference Include="Discord.Net" Version="2.0.0-beta" />
   </ItemGroup>
 
 </Project>

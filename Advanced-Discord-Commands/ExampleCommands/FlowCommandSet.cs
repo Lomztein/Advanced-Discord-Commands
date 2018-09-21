@@ -48,7 +48,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             [Overload (typeof (object), "Runs the given command if input boolean is true.")]
             public async Task<Result> Execute(CommandMetadata e, bool boolean, string command) {
                 if (boolean) {
-                    Execution execution = e.Executor.CreateExecution (e, command, e.Root.GetCommands ());
+                    ExecutionData execution = e.Root.CreateExecution (command, e, e.Root.GetCommands ());
                     return await e.Executor.Execute (execution);
                 }
                 return new Result (null, "T'was false.");
@@ -57,11 +57,11 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             [Overload (typeof (object), "Runs the first command if input boolean is true, otherwise the second.")]
             public async Task<Result> Execute(CommandMetadata e, bool boolean, string command1, string command2) {
                 if (boolean) {
-                    Execution execution = e.Executor.CreateExecution (e, command1, e.Root.GetCommands ());
+                    ExecutionData execution = e.Root.CreateExecution (command1, e, e.Root.GetCommands ());
                     return await e.Executor.Execute (execution);
                 }
                 else {
-                    Execution execution = e.Executor.CreateExecution (e, command2, e.Root.GetCommands ());
+                    ExecutionData execution = e.Root.CreateExecution (command2, e, e.Root.GetCommands ());
                     return await e.Executor.Execute (execution);
                 }
             }
@@ -138,11 +138,11 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
 
             [Overload (typeof (void), "Loop given command the given amount of times with a custom iteration variable name.")]
             public async Task<Result> Execute(CommandMetadata data, string varName, int amount, string command) {
-                if (command.Length > 1 && command[0].IsCommandTrigger (data.Message.GetGuild ()?.Id, data.Executor)) {
+                if (command.Length > 1 && command[0].IsCommandTrigger (data.Message.GetGuild ()?.Id, data.Searcher)) {
                     for (int i = 0; i < amount; i++) {
                         CommandVariables.Set (data.Message.Id, varName, i, true);
 
-                        Execution execution = data.Executor.CreateExecution (data, command, data.Root.GetCommands ());
+                        ExecutionData execution = data.Root.CreateExecution (command, data, data.Root.GetCommands ());
                         await data.Executor.Execute (execution);
                     }
                 }
@@ -163,7 +163,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 foreach (object obj in array) {
                     CommandVariables.Set (data.Message.Id, varName, obj, true);
 
-                    Execution execution = data.Executor.CreateExecution (data, command, data.Root.GetCommands ());
+                    ExecutionData execution = data.Root.CreateExecution (command, data, data.Root.GetCommands ());
                     await data.Executor.Execute (execution);
                 }
                 return new Result (null, "");
@@ -189,7 +189,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             public async Task<Result> Execute (CommandMetadata data, double seconds, string command) {
                 await Task.Delay ((int)Math.Round (seconds * 1000));
 
-                Execution execution = data.Executor.CreateExecution (data, command, data.Root.GetCommands ());
+                ExecutionData execution = data.Root.CreateExecution (command, data, data.Root.GetCommands ());
                 return await data.Executor.Execute (execution);
             }
         }

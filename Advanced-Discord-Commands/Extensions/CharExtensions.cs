@@ -5,6 +5,7 @@ using System.Text;
 using Discord;
 using Lomztein.AdvDiscordCommands.Framework;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
+using Lomztein.AdvDiscordCommands.Framework.Execution;
 
 namespace Lomztein.AdvDiscordCommands.Extensions
 {
@@ -16,13 +17,13 @@ namespace Lomztein.AdvDiscordCommands.Extensions
             return WhitespaceChars.Contains (character);
         }
 
-        public static bool IsCommandTrigger (this char character, ulong? owner, IExecutor executor, out bool isHidden) {
+        public static bool IsCommandTrigger (this char character, ulong? owner, ISearcher searcher, out bool isHidden) {
             isHidden = false;
 
-            if (character == executor.GetTrigger (owner))
+            if (character == searcher.GetTrigger (owner))
                 return true;
 
-            if (character == executor.GetTrigger (owner)) {
+            if (character == searcher.GetTrigger (owner)) {
                 isHidden = true;
                 return true;
             }
@@ -30,8 +31,8 @@ namespace Lomztein.AdvDiscordCommands.Extensions
             return false;
         }
 
-        public static bool IsCommandTrigger (this char character, ulong? owner, IExecutor executor) {
-            return character.IsCommandTrigger (owner, executor, out bool isHidden);
+        public static bool IsCommandTrigger (this char character, ulong? owner, ISearcher searcher) {
+            return character.IsCommandTrigger (owner, searcher, out bool isHidden);
         }
     }
 }

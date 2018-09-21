@@ -1,4 +1,5 @@
 ﻿using Lomztein.AdvDiscordCommands.Extensions;
+using Lomztein.AdvDiscordCommands.Framework.Execution;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -53,7 +54,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
                 string arguments = " ";
                 for (int i = 0; i < Arguments.Length; i++) {
-                    arguments += Arguments[i] + (i == Arguments.Length - 1 ? "" : Executor.argSeperator + " ");
+                    arguments += Arguments[i] + (i == Arguments.Length - 1 ? "" : DefaultExtractor.argSeperator + " ");
                 }
 
                 string called = Depth + " - " + Command.GetCommand (owner) + arguments;

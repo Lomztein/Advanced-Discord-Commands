@@ -1,4 +1,5 @@
-﻿using Lomztein.AdvDiscordCommands.Framework.Interfaces;
+﻿using Lomztein.AdvDiscordCommands.Framework.Execution;
+using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,7 +70,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
                 for (int i = 0; i < Arguments.Length; i++) {
                     combinedArgs += Arguments[i];
                     if (i != Arguments.Length - 1)
-                        combinedArgs += Executor.argSeperator + " ";
+                        combinedArgs += DefaultExtractor.argSeperator + " ";
                 }
 
                 return cmd.GetCommand (owner) + " " + combinedArgs;

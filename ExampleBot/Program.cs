@@ -7,6 +7,8 @@ using Lomztein.AdvDiscordCommands.ExampleCommands;
 using System.Collections.Generic;
 using System.IO;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
+using Lomztein.AdvDiscordCommands.Framework.Execution;
+using Lomztein.AdvDiscordCommands.Extensions;
 
 namespace Lomztein.AdvDiscordCommands.ExampleBot {
     class Program {
@@ -44,8 +46,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
 
         private void PopulateCommands() {
 
-            commandRoot = new CommandRoot (null, new Executor ()) { // Initialize root and add all example commands.
-                commands = new List<ICommand> {
+            commandRoot = new CommandRoot (
+                new List<ICommand> {
                     new HelpCommand (),
                     new FlowCommandSet (),
                     new MathCommandSet (),
@@ -54,7 +56,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
                     new PrintCommand (),
                     new DiscordCommandSet (),
                 }
-            };
+            );
 
             commandRoot.InitializeCommands ();
         }
@@ -62,7 +64,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
         private async Task MessageRecievedEvent(SocketMessage arg) {
             try {
 
-            var result = await commandRoot.EnterCommand (arg.Content, arg as SocketUserMessage); // CommandRoot.EnterCommand takes in the full string and takes over from there.
+            var result = await commandRoot.EnterCommand (arg.Content, arg, arg.GetGuild ().Id); // CommandRoot.EnterCommand takes in the full string and takes over from there.
             await arg.Channel.SendMessageAsync (result == null ? "" : result.Message ?? "", false, result?.Value as Embed); // Command help in case of a set be in the message, and if a single command be as the results value as an Embed, because Embeds are cool.
             } catch (Exception exc) {
                 Console.WriteLine (exc.Message + " - " + exc.StackTrace);

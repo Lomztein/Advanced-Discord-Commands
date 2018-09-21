@@ -56,9 +56,9 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                     newArgs.Add (arguments[i]);
                 arguments = newArgs.ToArray ();
 
-                command = data.Executor.GetTrigger (data.Message.GetGuild ()?.Id) + command;
+                command = data.Searcher.GetTrigger (data.Message.GetGuild ()?.Id) + command;
 
-                Execution execution = data.Executor.CreateExecution (data, command, arguments, commandsInSet);
+                ExecutionData execution = data.Root.CreateExecution (command, data, arguments, commandsInSet);
                 var result = await data.Executor.Execute (execution);
 
                 return result;

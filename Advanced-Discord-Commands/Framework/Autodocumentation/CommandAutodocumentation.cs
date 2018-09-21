@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Lomztein.AdvDiscordCommands.Extensions;
 using Lomztein.AdvDiscordCommands.Framework;
+using Lomztein.AdvDiscordCommands.Framework.Execution;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -70,7 +71,7 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
 
                     // Add arg seperator between each argument to seperate.
                     if (j != overload.Parameters.Length - 1)
-                        overloadText += Executor.argSeperator + " ";
+                        overloadText += DefaultExtractor.argSeperator + " ";
                 }
                 // End syntax code block
                 overloadText += "```";

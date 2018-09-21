@@ -9,6 +9,7 @@ using Lomztein.AdvDiscordCommands.Framework;
 using Lomztein.AdvDiscordCommands.Framework.Categories;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 using Discord;
+using Lomztein.AdvDiscordCommands.Extensions;
 
 namespace Lomztein.AdvDiscordCommands.ExampleCommands {
     public class MathCommandSet : CommandSet {
@@ -515,7 +516,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             private async Task<System.Tuple<int, bool>> CalcY(CommandMetadata data, string cmd, double x, double xscale, double yscale) {
                 CommandVariables.Set (data.Message.Id, "x", x, true);
 
-                var result = await data.Root.EnterCommand (cmd, data.Message as IUserMessage);
+                ExecutionData execution = data.Root.CreateExecution (cmd, data);
+                var result = await data.Executor.Execute (execution);
+
                 double y = (double)Convert.ChangeType (result?.Value, typeof (double));
 
                 int ycur = (int)Math.Round (y / yscale) + Y_RES / 2;

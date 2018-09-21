@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Lomztein.AdvDiscordCommands.Framework.Execution;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Text;
 namespace Lomztein.AdvDiscordCommands.Extensions
 {
     public static class StringExtensions {
+
         public static IMentionable ExtractMentionable(this string mention, SocketGuild guild) {
             int start = mention.IndexOf ('<');
             int end = mention.IndexOf ('>');
@@ -50,9 +52,10 @@ namespace Lomztein.AdvDiscordCommands.Extensions
             return result;
         }
 
-        public static string ExtractCommandName(this string fullCommand, ulong? owner, IExecutor executor) {
+        public static string ExtractCommandName(this string fullCommand, ulong? owner, ISearcher searcher) {
+
             if (!string.IsNullOrEmpty (fullCommand)) {
-                if (fullCommand[0].IsCommandTrigger (owner, executor)) {
+                if (fullCommand[0].IsCommandTrigger (owner, searcher)) {
 
                     int spaceIndex = fullCommand.IndexOfAny (CharExtensions.WhitespaceChars);
                     if (spaceIndex == -1)
