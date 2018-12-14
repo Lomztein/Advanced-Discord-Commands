@@ -63,9 +63,8 @@ namespace Lomztein.AdvDiscordCommands.Framework
 
         public virtual bool IsCommand(string name)
         {
-            return Name == name &&
-                Aliases.Contains(name) &&
-                Flatname == name;
+            return (Name == name || Aliases.Contains(name)) ||
+                (!string.IsNullOrEmpty (Flatname) && Flatname == name);
         }
 
         public abstract Task<Result> TryExecute(CommandMetadata data, params object[] arguments);

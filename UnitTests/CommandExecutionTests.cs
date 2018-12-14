@@ -17,7 +17,7 @@ namespace Lomztein.AdvDiscordCommands.Tests
     public class CommandExecutionTests
     {
         [Theory]
-        [InlineData ("!math add 2, 2", 4d)]
+        [InlineData ("!math add 3, 3", 6d)]
         [InlineData ("!math subtract 4,2", 2d)]
         [InlineData ("!math subtract (!math add 4, 4), (!math divide 8, 2)", 4d)]
         [InlineData ("!math multiply (!math floor (!math sin 80)), (!math subtract 10, (!math mod 10, 2))", -10d)]

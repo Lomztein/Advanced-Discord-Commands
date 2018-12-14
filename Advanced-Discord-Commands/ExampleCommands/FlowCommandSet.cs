@@ -10,6 +10,7 @@ using Lomztein.AdvDiscordCommands.Framework.Categories;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 
 namespace Lomztein.AdvDiscordCommands.ExampleCommands {
+
     public class FlowCommandSet : CommandSet {
 
         private static readonly Category BooleanCategory = new Category ("Boolean", "Commands focused on boolean operations, essentially asking true or false to whatever is given to them.");
