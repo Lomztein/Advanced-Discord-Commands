@@ -13,4 +13,10 @@
     <ProjectReference Include="..\Advanced-Discord-Commands\Advanced-Discord-Commands.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="MathematicalExpressionParser">
+      <HintPath>..\..\ExpressionParser\C#\MathematicalExpressionParser\bin\Debug\netcoreapp2.0\MathematicalExpressionParser.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

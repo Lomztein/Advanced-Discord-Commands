@@ -12,7 +12,7 @@ using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 
 namespace Lomztein.AdvDiscordCommands.Framework {
 
-    public abstract class CommandSet : Command, ICommandSet, ICommandParent {
+    public abstract class CommandSet : CommandBase, ICommandSet, ICommandParent {
 
         public List<ICommand> commandsInSet = new List<ICommand>();
 
@@ -23,14 +23,12 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         }
 
         public override void Initialize() {
-            base.Initialize ();
             InitCommands ();
         }
 
         public void InitCommands() {
-            foreach (Command c in commandsInSet) {
+            foreach (ICommand c in commandsInSet) {
                 c.CommandParent = this;
-                c.ParentRoot = ParentRoot;
                 InitializeCommand (c);
             }
         }
@@ -97,5 +95,9 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
         public override Embed GetDocumentationEmbed(CommandMetadata metadata) => this.ListCommands (metadata);
 
+        public override CommandOverload[] GetOverloads()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

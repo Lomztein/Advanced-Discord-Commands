@@ -11,6 +11,10 @@ namespace Lomztein.AdvDiscordCommands.Extensions
 {
     public static class ExecutionExtensions {
 
+        public async static Task<Result> EnterCommand(this ICommandRoot root, IMessage message) => await EnterCommand (root, message.Content, message);
+
+        public async static Task<Result> EnterCommand (this ICommandRoot root, string fullCommand, IMessage message) => await EnterCommand(root, fullCommand, message, message.GetGuild ().Id);
+
         public async static Task<Result> EnterCommand(this ICommandRoot root, string fullCommand, IMessage message, ulong? owner) {
 
             CommandMetadata metadata = new CommandMetadata (message, root, owner);

@@ -7,6 +7,7 @@ using Lomztein.AdvDiscordCommands.Autodocumentation;
 using Lomztein.AdvDiscordCommands.Framework;
 using Lomztein.AdvDiscordCommands.Framework.Categories;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
+using Lomztein.AdvDiscordCommands.Extensions;
 
 namespace Lomztein.AdvDiscordCommands.ExampleCommands {
 
@@ -17,7 +18,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             Description = "Show command list.";
             Category = StandardCategories.Utility;
 
-            Aliases = new string[] { "clist" };
+            Aliases = new string[] { "clist", "list", "commands" };
 
             AvailableInDM = true;
         }
@@ -37,7 +38,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
 
         [Overload (typeof (string), "Reveals a list of commands in a given command set interface.")]
         public Task<Result> Execute(CommandMetadata e, ICommandSet set) {
-            Embed result = set.ListCommands (e);
+            //Embed result = set.ListCommands (e);
+            Embed result = CommandListAutodocumentation.ListCommands (e, "given", "",set.GetCommands ().ToArray ());
             return TaskResult (result, null);
         }
     }

@@ -19,7 +19,7 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
         public static Embed GetAutodocumentationEmbed(this ICommand command, IMessage e, bool advanced) {
             EmbedBuilder builder = new EmbedBuilder ();
 
-            builder.WithTitle ($"Command \"{command.GetPrefix (e.GetGuild ().Id)}{command.Name}\"")
+            builder.WithTitle ($"Command \"{command.GetCommand (e.GetGuild ().Id)}\"")
                 .WithDescription (command.Description);
 
             // Compile a list of all C# types used, in order to explain them to the layman.

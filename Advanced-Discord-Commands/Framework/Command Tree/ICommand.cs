@@ -7,6 +7,9 @@ using Lomztein.AdvDiscordCommands.Framework.Categories;
 namespace Lomztein.AdvDiscordCommands.Framework.Interfaces {
     public interface ICommand : ICommandChild, INamed {
 
+        string[] Aliases { get; set; }
+        string Flatname { get; set; }
+
         ICategory Category { get; set; }
 
         void Initialize();

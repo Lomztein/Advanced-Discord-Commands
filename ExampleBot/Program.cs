@@ -17,7 +17,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
 
         static void Main(string [ ] args) {
             Console.WriteLine ("Booting application..");
-            client = new BotClient (File.ReadAllText (AppContext.BaseDirectory + "/token.txt")); // Very simple token loading, because who's gonna write a config system for a but with less than 100 lines?
+            client = new BotClient (File.ReadAllText (AppContext.BaseDirectory + "/token.txt")); // Very simple token loading, because who's gonna write a config system for a bo   t with less than 100 lines?
             Console.ReadLine (); // I've forgot the correct method and this is easy.
         }
     }
@@ -62,12 +62,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
         }
 
         private async Task MessageRecievedEvent(SocketMessage arg) {
-            try {
-
             var result = await commandRoot.EnterCommand (arg.Content, arg, arg.GetGuild ().Id); // CommandRoot.EnterCommand takes in the full string and takes over from there.
-            await arg.Channel.SendMessageAsync (result == null ? "" : result.Message ?? "", false, result?.Value as Embed); // Command help in case of a set be in the message, and if a single command be as the results value as an Embed, because Embeds are cool.
-            } catch (Exception exc) {
-                Console.WriteLine (exc.Message + " - " + exc.StackTrace);
+            if (result.GetMessage () != null || result.Value as Embed != null) {
+                await arg.Channel.SendMessageAsync (result == null ? "" : result.GetMessage () ?? "", false, result?.Value as Embed); // Command help in case of a set be in the message, and if a single command be as the results value as an Embed, because Embeds are cool.
             }
         }
     }

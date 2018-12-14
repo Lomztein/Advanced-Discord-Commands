@@ -18,18 +18,29 @@ namespace Lomztein.AdvDiscordCommands.Extensions
             return default (T);
         }
 
-        public static T SearchCommandRecursively<T>(this ICommandSet commandSet) where T : ICommand {
+        public static T GetCommandRecursive<T>(this ICommandSet commandSet) where T : ICommand {
             T result = commandSet.GetCommand<T> ();
             if (result == null) {
                 List<ICommandSet> internalSets = commandSet.GetCommands ().Where (x => x is ICommandSet).Cast<ICommandSet> ().ToList ();
                 foreach (ICommandSet set in internalSets) {
-                    result = set.GetCommand<T> ();
+                    result = set.GetCommandRecursive<T> ();
                     if (result != null)
                         return result;
                 }
             }
 
             return default (T);
+        }
+
+        public static List<ICommand> GetAllRecursive (this ICommandSet commandSet) {
+            List<ICommand> found = new List<ICommand> ();
+            foreach (ICommand cmd in commandSet.GetCommands ()) {
+                found.Add (cmd);
+                if (cmd is ICommandSet set) {
+                    found.AddRange (GetAllRecursive (set));
+                }
+            }
+            return found;
         }
 
         public static string GetPrefix(this ICommandChild commandChild, ulong? owner) {

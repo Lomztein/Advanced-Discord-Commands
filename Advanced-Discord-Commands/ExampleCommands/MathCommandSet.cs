@@ -10,6 +10,10 @@ using Lomztein.AdvDiscordCommands.Framework.Categories;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 using Discord;
 using Lomztein.AdvDiscordCommands.Extensions;
+using Lomztein.MathematicalExpressionParser;
+using Lomztein.MathematicalExpressionParser.Token;
+using Lomztein.MathematicalExpressionParser.Evaluation;
+using Lomztein.AdvDiscordCommands.Framework.Execution.TokenParsers;
 
 namespace Lomztein.AdvDiscordCommands.ExampleCommands {
     public class MathCommandSet : CommandSet {
@@ -27,7 +31,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
 
             commandsInSet = new List<ICommand> {
                 new Add (), new Subtract (), new Multiply (), new Divide (), new Pow (), new Log (), new Mod (), new Sin (), new Cos (), new Tan (), new ASin (), new ACos (), new ATan (), new Deg2Rad (), new Rad2Deg (), new PI (),
-                new Round (), new Ceiling (), new Floor (), new Squareroot (), new Min (), new Max (), new Abs (), new Sign (), new Equal (), new Random (), new Graph (),
+                new Round (), new Ceiling (), new Floor (), new Squareroot (), new Min (), new Max (), new Abs (), new Sign (), new Equal (), new Random (), new Graph (), new Evaluate ()
             };
         }
 
@@ -413,6 +417,50 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             }
         }
 
+        public class Evaluate : Command {
+
+            public Evaluate () {
+                Name = "evaluate";
+                Description = "Evaluate expression.";
+                Category = ScienceCategory;
+            }
+
+            [Overload (typeof (double), "Evaluate the given mathematical expression and return the result.")]
+            [Example ("10", "6 + 2 * 2 = 10", "6 + 2 * 2")]
+            //[Example ("64", "pow (8, 2) = 64", "pow (8, 2)")]
+            //[Example ("14.14", "sqrt (pow (10, 2) + pow (10, 2)) = 14.14", "sqrt (pow (10, 2) + pow (10, 2))")]
+            public Task<Result> Execute (CommandMetadata metadata, string expression) {
+                ExpressionParser parser = new ExpressionParser ();
+                parser.Parsers = parser.Parsers.Concat (new MathematicalExpressionParser.Token.ITokenParser[] { new GetVariableParserWrapper (metadata) }).ToArray ();
+                double result = parser.Parse (expression);
+                return TaskResult (result, $"{expression} = {result}");
+            }
+
+            private class GetVariableParserWrapper : MathematicalExpressionParser.Token.ITokenParser {
+
+                private GetVariableParser Parser { get; set; } = new GetVariableParser ();
+                public CommandMetadata Metadata { get; private set; }
+
+                public GetVariableParserWrapper (CommandMetadata metadata) {
+                    Metadata = metadata;
+                }
+
+                public (IToken token, string result) Parse(string from) {
+                    if (from[0] == Parser.Start) {
+                        int start = 0;
+                        int end = from.IndexOf (Parser.End);
+                        string substring = from.Substring (start + 1, end - 1);
+                        var result = Parser.TryParseInsidesAsync ("", substring, "", Metadata);
+                        if (result.Exception != null) throw result.Exception;
+                        if (result.Result.Success) {
+                            return (new Value ((double)result.Result.Result), Parser.Start + substring + Parser.End);
+                        }
+                    }
+                    return (null, null);
+                }
+            }
+        }
+
         public class Graph : Command {
 
             public const int X_RES = 512, Y_RES = 512;
@@ -435,82 +483,78 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 double xscale = (xend - xstart) / X_RES;
                 double yscale = (yend - ystart) / Y_RES;
 
-                try {
-                    using (Bitmap bitmap = new Bitmap (X_RES, Y_RES)) {
-                        int yprev = 0;
-                        for (int y = 0; y < Y_RES; y++) {
-                            for (int x = 0; x < X_RES; x++) {
+                using (Bitmap bitmap = new Bitmap (X_RES, Y_RES)) {
+                    int yprev = 0;
+                    for (int y = 0; y < Y_RES; y++) {
+                        for (int x = 0; x < X_RES; x++) {
 
-                                bitmap.SetPixel (x, y, System.Drawing.Color.White);
+                            bitmap.SetPixel (x, y, System.Drawing.Color.White);
 
-                                int offsetX = (int)(((double)x / X_RES) * X_RES - (X_RES / 2d));
-                                int offsetY = (int)(((double)y / Y_RES) * Y_RES - (Y_RES / 2d));
+                            int offsetX = (int)(((double)x / X_RES) * X_RES - (X_RES / 2d));
+                            int offsetY = (int)(((double)y / Y_RES) * Y_RES - (Y_RES / 2d));
 
-                                if (
-                                    (offsetX % (int)Math.Round (X_RES / xrange)) == 0 ||
-                                    (offsetY % (int)Math.Round (Y_RES / yrange)) == 0
-                                    )
-                                    bitmap.SetPixel (x, y, System.Drawing.Color.LightGray);
+                            if (
+                                (offsetX % (int)Math.Round (X_RES / xrange)) == 0 ||
+                                (offsetY % (int)Math.Round (Y_RES / yrange)) == 0
+                                )
+                                bitmap.SetPixel (x, y, System.Drawing.Color.LightGray);
 
-                                if (offsetX == 0 || offsetY == 0)
-                                    bitmap.SetPixel (x, y, System.Drawing.Color.Gray);
-                            }
+                            if (offsetX == 0 || offsetY == 0)
+                                bitmap.SetPixel (x, y, System.Drawing.Color.Gray);
                         }
-
-                        try {
-                            using (Graphics graphics = Graphics.FromImage (bitmap)) {
-                                using (Font font = new Font ("Areal", 16)) {
-                                    graphics.DrawString ($"({xstart},{ystart})", font, Brushes.Gray, 0, 0);
-
-                                    SizeF lowerSize = graphics.MeasureString ($"({xend},{yend})", font);
-                                    graphics.DrawString ($"({xend},{yend})", font, Brushes.Gray, 512 - lowerSize.Width, 512 - lowerSize.Height);
-                                }
-                            }
-                        } catch { };
-
-                        for (double x = xstart; x < xend; x += xscale) {
-
-                            int xpix = (int)Math.Round (x / xscale) + X_RES / 2;
-                            System.Tuple<int, bool> res = await CalcY (data, yequals, x, xscale, yscale);
-                            int ycur = res.Item1;
-
-                            if (res.Item2) { // Is the result defined?
-                                int dist = ycur - yprev;
-                                int sign = Math.Sign (dist);
-                                dist = Math.Min (Math.Abs (dist), X_RES);
-                                if (dist == 0)
-                                    dist = 1;
-
-                                for (int yy = 0; yy < dist; yy++) {
-                                    double fraction = yy / (double)dist * xscale;
-                                    var locRes = await CalcY (data, yequals, x + fraction, xscale, yscale);
-                                    if (!locRes.Item2)
-                                        break;
-
-                                    int ypix = locRes.Item1;
-
-                                    if (!(
-                                        xpix < 0 || xpix >= X_RES ||
-                                        ypix < 0 || ypix >= Y_RES
-                                        ))
-                                        bitmap.SetPixel (xpix, ypix, System.Drawing.Color.Black);
-                                }
-
-                                yprev = ycur;
-                            }
-                        }
-
-                        using (MemoryStream stream = new MemoryStream ()) {
-                            bitmap.Save (stream, System.Drawing.Imaging.ImageFormat.Png);
-                            stream.Position = 0;
-                            await data.Message.Channel.SendFileAsync (stream, "graph.png");
-                        }
-
-                        return new Result (null, "");
                     }
-                } catch (Exception) { }
 
-                return new Result (null, "Function failed, function command might not be a mathematical one.");
+                    try {
+                        using (Graphics graphics = Graphics.FromImage (bitmap)) {
+                            using (Font font = new Font ("Areal", 16)) {
+                                graphics.DrawString ($"({xstart},{ystart})", font, Brushes.Gray, 0, 0);
+
+                                SizeF lowerSize = graphics.MeasureString ($"({xend},{yend})", font);
+                                graphics.DrawString ($"({xend},{yend})", font, Brushes.Gray, 512 - lowerSize.Width, 512 - lowerSize.Height);
+                            }
+                        }
+                    } catch { };
+
+                    for (double x = xstart; x < xend; x += xscale) {
+
+                        int xpix = (int)Math.Round (x / xscale) + X_RES / 2;
+                        System.Tuple<int, bool> res = await CalcY (data, yequals, x, xscale, yscale);
+                        int ycur = res.Item1;
+
+                        if (res.Item2) { // Is the result defined?
+                            int dist = ycur - yprev;
+                            int sign = Math.Sign (dist);
+                            dist = Math.Min (Math.Abs (dist), X_RES);
+                            if (dist == 0)
+                                dist = 1;
+
+                            for (int yy = 0; yy < dist; yy++) {
+                                double fraction = yy / (double)dist * xscale;
+                                var locRes = await CalcY (data, yequals, x + fraction, xscale, yscale);
+                                if (!locRes.Item2)
+                                    break;
+
+                                int ypix = locRes.Item1;
+
+                                if (!(
+                                    xpix < 0 || xpix >= X_RES ||
+                                    ypix < 0 || ypix >= Y_RES
+                                    ))
+                                    bitmap.SetPixel (xpix, ypix, System.Drawing.Color.Black);
+                            }
+
+                            yprev = ycur;
+                        }
+                    }
+
+                    using (MemoryStream stream = new MemoryStream ()) {
+                        bitmap.Save (stream, System.Drawing.Imaging.ImageFormat.Png);
+                        stream.Position = 0;
+                        await data.Message.Channel.SendFileAsync (stream, "graph.png");
+                    }
+
+                    return new Result (null, "");
+                }
             }
 
             private async Task<System.Tuple<int, bool>> CalcY(CommandMetadata data, string cmd, double x, double xscale, double yscale) {
@@ -519,11 +563,14 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 ExecutionData execution = data.Root.CreateExecution (cmd, data);
                 var result = await data.Executor.Execute (execution);
 
-                double y = (double)Convert.ChangeType (result?.Value, typeof (double));
+                try {
+                    double y = (double)Convert.ChangeType (result?.Value, typeof (double));
+                    int ycur = (int)Math.Round (y / yscale) + Y_RES / 2;
+                    return new System.Tuple<int, bool> (ycur, !double.IsNaN (y));
+                } catch (Exception) {
+                    throw new InvalidDataException ("The given command doesn't return numbers.");
+                }
 
-                int ycur = (int)Math.Round (y / yscale) + Y_RES / 2;
-
-                return new System.Tuple<int, bool> (ycur, !double.IsNaN (y));
             }
         }
     }

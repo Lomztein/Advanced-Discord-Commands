@@ -13,4 +13,10 @@
     <PackageReference Include="Discord.Net" Version="2.0.0-beta" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="MathematicalExpressionParser">
+      <HintPath>..\..\ExpressionParser\C#\MathematicalExpressionParser\bin\Debug\netcoreapp2.0\MathematicalExpressionParser.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

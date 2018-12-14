@@ -12,6 +12,8 @@ namespace Lomztein.AdvDiscordCommands.Framework
 {
     public class ExecutionData
     {
+        private const int MAX_DEPTH = short.MaxValue;
+
         public ICommand Command { get; private set; }
         public object[] Arguments { get; private set; }
         public CommandMetadata Metadata { get; private set; }
@@ -34,6 +36,9 @@ namespace Lomztein.AdvDiscordCommands.Framework
             if (!Executable)
                 throw new InvalidExecutionException ("Unable to execute. Execution is not executable, either due to a null command, arguments list, or metadata.");
 
+            if (Metadata.Depth > MAX_DEPTH)
+                throw new DepthExceededException ("The maximum command depth was exceeded, try to simplify your command program.");
+
             if (IsDocumentationRequest)
                 return new Result (Command.GetDocumentationEmbed (Metadata), "");
 
@@ -51,6 +56,12 @@ namespace Lomztein.AdvDiscordCommands.Framework
     public class InvalidExecutionException : Exception {
 
         public InvalidExecutionException(string message) : base (message) { }
+
+    }
+
+    public class DepthExceededException : Exception {
+
+        public DepthExceededException(string message) : base (message) { }
 
     }
 }

@@ -14,27 +14,9 @@ using Lomztein.AdvDiscordCommands.Autodocumentation;
 
 namespace Lomztein.AdvDiscordCommands.Framework {
 
-    public abstract class Command : ICommand, ICommandChild {
+    public abstract class Command : CommandBase, ICommandChild {
 
         private const int ListEmbedDescriptionMaxWidth = 28;
-
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Keep in mind that Discord embeds are quite short, so there is only limited space for description characters before it wraps to the next line. Approximately 30 characters.
-        /// </summary>
-        public string Description { get; set; }
-        public string[] Aliases { get; set; } = new string[0];
-
-        public ICategory Category { get; set; }
-        public ICommandParent CommandParent { get; set; }
-        public ICommandRoot ParentRoot { get; internal set; }
-
-        public bool AvailableInDM { get; set; } = false;
-        public bool AvailableOnServer { get; set; } = true;
-        public bool CommandEnabled { get; set; } = true;
-
-        public List<GuildPermission> RequiredPermissions { get; set; } = new List<GuildPermission>();
 
         public class FindMethodResult {
 
@@ -117,7 +99,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             }
         }
 
-        public virtual async Task<Result> TryExecute(CommandMetadata data, params object [ ] arguments) {
+        public override async Task<Result> TryExecute(CommandMetadata data, params object [ ] arguments) {
             string executionError = AllowExecution (data);
             string executionPrefix = "Failed to execute command " + Name;
             if (executionError == "") {
@@ -146,37 +128,8 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             return Task.FromResult (new Result (value, message));
         }
 
-        public virtual string AllowExecution (CommandMetadata metadata) {
-
-            if (metadata.Message.Id == 0) // If it is a fake message, then just continue.
-                return "";
-
-            string errors = string.Empty;
-
-            if (CommandEnabled == false)
-                errors += "\n\tNot enabled on this server.";
-
-            if (!AvailableInDM && metadata.Message.Channel as SocketDMChannel != null) {
-                errors += "\n\tNot available in DM channels.";
-            }
-
-            if (!(metadata.Message.Author as SocketGuildUser).HasAllPermissios (RequiredPermissions)) {
-                errors += "\n\tUser does not have permission.";
-            }
-
-            if (!AvailableOnServer && metadata.Message.Channel as SocketGuildChannel != null) {
-                errors += "\n\tNot avaiable on server.";
-            }
-
-            return errors;
-        }
-
-        public virtual void Initialize () {
+        public override void Initialize () {
             CheckDescriptionLength ();
-        }
-
-        public virtual string GetCommand(ulong? owner) {
-            return this.GetPrefix (owner) + Name;
         }
 
         private static string GetParenthesesArgs(string input) {
@@ -216,7 +169,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             }
         }
 
-        public CommandOverload[] GetOverloads () {
+        public override CommandOverload[] GetOverloads () {
 
             var overloads = GetType ().GetMethods ().Where (x => x.IsDefined (typeof (OverloadAttribute))).ToArray ();
             List<CommandOverload> result = new List<CommandOverload> ();
@@ -256,17 +209,6 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 Console.WriteLine ("Description for command " + Name + " is longer than recommended, consider shortening it to less than " + ListEmbedDescriptionMaxWidth);
         }
 
-        public bool IsCommand(string name) {
-            if (name == Name)
-                return true;
-
-            foreach (string alias in Aliases)
-                if (alias == name)
-                    return true;
-
-            return false;
-        }
-
-        public virtual Embed GetDocumentationEmbed(CommandMetadata metadata) => this.GetHelpEmbed (metadata.Message);
+        public override Embed GetDocumentationEmbed(CommandMetadata metadata) => this.GetHelpEmbed (metadata.Message);
     }
 }
