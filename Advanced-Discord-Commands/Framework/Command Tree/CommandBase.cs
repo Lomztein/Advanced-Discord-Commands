@@ -16,11 +16,14 @@ namespace Lomztein.AdvDiscordCommands.Framework
         public string[] Aliases { get; set; } = new string[0];
         public string Flatname { get; set; }
         public ICategory Category { get; set; } = StandardCategories.Uncategorised;
-        public bool AvailableInDM { get; set; }
-        public bool AvailableOnServer { get; set; }
-        public bool CommandEnabled { get; set; }
+
+        public bool CommandEnabled { get; set; } = true;
+        public bool AvailableInDM { get; set; } = false;
+        public bool AvailableOnServer { get; set; } = true;
+
         public List<GuildPermission> RequiredPermissions { get; set; } = new List<GuildPermission>();
         public ICommandParent CommandParent { get; set; }
+
         public string Name { get; set; } = "unnamed";
         public string Description { get; set; } = "undesced";
 
