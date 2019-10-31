@@ -36,7 +36,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
         }
 
         private async void Initialize () {
-            Console.WriteLine ("Initializing bot..");
+            Console.WriteLine ($"Initializing bot using token {token}..");
             await client.LoginAsync (TokenType.Bot, token); // Typical Discord.NET bot initialization.
             await client.StartAsync ();
             PopulateCommands (); // Initialize command root.
