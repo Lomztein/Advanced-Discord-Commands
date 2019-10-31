@@ -1,28 +1,24 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-
-    <IsPackable>false</IsPackable>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Advanced-Discord-Commands\bin\**" />
     <Compile Remove="Advanced-Discord-Commands\obj\**" />
-    <Compile Remove="ExampleBot\bin\**" />
-    <Compile Remove="ExampleBot\obj\**" />
+    <Compile Remove="ExampleBot\**" />
     <Compile Remove="UnitTests\bin\**" />
     <Compile Remove="UnitTests\obj\**" />
     <EmbeddedResource Remove="Advanced-Discord-Commands\bin\**" />
     <EmbeddedResource Remove="Advanced-Discord-Commands\obj\**" />
-    <EmbeddedResource Remove="ExampleBot\bin\**" />
-    <EmbeddedResource Remove="ExampleBot\obj\**" />
+    <EmbeddedResource Remove="ExampleBot\**" />
     <EmbeddedResource Remove="UnitTests\bin\**" />
     <EmbeddedResource Remove="UnitTests\obj\**" />
     <None Remove="Advanced-Discord-Commands\bin\**" />
     <None Remove="Advanced-Discord-Commands\obj\**" />
-    <None Remove="ExampleBot\bin\**" />
-    <None Remove="ExampleBot\obj\**" />
+    <None Remove="ExampleBot\**" />
     <None Remove="UnitTests\bin\**" />
     <None Remove="UnitTests\obj\**" />
   </ItemGroup>
@@ -30,7 +26,6 @@
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.1.1" />
     <PackageReference Include="Lomztein.MathematicalExpressionParser" Version="1.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0-preview-20191007-01" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0-preview1.19504.10" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">

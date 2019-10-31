@@ -30,7 +30,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
         public CommandRoot commandRoot;
 
         public BotClient(string _token) {
-            client = new DiscordSocketClient ();
+            client = new DiscordSocketClient();
             token = _token;
             Initialize ();
         }

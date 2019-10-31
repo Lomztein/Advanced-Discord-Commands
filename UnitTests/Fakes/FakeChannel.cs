@@ -33,16 +33,19 @@ namespace Lomztein.AdvDiscordCommands.Tests.Fakes
             throw new NotImplementedException ();
         }
 
-        public IAsyncEnumerable<IReadOnlyCollection<IMessage>> GetMessagesAsync(int limit = 100, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null) {
-            throw new NotImplementedException ();
+        public IAsyncEnumerable<IReadOnlyCollection<IMessage>> GetMessagesAsync(int limit = 100, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null)
+        {
+            throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<IReadOnlyCollection<IMessage>> GetMessagesAsync(ulong fromMessageId, Direction dir, int limit = 100, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null) {
-            throw new NotImplementedException ();
+        public IAsyncEnumerable<IReadOnlyCollection<IMessage>> GetMessagesAsync(ulong fromMessageId, Direction dir, int limit = 100, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null)
+        {
+            throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<IReadOnlyCollection<IMessage>> GetMessagesAsync(IMessage fromMessage, Direction dir, int limit = 100, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null) {
-            throw new NotImplementedException ();
+        public IAsyncEnumerable<IReadOnlyCollection<IMessage>> GetMessagesAsync(IMessage fromMessage, Direction dir, int limit = 100, CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<IReadOnlyCollection<IMessage>> GetPinnedMessagesAsync(RequestOptions options = null) {
@@ -53,8 +56,9 @@ namespace Lomztein.AdvDiscordCommands.Tests.Fakes
             throw new NotImplementedException ();
         }
 
-        public IAsyncEnumerable<IReadOnlyCollection<IUser>> GetUsersAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null) {
-            throw new NotImplementedException ();
+        public IAsyncEnumerable<IReadOnlyCollection<IUser>> GetUsersAsync(CacheMode mode = CacheMode.AllowDownload, RequestOptions options = null)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<IUserMessage> SendFileAsync(string filePath, string text = null, bool isTTS = false, RequestOptions options = null) {
