@@ -37,8 +37,14 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
 
         private async void Initialize () {
             Console.WriteLine ($"Initializing bot using token {token}..");
-            await client.LoginAsync (TokenType.Bot, token); // Typical Discord.NET bot initialization.
-            await client.StartAsync ();
+            try
+            {
+                await client.LoginAsync(TokenType.Bot, token); // Typical Discord.NET bot initialization.
+                await client.StartAsync();
+            } catch (Exception exc)
+            {
+                Console.WriteLine("Everythings not groovy: " + exc.Message + " - " + exc.StackTrace);
+            }
             PopulateCommands (); // Initialize command root.
             client.MessageReceived += MessageRecievedEvent;
             Console.WriteLine ("Everythings groovy!");
