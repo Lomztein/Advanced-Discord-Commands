@@ -18,8 +18,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
         static void Main(string [ ] args) {
             Console.WriteLine ("Booting application..");
             client = new BotClient (File.ReadAllText (AppContext.BaseDirectory + "/token.txt")); // Very simple token loading, because who's gonna write a config system for a bo   t with less than 100 lines?
-            client.Initialize();
-            Console.ReadLine (); // I've forgot the correct method and this is easy.
+            client.Initialize().GetAwaiter ().GetResult ();
         }
     }
 
@@ -35,7 +34,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
             token = _token;
         }
 
-        public async void Initialize () {
+        public async Task Initialize () {
             Console.WriteLine ($"Initializing bot using token {token}..");
             try
             {
