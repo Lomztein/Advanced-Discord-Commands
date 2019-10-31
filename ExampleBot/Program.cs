@@ -17,7 +17,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
 
         static void Main(string [ ] args) {
             Console.WriteLine ("Booting application..");
-            client = new BotClient (File.ReadAllText (AppContext.BaseDirectory + "/token.txt")); // Very simple token loading, because who's gonna write a config system for a bo   t with less than 100 lines?
+            client = new BotClient (File.ReadAllText (AppContext.BaseDirectory + "/token.txt").Trim ()); // Very simple token loading, because who's gonna write a config system for a bo   t with less than 100 lines?
             client.Initialize().GetAwaiter ().GetResult ();
         }
     }
@@ -39,7 +39,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
             try
             {
                 Console.WriteLine("Logging in..");
-                await client.LoginAsync(TokenType.Bot, token); // Typical Discord.NET bot initialization.
+                await client.LoginAsync(TokenType.Bot, token); // Usual Discord.NET bot initialization.
                 Console.WriteLine("Starting..");
                 await client.StartAsync();
             } catch (Exception exc)
