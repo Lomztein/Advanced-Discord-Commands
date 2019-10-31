@@ -42,6 +42,10 @@ namespace Lomztein.AdvDiscordCommands.Tests.Fakes
 
         public IReadOnlyDictionary<IEmote, ReactionMetadata> Reactions => throw new NotImplementedException ();
 
+        public MessageActivity Activity => throw new NotImplementedException();
+
+        public MessageApplication Application => throw new NotImplementedException();
+
         public Task DeleteAsync(RequestOptions options = null) {
             throw new NotImplementedException ();
         }
@@ -76,6 +80,11 @@ namespace Lomztein.AdvDiscordCommands.Tests.Fakes
 
         public string Resolve(TagHandling userHandling = TagHandling.Name, TagHandling channelHandling = TagHandling.Name, TagHandling roleHandling = TagHandling.Name, TagHandling everyoneHandling = TagHandling.Ignore, TagHandling emojiHandling = TagHandling.Name) {
             throw new NotImplementedException ();
+        }
+
+        public IAsyncEnumerable<IReadOnlyCollection<IUser>> GetReactionUsersAsync(IEmote emoji, int limit, RequestOptions options = null)
+        {
+            throw new NotImplementedException();
         }
 
         public FakeUserMessage (string content) {
