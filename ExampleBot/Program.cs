@@ -18,6 +18,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
         static void Main(string [ ] args) {
             Console.WriteLine ("Booting application..");
             client = new BotClient (File.ReadAllText (AppContext.BaseDirectory + "/token.txt")); // Very simple token loading, because who's gonna write a config system for a bo   t with less than 100 lines?
+            client.Initialize();
             Console.ReadLine (); // I've forgot the correct method and this is easy.
         }
     }
@@ -32,10 +33,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
         public BotClient(string _token) {
             client = new DiscordSocketClient();
             token = _token;
-            Initialize ();
         }
 
-        private async void Initialize () {
+        public async void Initialize () {
             Console.WriteLine ($"Initializing bot using token {token}..");
             try
             {
@@ -48,6 +48,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
             PopulateCommands (); // Initialize command root.
             client.MessageReceived += MessageRecievedEvent;
             Console.WriteLine ("Everythings groovy!");
+
+            await Task.Delay(-1);
         }
 
         private void PopulateCommands() {
