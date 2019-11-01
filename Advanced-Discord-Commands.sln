@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29418.71
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Advanced-Discord-Commands", "Advanced-Discord-Commands.csproj", "{4EA8CFDA-F5AD-4394-BDF4-3C991FF437B3}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExampleBot", "ExampleBot\ExampleBot.csproj", "{F09C71BD-21CE-453A-B11A-09ED3899A23B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\UnitTests.csproj", "{60B7D624-19FD-4262-9F4F-D02BFF2CC0B1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Advanced-Discord-Commands", "Advanced-Discord-Commands\Advanced-Discord-Commands.csproj", "{3DDDFA5C-78C0-45CE-A821-0A5C68DACCDA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4EA8CFDA-F5AD-4394-BDF4-3C991FF437B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4EA8CFDA-F5AD-4394-BDF4-3C991FF437B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4EA8CFDA-F5AD-4394-BDF4-3C991FF437B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4EA8CFDA-F5AD-4394-BDF4-3C991FF437B3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F09C71BD-21CE-453A-B11A-09ED3899A23B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F09C71BD-21CE-453A-B11A-09ED3899A23B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F09C71BD-21CE-453A-B11A-09ED3899A23B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F09C71BD-21CE-453A-B11A-09ED3899A23B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60B7D624-19FD-4262-9F4F-D02BFF2CC0B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60B7D624-19FD-4262-9F4F-D02BFF2CC0B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60B7D624-19FD-4262-9F4F-D02BFF2CC0B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60B7D624-19FD-4262-9F4F-D02BFF2CC0B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DDDFA5C-78C0-45CE-A821-0A5C68DACCDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DDDFA5C-78C0-45CE-A821-0A5C68DACCDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DDDFA5C-78C0-45CE-A821-0A5C68DACCDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DDDFA5C-78C0-45CE-A821-0A5C68DACCDA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

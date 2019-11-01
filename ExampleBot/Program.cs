@@ -17,7 +17,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleBot {
 
         static void Main(string [ ] args) {
             Console.WriteLine ("Booting application..");
-            client = new BotClient (File.ReadAllText (AppContext.BaseDirectory + "/token.txt").Trim ()); // Very simple token loading, because who's gonna write a config system for a bo   t with less than 100 lines?
+            client = new BotClient (File.ReadAllText (AppContext.BaseDirectory + "/data/token.txt").Trim ()); // Very simple token loading, because who's gonna write a config system for a bo   t with less than 100 lines?
             client.Initialize().GetAwaiter ().GetResult ();
         }
     }
