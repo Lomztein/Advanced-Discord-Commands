@@ -57,7 +57,7 @@ namespace Lomztein.AdvDiscordCommands.Extensions
 
         public static ExecutionData CreateExecution(this ICommandRoot root, string fullCommand, CommandMetadata metadata, object[] arguments, List<ICommand> commandList) {
             ICommand cmd = root.Searcher.Search (fullCommand, commandList, metadata.Owner);
-            return new ExecutionData (cmd, arguments, metadata);
+            return new ExecutionData(cmd, arguments, metadata);
         }
     }
 }

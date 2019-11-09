@@ -12,7 +12,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
 {
     public class ExecutionData
     {
-        private const int MAX_DEPTH = short.MaxValue;
+        private const int MAX_DEPTH = int.MaxValue;
 
         public ICommand Command { get; private set; }
         public object[] Arguments { get; private set; }

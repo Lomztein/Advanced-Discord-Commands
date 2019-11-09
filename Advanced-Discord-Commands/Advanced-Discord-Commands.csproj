@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <PackageId>Lomztein.Advanced-Discord-Commands</PackageId>
-    <Version>1.0.0-beta</Version>
+    <Version>1.0.1-beta</Version>
     <Authors>Lomztein</Authors>
     <Company>Lomztein</Company>
     <Description>A command framework for DIscord build on the Discord.NET API wrapper by RougeException. Uploaded to streamline deployment process, not as much for public consumption, use at your own risk.</Description>
@@ -22,7 +22,7 @@
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.1.1" />
     <PackageReference Include="Lomztein.MathematicalExpressionParser" Version="1.0.0" />
-    <PackageReference Include="System.Drawing.Common" Version="4.7.0-preview1.19504.10" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.0-preview2.19523.17" />
   </ItemGroup>
 
   <ItemGroup>
