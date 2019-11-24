@@ -22,12 +22,14 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             Description = "Set relating to variables";
             Category = StandardCategories.Advanced;
 
-            commandsInSet = new List<ICommand> {
+            _commandsInSet = new List<ICommand> {
                 new SetL (), new SetP (), new SetG (),
                 new GetL (), new GetP (), new GetG (),
                 new DelL (), new DelP (), new DelG (),
                 new ArraySet  (),
             };
+
+            _defaultCommand = new Get();
         }
 
         public class ArraySet : CommandSet {
@@ -40,7 +42,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 Description = "Set for manipulating arrays.";
                 Category = ArrayCategory;
 
-                commandsInSet = new List<ICommand> {
+                _commandsInSet = new List<ICommand> {
                     new Create (), new Add (), new Remove (), new Count (), new IndexOf (), new AtIndex (),
                 };
             }
@@ -143,6 +145,40 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 public Task<Result> Execute(CommandMetadata e, object obj, params dynamic[] array) {
                     return TaskResult (array.ToList ().IndexOf (obj), "");
                 }
+            }
+        }
+
+        public class Get : Command
+        {
+            public Get ()
+            {
+                Name = "get";
+                Description = "Get variable.";
+            }
+
+            [Overload (typeof (object), "Return a variable from any scope, prioritizing local over personal over global.")]
+            public Task<Result> Execute (CommandMetadata data, string name)
+            {
+                var loc = CommandVariables.Get(data.ID, name);
+                var per = CommandVariables.Get(data.AuthorID, name);
+                var glo = CommandVariables.Get(((data.Author as SocketGuildUser)?.Id).GetValueOrDefault (), name);
+
+                if (loc != null)
+                {
+                    return TaskResult (loc, $"{name} = {loc}");
+                }
+
+                if (per != null)
+                {
+                    return TaskResult(per, $"{name} = {per}");
+                }
+
+                if (glo != null)
+                {
+                    return TaskResult(glo, $"{name} = {glo}");
+                }
+
+                throw new InvalidOperationException($"No variable named {name} exists in any scope.");
             }
         }
 

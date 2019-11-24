@@ -21,9 +21,11 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             Description = "Commands controlling flow.";
             Category = StandardCategories.Advanced;
 
-            commandsInSet = new List<ICommand> {
+            _commandsInSet = new List<ICommand> {
                 new IsNull (), new If (), new Not (), new And (), new Or (), new For (), new Foreach (), new Goto (), new Wait (),
             };
+
+            _defaultCommand = new If();
         }
 
         public class IsNull : Command {

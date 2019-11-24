@@ -101,7 +101,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
         public override async Task<Result> TryExecute(CommandMetadata data, params object [ ] arguments) {
             string executionError = AllowExecution (data);
-            string executionPrefix = "Failed to execute command " + Name;
+            string executionPrefix = $"Failed to execute command '{GetCommand ((data.Author as SocketGuildUser)?.Id)}':";
             if (executionError == "") {
 
                 FindMethodResult result = FindMethod (arguments);
@@ -117,7 +117,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                         throw exception.InnerException;
                     }
                 } else {
-                    return new Result (null, $"{executionPrefix}: \n\tNo suitable command overload found.");
+                    return new Result (null, $"{executionPrefix}: \n\tNo suitable command variant found. Suffix '{ExecutionData.HELPCHAR}' to command name to view available variants.");
                 }
             } else {
                 return new Result (null, $"{executionPrefix}: Failed to execute: {executionError}");
@@ -130,28 +130,6 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
         public override void Initialize () {
             CheckDescriptionLength ();
-        }
-
-        private static string GetParenthesesArgs(string input) {
-            int startIndex = 0, endIndex = input.Length;
-            int balance = 0;
-
-            for (int i = 0; i < input.Length; i++) {
-                if (input [ i ] == '(') {
-                    if (balance == 0)
-                        startIndex = i;
-                    balance++;
-                }
-                if (input [ i ] == ')') {
-                    balance--;
-
-                    if (balance == 0) {
-                        endIndex = i;
-                        break;
-                    }
-                }
-            }
-            return input.Substring (startIndex + 1, endIndex - startIndex - 1);
         }
 
         public string Format (ulong? owner, string connector = " | ", int minSpaces = 25) {

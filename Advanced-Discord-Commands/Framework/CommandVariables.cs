@@ -20,7 +20,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 }
             }
 
-            throw new InvalidOperationException ($"No variable by name {name} exists.");
+            throw new InvalidOperationException ($"No variable by name '{name}' exists.");
         }
 
         public static async Task<object> AsyncGet(ulong ID, string name, int maxWaitSecs = 10) {

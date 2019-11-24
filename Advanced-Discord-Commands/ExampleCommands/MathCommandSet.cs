@@ -29,10 +29,12 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             Description = "Floating point mathematics.";
             Category = StandardCategories.Advanced;
 
-            commandsInSet = new List<ICommand> {
+            _commandsInSet = new List<ICommand> {
                 new Add (), new Subtract (), new Multiply (), new Divide (), new Pow (), new Log (), new Mod (), new Sin (), new Cos (), new Tan (), new ASin (), new ACos (), new ATan (), new Deg2Rad (), new Rad2Deg (), new PI (),
                 new Round (), new Ceiling (), new Floor (), new Squareroot (), new Min (), new Max (), new Abs (), new Sign (), new Equal (), new Random (), new Graph (), new Evaluate ()
             };
+
+            _defaultCommand = new Evaluate();
         }
 
         public class Add : Command {
@@ -425,15 +427,24 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 Category = ScienceCategory;
             }
 
-            [Overload (typeof (double), "Evaluate the given mathematical expression and return the result.")]
-            [Example ("10", "6 + 2 * 2 = 10", "6 + 2 * 2")]
+            [Overload(typeof(double), "Evaluate the given mathematical expression and return the result.")]
+            [Example("10", "6 + 2 * 2 = 10", "6 + 2 * 2")]
             //[Example ("64", "pow (8, 2) = 64", "pow (8, 2)")]
             //[Example ("14.14", "sqrt (pow (10, 2) + pow (10, 2)) = 14.14", "sqrt (pow (10, 2) + pow (10, 2))")]
-            public Task<Result> Execute (CommandMetadata metadata, string expression) {
-                ExpressionParser parser = new ExpressionParser ();
-                parser.Parsers = parser.Parsers.Concat (new MathematicalExpressionParser.Token.ITokenParser[] { new GetVariableParserWrapper (metadata) }).ToArray ();
-                double result = parser.Parse (expression);
-                return TaskResult (result, $"{expression} = {result}");
+            public Task<Result> Execute(CommandMetadata metadata, string expression)
+            {
+                ExpressionParser parser = new ExpressionParser();
+                parser.Parsers = parser.Parsers.Concat(new MathematicalExpressionParser.Token.ITokenParser[] { new GetVariableParserWrapper(metadata) }).ToArray();
+                double result = 0;
+                try
+                {
+                    result = parser.Parse(expression);
+                }
+                catch (Exception exc)
+                {
+                    return TaskResult(result, $"Failed to evaluate '{expression}': " + exc.Message);
+                }
+                return TaskResult(result, $"{expression} = {result}");
             }
 
             private class GetVariableParserWrapper : MathematicalExpressionParser.Token.ITokenParser {

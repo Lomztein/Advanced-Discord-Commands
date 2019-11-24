@@ -25,22 +25,49 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             Description = "Discord-related commands.";
             Category = StandardCategories.Advanced;
 
-            commandsInSet = new List<ICommand> {
+            _commandsInSet = new List<ICommand> {
                 new UserSet (), new ChannelSet (), new RoleSet (), new ServerSet (),
                 new Mention (), new ID (), new Delete (),
             };
+
+            _defaultCommand = new FindMentionable();
+        }
+
+        public class FindMentionable : Command
+        {
+            public FindMentionable ()
+            {
+                Name = "find";
+                Description = "Find mentionable.";
+                Category = StandardCategories.Advanced;
+
+                AvailableInDM = false;
+            }
+
+            [Overload (typeof (IMentionable), "Find any type of mentionable object using a mention.")]
+            public Task<Result> Execute (CommandMetadata data, string mention)
+            {
+                if (data.Author is SocketGuildUser guildUser)
+                {
+                    IMentionable mentionable = mention.ExtractMentionable(guildUser.Guild);
+                    return TaskResult(mentionable, $"Found mentionable {mentionable.ToString()}.");
+                }
+                throw new InvalidOperationException("This can only be done on servers.");
+            }
         }
 
         public class UserSet : CommandSet {
             public UserSet() {
-                base.Name = "user";
+                Name = "user";
                 Description = "User related commands.";
                 Category = StandardCategories.Advanced;
 
-                commandsInSet = new List<ICommand> {
+                _commandsInSet = new List<ICommand> {
                     new Find (), new Random (), new Username (), new Online (), new Kick (), new Nickname (),
                     new AddRole (), new RemoveRole (), new DM (), new Move (), new SetVoice (),
                 };
+
+                _defaultCommand = new Find();
             }
 
             public class Find : Command {
@@ -315,7 +342,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 Description = "Role related commands.";
                 Category = StandardCategories.Advanced;
 
-                commandsInSet = new List<ICommand> {
+                _commandsInSet = new List<ICommand> {
                     new Find (), new Members (),
                 };
             }
@@ -364,9 +391,11 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 Description = "Channel related commands.";
                 Category = StandardCategories.Advanced;
 
-                commandsInSet = new List<ICommand> {
+                _commandsInSet = new List<ICommand> {
                     new Find (), new Members (), new Channelname (), new Type (), new Create (),
                 };
+
+                _defaultCommand = new Find();
             }
 
             public class Find : Command {
@@ -471,9 +500,11 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 Description = "Server related commands.";
                 Category = StandardCategories.Advanced;
 
-                commandsInSet = new List<ICommand> {
+                _commandsInSet = new List<ICommand> {
                     new Get (), new Servername (), new Channels (), new Members (), new AFKChannel (),
                 };
+
+                _defaultCommand = new Get();
             }
 
             public class Get : Command {
