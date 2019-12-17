@@ -80,7 +80,7 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
                     overloadText += "\n";
 
                 // Add example, if there is one.
-                if (!overload.Example.IsEmpty) {
+                if (overload.Example != null && !overload.Example.IsEmpty) {
 
                     // Add "Example" header.
                     overloadText += "** -- Example Usage -- **";
@@ -118,7 +118,10 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
             if (containsArray)
                 laymansText += "\n\n\u200b**A - Array** - " + TypeDescriptions.ArrayDescription;
 
-            builder.AddField ("Types in laymans terms", laymansText);
+            if (!string.IsNullOrWhiteSpace (laymansText) && laymansText.Length > 0)
+            {
+                builder.AddField("Types in laymans terms", laymansText);
+            }
 
             string footer = string.Empty;
             if (command.AvailableInDM && !command.AvailableOnServer)
