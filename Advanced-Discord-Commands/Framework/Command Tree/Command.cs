@@ -18,7 +18,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
         private const int ListEmbedDescriptionMaxWidth = 28;
 
-        public class FindMethodResult {
+        private class FindMethodResult {
 
             public enum Fit { None, StringToString, Converted, PartiallyConverted, Perfect }
             public readonly Fit Fits;
@@ -30,11 +30,11 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 Arguments = _parameters;
                 Fits = fit;
             }
+
+            public override string ToString() => $"{Overload}, Arguments: {Arguments.Count}, Fit: {Fits}";
         }
 
-        public FindMethodResult FindMethod(params object [ ] arguments) {
-            // All end-command code is written as "Execute" functions, in order for the reflection to easily find it. Alternatively use attributes.
-
+        private FindMethodResult FindMethod(params object [ ] arguments) {
             CommandOverload [ ] overloads = GetOverloads ();
             List<FindMethodResult> availableMethods = new List<FindMethodResult>();
 
@@ -46,7 +46,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 }
             }
 
-            availableMethods.Sort(Comparer<FindMethodResult>.Create(new Comparison<FindMethodResult>((x, y) => (int)y.Fits - (int)x.Fits)));
+            availableMethods.Sort(Comparer<FindMethodResult>.Create((x, y) => (int)y.Fits - (int)x.Fits));
             return availableMethods.FirstOrDefault ();
         }
 

@@ -26,6 +26,7 @@ namespace Lomztein.AdvDiscordCommands.Framework.Execution
         public async Task<object[]> ParseChainElements(CommandMetadata data, object[] arguments) {
             List<object> converted = new List<object> ();
 
+            // TODO: Experiment with looping over the arguments untill all parsers return null.
             foreach (object obj in arguments) {
                 dynamic result = obj;
                 string stringObj = obj.ToString ();
