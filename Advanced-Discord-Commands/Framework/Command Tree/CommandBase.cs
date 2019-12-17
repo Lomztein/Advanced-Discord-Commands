@@ -70,6 +70,6 @@ namespace Lomztein.AdvDiscordCommands.Framework
                 (!string.IsNullOrEmpty (Flatname) && Flatname == name);
         }
 
-        public abstract Task<Result> TryExecute(CommandMetadata data, params object[] arguments);
+        public abstract Task<Result> TryExecute(CommandMetadata data, Arguments arguments);
     }
 }

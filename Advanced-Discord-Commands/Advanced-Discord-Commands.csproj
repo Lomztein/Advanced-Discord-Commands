@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <PackageId>Lomztein.Advanced-Discord-Commands</PackageId>
-    <Version>1.0.3-beta</Version>
+    <Version>1.1.0-beta</Version>
     <Authors>Lomztein</Authors>
     <Company>Lomztein</Company>
     <Description>A command framework for Discord build on the Discord.NET API wrapper by RougeException. Uploaded to streamline deployment process, not as much for public consumption, use at your own risk.</Description>

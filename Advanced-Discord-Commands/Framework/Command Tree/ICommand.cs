@@ -17,7 +17,7 @@ namespace Lomztein.AdvDiscordCommands.Framework.Interfaces {
 
         string GetCommand(ulong? owner);
 
-        Task<Result> TryExecute(CommandMetadata data, params object[] arguments);
+        Task<Result> TryExecute(CommandMetadata data, Arguments arguments);
 
         bool IsCommand(string name);
 

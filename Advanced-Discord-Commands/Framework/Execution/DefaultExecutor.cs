@@ -23,24 +23,31 @@ namespace Lomztein.AdvDiscordCommands.Framework.Execution
             new ExtractForceStringParser (),
         };
 
-        public async Task<object[]> ParseChainElements(CommandMetadata data, object[] arguments) {
-            List<object> converted = new List<object> ();
+        public async Task<Arguments> ParseChainElements(CommandMetadata data, Arguments arguments) {
+            List<List<object>> converted = new List<List<object>> ();
 
             // TODO: Experiment with looping over the arguments untill all parsers return null.
-            foreach (object obj in arguments) {
-                dynamic result = obj;
-                string stringObj = obj.ToString ();
+            foreach (object[] set in arguments)
+            {
+                List<object> setConverted = new List<object>();
+                foreach (object obj in set)
+                {
+                    dynamic result = obj;
+                    string stringObj = obj.ToString();
 
-                foreach (ITokenParser parser in Parsers) {
-                    ParseResult parseResult = await parser.TryParse (obj, data);
-                    if (parseResult.Success)
-                        result = parseResult.Result;
+                    foreach (ITokenParser parser in Parsers)
+                    {
+                        ParseResult parseResult = await parser.TryParse(obj, data);
+                        if (parseResult.Success)
+                            result = parseResult.Result;
+                    }
+
+                    setConverted.Add(result);
                 }
-
-                converted.Add (result);
+                converted.Add(setConverted);
             }
 
-            return converted.ToArray ();
+            return new Arguments (converted);
         }
 
         public async Task<Result> Execute(ExecutionData execution) {

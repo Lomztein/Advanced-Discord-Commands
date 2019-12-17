@@ -19,7 +19,9 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
         public static Embed GetAutodocumentationEmbed(this ICommand command, IMessage e, bool advanced) {
             EmbedBuilder builder = new EmbedBuilder ();
 
-            builder.WithTitle ($"Command \"{command.GetCommand (e.GetGuild ().Id)}\"")
+            command.GetCommand(e.GetGuild()?.Id);
+
+            builder.WithTitle ($"Command \"{command.GetCommand (e.GetGuild ()?.Id)}\"")
                 .WithDescription (command.Description);
 
             // Compile a list of all C# types used, in order to explain them to the layman.
@@ -58,21 +60,23 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
                 // Start codeblock for syntax.
                 overloadText += "```";
 
-                // If return type is not void, then add return type.
-                if (overload.ReturnType != typeof (void))
-                    overloadText += "Returns:   " + AddAndGetShownTypeName (overload.ReturnType) + "\n";
-
                 // Add arguments.
                 overloadText += "Arguments: ";
-                for (int j = 0; j < overload.Parameters.Length; j++) {
+                for (int j = 0; j < overload.Parameters.Length; j++)
+                {
                     CommandOverload.Parameter parameter = overload.Parameters[j];
 
-                    overloadText += AddAndGetShownTypeName (parameter.type) + " " + parameter.name;
+                    overloadText += AddAndGetShownTypeName(parameter.type) + " " + parameter.name;
 
                     // Add arg seperator between each argument to seperate.
                     if (j != overload.Parameters.Length - 1)
-                        overloadText += DefaultExtractor.argSeperator + " ";
+                        overloadText += Arguments.SEPERATOR + " ";
                 }
+
+                // If return type is not void, then add return type.
+                if (overload.ReturnType != typeof (void))
+                    overloadText += "\nReturns:   " + AddAndGetShownTypeName (overload.ReturnType);
+
                 // End syntax code block
                 overloadText += "```";
 

@@ -6,6 +6,6 @@ namespace Lomztein.AdvDiscordCommands.Framework.Execution
 {
     public interface IExtractor
     {
-        string[] ExtractArguments (string input);
+        Arguments ExtractArguments (string input);
     }
 }

@@ -1,74 +1,50 @@
 ﻿using Lomztein.AdvDiscordCommands.Extensions;
 using Lomztein.AdvDiscordCommands.Framework.Execution;
+using Lomztein.AdvDiscordCommands.Framework.Execution.TokenExtractors;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Lomztein.AdvDiscordCommands.Framework.Execution
 {
-    public class DefaultExtractor : IExtractor {
+    public class DefaultExtractor : IExtractor
+    {
+        private readonly ITokenExtractor[] _extractors =
+        {
+            new DelimitingTokenExtractor (','),
+            new NumberTextTokenExtractor (),
+            new DelimitingTokenExtractor (' '),
+            new NoTokenExtractor (),
+        };
 
-        public const char argSeperator = ',';
+        public Arguments ExtractArguments(string input)
+        {
+            string arguments = ExtractArgumentPart(input);
+            object[][] extractedSets = new object[_extractors.Length][];
 
-        public const char forcedStringStart = '[';
-        public const char forcedStringEnd = ']';
-
-        public const char nestedCommandStart = '(';
-        public const char nestedCommandEnd = ')';
-
-        public string[] ExtractArguments(string fullCommand) {
-
-            string toSplit = fullCommand.ExtractArgumentPart ();
-
-            if (string.IsNullOrEmpty (toSplit))
-                return new string[0];
-
-            List<string> arguments = new List<string> ();
-            string arg;
-
-            int quatationBalance = 0;
-
-            int balance = 0;
-            int lastCut = 0;
-
-            for (int i = 0; i < toSplit.Length; i++) {
-                char cur = toSplit[i];
-
-                if (cur == forcedStringStart)
-                    quatationBalance++;
-                if (cur == forcedStringEnd)
-                    quatationBalance--;
-
-                if (quatationBalance == 0) {
-                    switch (cur) {
-                        case argSeperator:
-                            if (balance == 0) {
-                                arg = toSplit.Substring (lastCut, i - lastCut);
-                                arguments.Add (arg);
-                                lastCut = i + 1;
-                            }
-                            break;
-
-                        case nestedCommandStart:
-                            balance++;
-                            break;
-
-                        case nestedCommandEnd:
-                            balance--;
-                            break;
-                    }
-                }
+            for (int i = 0; i < _extractors.Length; i++)
+            {
+                ITokenExtractor extractor = _extractors[i];
+                extractedSets[i] = extractor.ExtractTokens(arguments);
             }
 
-            if (toSplit.Length > 0) {
-                arguments.Add (toSplit.Substring (lastCut));
+            return new Arguments(extractedSets);
+        }
+
+        private static string ExtractArgumentPart(string fullCommand)
+        {
+
+            if (!string.IsNullOrEmpty(fullCommand))
+            {
+                int spaceIndex = fullCommand.IndexOfAny(CharExtensions.WhitespaceChars);
+                if (spaceIndex == -1)
+                    return null;
+                else
+                    return fullCommand.Substring(spaceIndex).Trim ();
             }
 
-            for (int i = 0; i < arguments.Count; i++) {
-                arguments[i] = arguments[i].Trim (CharExtensions.WhitespaceChars);
-            }
+            return null;
 
-            return arguments.ToArray ();
         }
     }
 }

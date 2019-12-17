@@ -74,7 +74,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
                 for (int i = 0; i < Arguments.Length; i++) {
                     combinedArgs += Arguments[i];
                     if (i != Arguments.Length - 1)
-                        combinedArgs += DefaultExtractor.argSeperator + " ";
+                        combinedArgs += Framework.Arguments.SEPERATOR + " ";
                 }
 
                 return cmd.GetCommand (owner) + " " + combinedArgs;

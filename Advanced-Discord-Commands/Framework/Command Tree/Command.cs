@@ -34,20 +34,28 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             public override string ToString() => $"{Overload}, Arguments: {Arguments.Count}, Fit: {Fits}";
         }
 
-        private FindMethodResult FindMethod(params object [ ] arguments) {
+        private FindMethodResult FindMethod(Arguments arguments) {
             CommandOverload [ ] overloads = GetOverloads ();
             List<FindMethodResult> availableMethods = new List<FindMethodResult>();
 
-            foreach (CommandOverload overload in overloads) {
-                FindMethodResult result = FitMethod(overload, arguments);
-                if (result != null)
+            foreach (object[] set in arguments)
+            {
+                foreach (CommandOverload overload in overloads)
                 {
-                    availableMethods.Add(result);
+                    FindMethodResult result = FitMethod(overload, set);
+                    if (result != null)
+                    {
+                        availableMethods.Add(result);
+                    }
+                }
+
+                availableMethods.Sort(Comparer<FindMethodResult>.Create((x, y) => (int)y.Fits - (int)x.Fits));
+                if (availableMethods.Any ())
+                {
+                    return availableMethods.First();
                 }
             }
-
-            availableMethods.Sort(Comparer<FindMethodResult>.Create((x, y) => (int)y.Fits - (int)x.Fits));
-            return availableMethods.FirstOrDefault ();
+            return null;
         }
 
         private FindMethodResult FitMethod (CommandOverload overload, object[] arguments)
@@ -163,7 +171,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             }
         }
 
-        public override async Task<Result> TryExecute(CommandMetadata data, params object [ ] arguments) {
+        public override async Task<Result> TryExecute(CommandMetadata data, Arguments arguments) {
             string executionError = AllowExecution (data);
             string executionPrefix = $"Failed to execute command '{GetCommand ((data.Author as IUser)?.Id)}':";
             if (executionError == "") {
@@ -181,10 +189,10 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                         throw exception.InnerException;
                     }
                 } else {
-                    return new Result (GetDocumentationEmbed (data), $"{executionPrefix}: \n\tNo suitable command variant found. This may help you:");
+                    return new Result (GetDocumentationEmbed (data), $"{executionPrefix}\n\tNo suitable command variant found. This may help you:", true);
                 }
             } else {
-                return new Result (null, $"{executionPrefix}: {executionError}");
+                return new Result (null, $"{executionPrefix} {executionError}", true);
             }
         }
 
