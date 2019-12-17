@@ -8,7 +8,7 @@ namespace Lomztein.AdvDiscordCommands.Framework.Execution.TokenExtractors
     {
         public object[] ExtractTokens(string input)
         {
-            return new[] { input };
+            return string.IsNullOrWhiteSpace (input) ? new object[0] : new[] { input };
         }
     }
 }

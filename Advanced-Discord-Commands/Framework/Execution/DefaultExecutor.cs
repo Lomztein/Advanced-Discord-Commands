@@ -32,9 +32,7 @@ namespace Lomztein.AdvDiscordCommands.Framework.Execution
                 List<object> setConverted = new List<object>();
                 foreach (object obj in set)
                 {
-                    dynamic result = obj;
-                    string stringObj = obj.ToString();
-
+                    object result = obj;
                     foreach (ITokenParser parser in Parsers)
                     {
                         ParseResult parseResult = await parser.TryParse(obj, data);
