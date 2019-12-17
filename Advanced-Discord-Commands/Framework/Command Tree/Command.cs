@@ -20,11 +20,15 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
         public class FindMethodResult {
 
-            public CommandOverload overload;
-            public List<object> convertedArguments;
+            public enum Fit { None, StringToString, Converted, PartiallyConverted, Perfect }
+            public readonly Fit Fits;
+            public readonly CommandOverload Overload;
+            public readonly List<object> Arguments;
 
-            public FindMethodResult(CommandOverload _overload, List<object> _parameters) {
-                overload = _overload; convertedArguments = _parameters;
+            public FindMethodResult(CommandOverload _overload, List<object> _parameters, Fit fit) {
+                Overload = _overload;
+                Arguments = _parameters;
+                Fits = fit;
             }
         }
 
@@ -32,95 +36,155 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             // All end-command code is written as "Execute" functions, in order for the reflection to easily find it. Alternatively use attributes.
 
             CommandOverload [ ] overloads = GetOverloads ();
-            dynamic argumentList = new List<object> ();
+            List<FindMethodResult> availableMethods = new List<FindMethodResult>();
 
             foreach (CommandOverload overload in overloads) {
-
-                argumentList = new List<object> ();
-                var parameters = overload.Parameters;
-
-                bool anyParams = parameters.Any (x => x.HasAttribute (typeof (ParamArrayAttribute)));
-                bool isMethod = parameters.Length == arguments.Length || (anyParams && arguments.Length >= parameters.Length); // Have to off-by-one since all commands gets the CommandMetadata parsed through.
-
-                if (isMethod == true) {
-                    // Go through all parameters except the first one.
-                    for (int i = 0; i < parameters.Length; i++) {
-                        try {
-                            object arg = arguments [ i ];
-
-                            // Is the parameter given the params attribute? If so then pack all the remaining arguments into an array.
-                            if (parameters[ i ].HasAttribute (typeof (ParamArrayAttribute)) && !arguments [ i ].GetType ().IsArray) {
-                                Type elementType = parameters[ i ].type.GetElementType ();
-
-                                // Since lists are easier to work with, but not quite straightforward to create dynamically, do this.
-                                dynamic dyn = Activator.CreateInstance (typeof (List<>).MakeGenericType (elementType));
-                                for (int j = i; j < arguments.Length; j++) {
-                                    TryAddToParams (ref dyn, arguments [ j ], elementType);
-                                }
-
-                                arg = dyn.ToArray ();
-                            }
-
-                            TryAddToParams (ref argumentList, arg, parameters[ i ].type);
-                        } catch {
-                            isMethod = false;
-                            argumentList.Clear ();
-                            break;
-                        }
-                    }
-                }
-
-                if (isMethod) {
-                    return new FindMethodResult (overload, argumentList);
+                FindMethodResult result = FitMethod(overload, arguments);
+                if (result != null)
+                {
+                    availableMethods.Add(result);
                 }
             }
 
+            availableMethods.Sort(Comparer<FindMethodResult>.Create(new Comparison<FindMethodResult>((x, y) => (int)y.Fits - (int)x.Fits)));
+            return availableMethods.FirstOrDefault ();
+        }
+
+        private FindMethodResult FitMethod (CommandOverload overload, object[] arguments)
+        {
+            var parameters = overload.Parameters;
+            bool anyParams = parameters.Any (x => x.HasAttribute (typeof (ParamArrayAttribute)));
+            bool isMethod = parameters.Length == arguments.Length || (anyParams && arguments.Length >= parameters.Length); // Have to off-by-one since all commands gets the CommandMetadata parsed through.
+
+            dynamic argumentList = new List<object>();
+            List<ConvertSuccess> converted = new List<ConvertSuccess>();
+            
+            if (isMethod == true)
+            {
+                // Go through all parameters except the first one.
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    try
+                    {
+                        object arg = arguments[i];
+
+                        // Is the parameter given the params attribute? If so then pack all the remaining arguments into an array.
+                        if (parameters[i].HasAttribute(typeof(ParamArrayAttribute)) && !arguments[i].GetType().IsArray)
+                        {
+                            Type elementType = parameters[i].type.GetElementType();
+
+                            // Since lists are easier to work with, but not quite straightforward to create dynamically, do this.
+                            dynamic dyn = Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType));
+                            for (int j = i; j < arguments.Length; j++)
+                            {
+                                TryAddToParams(ref dyn, arguments[j], elementType);
+                            }
+
+                            arg = dyn.ToArray();
+                        }
+
+                        converted.Add (TryAddToParams(ref argumentList, arg, parameters[i].type));
+                    }
+                    catch
+                    {
+                        isMethod = false;
+                        argumentList.Clear();
+                        break;
+                    }
+                }
+            }
+
+            if (isMethod)
+            {
+                return new FindMethodResult(overload, argumentList, SelectFit (converted));
+            }
             return null;
         }
 
-        private void TryAddToParams(ref dynamic paramList, object arg, Type type) {
+        private enum ConvertSuccess { Converted, StringToString, NoConvert }
+        /// <summary>
+        /// Attempts to convert the given arg to the given type, and adds it to a list of parameters.
+        /// </summary>
+        /// <param name="paramList"></param>
+        /// <param name="arg"></param>
+        /// <param name="type"></param>
+        /// <returns>True if value was converted, false if value wasn't converted</returns>
+        private ConvertSuccess TryAddToParams(ref dynamic paramList, object arg, Type type) {
+            Type inType = arg.GetType();
+            
             dynamic result = TryConvert (arg, type);
             paramList.Add (result);
+
+            if (inType == typeof(string))
+            {
+                return result.GetType() == arg.GetType() ? ConvertSuccess.StringToString : ConvertSuccess.NoConvert;
+            }
+            else
+            {
+                return result.GetType() != arg.GetType() ? ConvertSuccess.Converted : ConvertSuccess.NoConvert;
+            }
+        }
+
+        private FindMethodResult.Fit SelectFit(IEnumerable<ConvertSuccess> converted)
+        {
+            if (converted.All(x => x == ConvertSuccess.NoConvert))
+            {
+                return FindMethodResult.Fit.Perfect;
+            }
+            if (converted.All(x => x == ConvertSuccess.Converted))
+            {
+                return FindMethodResult.Fit.Converted;
+            }
+            if (converted.All(x => x == ConvertSuccess.StringToString))
+            {
+                return FindMethodResult.Fit.StringToString;
+            }
+            return FindMethodResult.Fit.PartiallyConverted;
         }
 
         private object TryConvert(object toConvert, Type type) {
-            try {
-                if (toConvert != null) {
-                    object obj = Convert.ChangeType (toConvert, type);
-                    return obj;
-                } else {
-                    throw new Exception ();
-                }
-            } catch {
-                if (type.IsInstanceOfType (toConvert) || toConvert == null)
-                    return toConvert;
-                else
-                    throw new Exception ();
+            if (toConvert == null)
+            {
+                return null;
+            }
+
+            if (type.IsInstanceOfType(toConvert))
+            {
+                return toConvert;
+            }
+            try
+            {
+                object obj = Convert.ChangeType(toConvert, type);
+                return obj;
+            }
+            catch
+            {
+                return null;
             }
         }
 
         public override async Task<Result> TryExecute(CommandMetadata data, params object [ ] arguments) {
             string executionError = AllowExecution (data);
-            string executionPrefix = $"Failed to execute command '{GetCommand ((data.Author as SocketGuildUser)?.Id)}':";
+            string executionPrefix = $"Failed to execute command '{GetCommand ((data.Author as IUser)?.Id)}':";
             if (executionError == "") {
 
                 FindMethodResult result = FindMethod (arguments);
                 if (result != null) {
                     try {
 
-                        result.convertedArguments.Insert (0, data);
+                        result.Arguments.Insert (0, data);
 
-                        Result task = await result.overload.ExecuteOverload (result.convertedArguments.ToArray ());
+                        Result task = await result.Overload.ExecuteOverload (result.Arguments.ToArray ());
                         return task;
 
                     } catch (TargetInvocationException exception) {
                         throw exception.InnerException;
                     }
                 } else {
-                    return new Result (null, $"{executionPrefix}: \n\tNo suitable command variant found. Suffix '{ExecutionData.HELPCHAR}' to command name to view available variants.");
+                    return new Result (GetDocumentationEmbed (data), $"{executionPrefix}: \n\tNo suitable command variant found. This may help you:");
                 }
             } else {
-                return new Result (null, $"{executionPrefix}: Failed to execute: {executionError}");
+                return new Result (null, $"{executionPrefix}: {executionError}");
             }
         }
 
