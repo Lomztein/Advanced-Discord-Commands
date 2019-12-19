@@ -46,6 +46,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 Name = "if";
                 Description = "Control command flow.";
                 Category = BooleanCategory;
+                Shortcut = "if";
             }
 
             [Overload (typeof (object), "Runs the given command if input boolean is true.")]
@@ -75,6 +76,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 Name = "not";
                 Description = "Inverses booleans.";
                 Category = BooleanCategory;
+                Shortcut = "not";
             }
 
             [Overload (typeof (bool), "Inverses a single boolean object.")]
@@ -96,6 +98,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 Name = "and";
                 Description = "Logic gate AND.";
                 Category = BooleanCategory;
+                Shortcut = "and";
             }
 
             [Overload (typeof (bool), "Compares two given booleans.")]
@@ -114,6 +117,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 Name = "or";
                 Description = "Logic gate OR.";
                 Category = BooleanCategory;
+                Shortcut = "or";
             }
 
             [Overload (typeof (bool), "Compares two given booleans.")]
@@ -132,6 +136,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 Name = "for";
                 Description = "Run a command a set times.";
                 Category = ControlCategory;
+                Shortcut = "for";
             }
 
             [Overload (typeof (void), "Loop given command the given amount of times with the iteration variable name \"for\".")]
@@ -141,15 +146,18 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
 
             [Overload (typeof (void), "Loop given command the given amount of times with a custom iteration variable name.")]
             public async Task<Result> Execute(CommandMetadata data, string varName, int amount, string command) {
+                Result last = new Result(null, "");
                 if (command.Length > 1 && command[0].IsCommandTrigger (data.Message.GetGuild ()?.Id, data.Searcher)) {
-                    for (int i = 0; i < amount; i++) {
-                        CommandVariables.Set (data.Message.Id, varName, i, true);
+                
+                    for (int i = 0; i < amount; i++)
+                    {
+                        CommandVariables.Set(data.Message.Id, varName, i, true);
 
-                        ExecutionData execution = data.Root.CreateExecution (command, data, data.Root.GetCommands ());
-                        await data.Executor.Execute (execution);
+                        ExecutionData execution = data.Root.CreateExecution(command, data, data.Root.GetCommands());
+                        last = await data.Executor.Execute(execution);
                     }
                 }
-                return new Result (null, "");
+                return last;
             }
         }
 
@@ -158,18 +166,19 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 Name = "foreach";
                 Description = "Iterate over an array.";
                 Category = ControlCategory;
+                Shortcut = "foreach";
             }
 
             [Overload (typeof (void), "Loop given command for each item in the given array, with the a custom item variable name.")]
             public async Task<Result> Execute(CommandMetadata data, string varName, string command, params object[] array) {
-
+                Result last = new Result (null, "");
                 foreach (object obj in array) {
                     CommandVariables.Set (data.Message.Id, varName, obj, true);
 
                     ExecutionData execution = data.Root.CreateExecution (command, data, data.Root.GetCommands ());
-                    await data.Executor.Execute (execution);
+                    last = await data.Executor.Execute(execution);
                 }
-                return new Result (null, "");
+                return last;
             }
         }
 
@@ -178,6 +187,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 Name = "wait";
                 Description = "Halts command for a while.";
                 Category = ControlCategory;
+                Shortcut = "wait";
             }
 
             [Overload (typeof (void), "Wait for the given amount of seconds.")]
@@ -193,7 +203,11 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 await Task.Delay ((int)Math.Round (seconds * 1000));
 
                 ExecutionData execution = data.Root.CreateExecution (command, data, data.Root.GetCommands ());
-                return await data.Executor.Execute (execution);
+                if (execution.Executable)
+                {
+                    return await data.Executor.Execute(execution);
+                }
+                return new Result(null, $"Failed to execute command '{command}'", true);
             }
         }
 
@@ -202,6 +216,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 Name = "goto";
                 Description = "Move line count.";
                 Category = ControlCategory;
+                Shortcut = "goto";
             }
 
             [Overload (typeof (void), "Move sequence execution to a specific command line.")]

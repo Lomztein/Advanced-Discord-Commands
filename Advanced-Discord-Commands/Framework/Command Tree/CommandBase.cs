@@ -14,7 +14,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
     public abstract class CommandBase : ICommand
     {
         public string[] Aliases { get; set; } = new string[0];
-        public string Flatname { get; set; }
+        public string Shortcut { get; set; }
         public ICategory Category { get; set; } = StandardCategories.Uncategorised;
 
         public bool CommandEnabled { get; set; } = true;
@@ -61,13 +61,21 @@ namespace Lomztein.AdvDiscordCommands.Framework
         }
 
         public abstract Embed GetDocumentationEmbed(CommandMetadata metadata);
+
+        public Task<Result> TaskResult(object value, string message)
+        {
+            return Task.FromResult(new Result(value, message));
+        }
+
+        public Task<Result> DocumentationResult(CommandMetadata metadata) => TaskResult(GetDocumentationEmbed(metadata), string.Empty);
+
         public abstract CommandOverload[] GetOverloads();
         public abstract void Initialize();
 
         public virtual bool IsCommand(string name)
         {
             return (Name == name || Aliases.Contains(name)) ||
-                (!string.IsNullOrEmpty (Flatname) && Flatname == name);
+                (!string.IsNullOrEmpty (Shortcut) && Shortcut == name);
         }
 
         public abstract Task<Result> TryExecute(CommandMetadata data, Arguments arguments);

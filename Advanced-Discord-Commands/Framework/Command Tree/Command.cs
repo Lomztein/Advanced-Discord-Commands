@@ -179,9 +179,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 FindMethodResult result = FindMethod (arguments);
                 if (result != null) {
                     try {
-
                         result.Arguments.Insert (0, data);
-
                         Result task = await result.Overload.ExecuteOverload (result.Arguments.ToArray ());
                         return task;
 
@@ -194,10 +192,6 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             } else {
                 return new Result (null, $"{executionPrefix} {executionError}", true);
             }
-        }
-
-        public Task<Result> TaskResult(object value, string message) {
-            return Task.FromResult (new Result (value, message));
         }
 
         public override void Initialize () {
@@ -259,6 +253,6 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 Console.WriteLine ("Description for command " + Name + " is longer than recommended, consider shortening it to less than " + ListEmbedDescriptionMaxWidth);
         }
 
-        public override Embed GetDocumentationEmbed(CommandMetadata metadata) => this.GetHelpEmbed (metadata.Message);
+        public override Embed GetDocumentationEmbed(CommandMetadata metadata) => this.GetHelpEmbed (metadata);
     }
 }

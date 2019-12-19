@@ -14,11 +14,11 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
 {
     public class DiscordCommandSet : CommandSet
     {
-        public static Category UserCategory = new Framework.Categories.Category ("Server", "Commands to recieve data about the users in the server you are on.");
-        public static Category ChannelCategory = new Framework.Categories.Category ("Server", "Commands to recieve data about the channels in the server you are on.");
-        public static Category RoleCategory = new Framework.Categories.Category ("Server", "Commands to recieve data about the roles in the server you are on.");
-        public static Category ServerCategory = new Framework.Categories.Category ("Server", "Commands to recieve data from the server you are on.");
-        public static Category MiscCategory = new Framework.Categories.Category ("Miscilaneous", "Miscilaneous, general purpose commands usable with a variety of data.");
+        public static Category UserCategory = new Category ("Server", "Commands to recieve data about the users in the server you are on.");
+        public static Category ChannelCategory = new Category ("Server", "Commands to recieve data about the channels in the server you are on.");
+        public static Category RoleCategory = new Category ("Server", "Commands to recieve data about the roles in the server you are on.");
+        public static Category ServerCategory = new Category ("Server", "Commands to recieve data from the server you are on.");
+        public static Category MiscCategory = new Category ("Miscellaneous", "Miscellaneous, general purpose commands usable with a variety of data.");
 
         public DiscordCommandSet() {
             Name = "discord";
@@ -161,6 +161,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     Description = "Kicks a user if permitted.";
                     Category = UserCategory;
                     RequiredPermissions.Add (GuildPermission.KickMembers);
+                    Shortcut = "kickuser";
                 }
 
                 [Overload (typeof (bool), "Kicks user for no given reason.")]

@@ -74,29 +74,15 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 newSets.Add(newArgs);
             }
 
-            if (args.Any(x => x.Length > 0))
+            ExecutionData execution = data.Root.CreateExecution(command, data, new Arguments(newSets), _commandsInSet);
+            if (execution.Executable == false)
             {
-                ExecutionData execution = data.Root.CreateExecution(command, data, new Arguments (newSets), _commandsInSet);
-                if (execution.Executable == false)
-                {
-                    Result defaultResult = await ExecuteDefault (args, data);
-                    if (defaultResult.Failed)
-                    {
-                        return new Result(GetDocumentationEmbed(data), string.Empty);
-                    }
-                    else
-                    {
-                        return defaultResult;
-                    }
-                }
-                else
-                {
-                    return await data.Executor.Execute(execution);
-                }
+                Result defaultResult = await ExecuteDefault(args, data);
+                return defaultResult.Failed ? await DocumentationResult(data) : defaultResult;
             }
             else
             {
-                return new Result(GetDocumentationEmbed(data), string.Empty);
+                return await data.Executor.Execute(execution);
             }
         }
 

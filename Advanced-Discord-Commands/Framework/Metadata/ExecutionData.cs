@@ -31,26 +31,32 @@ namespace Lomztein.AdvDiscordCommands.Framework
 
         public void SetArguments(Arguments newArguments) => Arguments = newArguments;
 
-        public async Task<Result> TryExecute() {
-
-            if (!Executable)
-                throw new InvalidExecutionException ("Unable to execute. Execution is not executable, either due to a null command, arguments list, or metadata.");
+        public async Task<Result> Execute()
+        {
 
             if (Metadata.Depth > MAX_DEPTH)
-                throw new DepthExceededException ("The maximum command depth was exceeded, try to simplify your command program.");
+                throw new DepthExceededException("The maximum command depth was exceeded, try to simplify your command program.");
 
             if (IsDocumentationRequest)
-                return new Result (Command.GetDocumentationEmbed (Metadata), "");
+                return new Result(Command.GetDocumentationEmbed(Metadata), "");
 
-            var commandResult = await Command.TryExecute (Metadata, Arguments);
+            if (Executable)
+            {
+                var commandResult = await Command.TryExecute(Metadata, Arguments);
 
-            Metadata.AddToCallstack(Environment.StackTrace);
-            if (!(Command is ICommandSet)) { // Passing through a set doesn't really count as executing a command, so they are excluded.
-                Callstack.AddToCallstack (Metadata.Message.Id, new Callstack.Item (Command, Arguments.Last().Select (x => x.ToString ()).ToArray (), Metadata.Depth, commandResult.Message, commandResult.Value));
-                Metadata.ChangeDepth (1);
+                Metadata.AddToCallstack(Environment.StackTrace);
+                if (!(Command is ICommandSet))
+                { // Passing through a set doesn't really count as executing a command, so they are excluded.
+                    Callstack.AddToCallstack(Metadata.Message.Id, new Callstack.Item(Command, Arguments.Last().Select(x => x.ToString()).ToArray(), Metadata.Depth, commandResult.Message, commandResult.Value));
+                    Metadata.ChangeDepth(1);
+                }
+
+                return commandResult;
             }
-
-            return commandResult;
+            else
+            {
+                return new Result(null, string.Empty, true);
+            }
         }
     }
 

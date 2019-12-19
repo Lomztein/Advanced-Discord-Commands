@@ -50,7 +50,7 @@ namespace Lomztein.AdvDiscordCommands.Framework.Execution
 
         public async Task<Result> Execute(ExecutionData execution) {
             execution.SetArguments (await ParseChainElements (execution.Metadata, execution.Arguments));
-            var result = await execution.TryExecute ();
+            var result = await execution.Execute ();
             return result;
         }
     }

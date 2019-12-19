@@ -9,7 +9,7 @@ namespace Lomztein.AdvDiscordCommands.Framework.Interfaces {
     public interface ICommand : ICommandChild, INamed {
 
         string[] Aliases { get; set; }
-        string Flatname { get; set; }
+        string Shortcut { get; set; }
 
         ICategory Category { get; set; }
 

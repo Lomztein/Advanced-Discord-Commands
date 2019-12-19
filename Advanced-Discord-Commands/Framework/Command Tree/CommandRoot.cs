@@ -18,6 +18,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         public IExecutor Executor { get; set; }
 
         public List<ICommand> Commands { get; private set; } = new List<ICommand> ();
+        private List<CommandPointer> _shortcuts = new List<CommandPointer>();
 
         public string Name { get => "Command Root"; set => throw new NotImplementedException (); }
         public string Description { get => "This is the root of all commands, wherefrom an expansive tree of commands form."; set => throw new NotImplementedException (); }
@@ -41,6 +42,51 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             Executor = executor;
         }
 
+        public async Task<Result> EnterCommand(string fullCommand, IMessage message, ulong? owner)
+        {
+            CommandMetadata metadata = new CommandMetadata(message, this, owner, Splitter, Extractor, Searcher, Executor);
+
+            string[] multiline = Splitter.SplitMultiline(fullCommand);
+            Result result = null;
+
+            try
+            {
+                while (metadata.ProgramCounter < multiline.Length)
+                {
+                    int counter = (int)metadata.ProgramCounter;
+                    string line = multiline[counter];
+
+                    ICommand command = Searcher.Search(line, GetCommands(), owner);
+                    if (command == null)
+                    {
+                        command = Searcher.Search(line, _shortcuts.Cast<ICommand>().ToList (), owner);
+                    }
+
+                    Arguments arguments = Extractor.ExtractArguments(line);
+
+                    ExecutionData execution = new ExecutionData(command, arguments, metadata);
+
+                    if (execution.Executable)
+                        result = await Executor.Execute(execution);
+
+                    metadata.ChangeProgramCounter(1);
+                }
+            }
+            catch (Exception exception)
+            {
+                metadata.AbortProgram();
+                result = new Result(exception);
+            }
+
+            CommandVariables.Clear(metadata.Message.Id);
+            return result;
+        }
+
+        private void RecursiveFlatten ()
+        {
+            _shortcuts = this.GetAllRecursive().Where (x => !string.IsNullOrEmpty (x.Shortcut)).Select(x => new CommandPointer(x, x.Shortcut)).ToList ();
+        }
+
         /// <summary>
         /// This must be run after the initial commands has been added to the root.
         /// </summary>
@@ -49,6 +95,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
                 cmd.CommandParent = this;
                 cmd.Initialize ();
             }
+            RecursiveFlatten();
         }
 
         public List<ICommand> GetCommands() {

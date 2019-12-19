@@ -15,8 +15,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             Category = StandardCategories.Advanced;
         }
 
-        [Overload (typeof (string), "Prints whatever is put into it, regardless of position in program.")]
-        public Task<Result> Execute(CommandMetadata data, object obj) {
+        [Overload (typeof (string), "Prints whatever is put into it, regardless of position in program if 'printout' is true.")]
+        public Task<Result> Execute(CommandMetadata data, object obj, bool printout) {
             if (obj != null) {
                 data.Message.Channel.SendMessageAsync (obj.ToString ());
                 return TaskResult (obj.ToString (), "");
@@ -25,5 +25,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 return TaskResult ("null", "");
             }
         }
+
+        [Overload(typeof(string), "Prints whatever is put into it, regardless of position in program.")]
+        public Task<Result> Execute(CommandMetadata data, object obj) => Execute(data, obj, true);
     }
 }

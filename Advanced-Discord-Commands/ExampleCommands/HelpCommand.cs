@@ -29,7 +29,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
         }
 
         [Overload (typeof (string), "Reveals a list of commands in a given command array.")]
-        public Task<Result> Execute(CommandMetadata data, params Command [ ] commands) {
+        public Task<Result> Execute(CommandMetadata data, params ICommand[] commands) {
             // I mean, it works, right?
             Embed result = CommandListAutodocumentation.ListCommands (data, "given", "", commands);
             Task<Result> r = TaskResult (result, null);

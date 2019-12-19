@@ -25,11 +25,11 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         public string Name { get; set; }
         public string Description { get => AtPointer.Description; set => AtPointer.Description = value; }
         public string[] Aliases { get => AtPointer.Aliases; set => AtPointer.Aliases = value; }
-        public string Flatname { get => AtPointer.Flatname; set => AtPointer.Flatname = value; }
+        public string Shortcut { get => AtPointer.Shortcut; set => AtPointer.Shortcut = value; }
 
-        public CommandPointer (Command atPointer, string flatname) {
+        public CommandPointer (ICommand atPointer, string name) {
             AtPointer = atPointer;
-            Name = flatname;
+            Name = name;
         }
 
         public string AllowExecution(CommandMetadata metadata) {
@@ -48,7 +48,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             return AtPointer.GetOverloads ();
         }
 
-        public void Initialize() { } // Since these point at an already initialized command, it wouldn't make sense to initialize them again.
+        public void Initialize() => AtPointer.Initialize();
 
         public bool IsCommand(string name) {
             return AtPointer.IsCommand (name);

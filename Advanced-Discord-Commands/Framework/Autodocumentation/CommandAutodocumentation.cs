@@ -14,38 +14,32 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
     public static class CommandAutodocumentation
     {
 
-        private static readonly string[] SuperscriptNumbers = new string[] { "⁰", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹" };
-        private static readonly string SuperscriptArrayIndicator = "ᴬ";
 
-        public static Embed GetAutodocumentationEmbed(this ICommand command, IMessage e, bool advanced) {
+        public static Embed GetAutodocumentationEmbed(this ICommand command, CommandMetadata metadata, bool advanced) {
+
             EmbedBuilder builder = new EmbedBuilder ();
+            ulong? owner = metadata.Message.GetGuild()?.Id;
 
-            command.GetCommand(e.GetGuild()?.Id);
-
-            builder.WithTitle ($"Command \"{command.GetCommand (e.GetGuild ()?.Id)}\"")
+            builder.WithTitle ($"Command \"{command.GetCommand (owner)}\"")
                 .WithDescription (command.Description);
 
-            // Compile a list of all C# types used, in order to explain them to the layman.
-            List<Type> shownTypes = new List<Type> ();
-            bool containsArray = false;
-
-            string AddAndGetShownTypeName(Type type) {
-                if (shownTypes.Contains (type))
-                    return type.Name + SuperscriptNumbers[shownTypes.IndexOf (type) + 1];
-                else {
-                    if (type.IsArray) {
-                        type = type.GetElementType ();
-                        containsArray = true;
-                        return AddAndGetShownTypeName (type) + "[]" + SuperscriptArrayIndicator;
-                    }
-                    shownTypes.Add (type);
+            if (command.Aliases.Length > 0 || !string.IsNullOrEmpty(command.Shortcut))
+            {
+                string aliasText;
+                aliasText = $"```{string.Join('\n', command.Aliases.Select(x => $"{command.GetPrefix(owner)}{x}"))}";
+                if (!string.IsNullOrEmpty(command.Shortcut))
+                {
+                    aliasText += $"\nShortcut: {metadata.Root.GetChildPrefix (owner)}{command.Shortcut}";
                 }
-                return type.Name + SuperscriptNumbers[shownTypes.Count];
+                aliasText += "```\u200b";
+
+                builder.AddField("Aliases", aliasText);
             }
 
             // This is quite similar to GetArgs and GetHelp together, and the other functions are obsolete due to this.
             CommandOverload[] overloads = command.GetOverloads ();
 
+            TypeDescriptor descriptor = new TypeDescriptor(true); // TODO: Allow individual users to decide on laymanship.
             for (int i = 0; i < overloads.Length; i++) {
 
                 CommandOverload overload = overloads[i];
@@ -53,22 +47,22 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
                 string overloadText = "";
 
                 // Add overload description.
-                overloadText += "*" + overload.Description + "*\n\n";
+                overloadText += $"*{overload.Description}*\n\n";
 
                 // Start codeblock for syntax.
-                StringBuilder ioText = new StringBuilder ();
+                    StringBuilder ioText = new StringBuilder ();
 
                 // Add arguments.
                 if (overload.Parameters.Length > 0)
                 {
                     ioText.Append("Arguments: ");
-                    ioText.AppendLine(string.Join(", ", overload.Parameters.Select(x => $"{AddAndGetShownTypeName(x.type)} {x.name}")));
+                    ioText.AppendLine(string.Join(", ", overload.Parameters.Select(x => $"{descriptor.GetName(x.type, true)} {x.name}")));
                 }
 
                 // If return type is not void, then add return type.
                 if (overload.ReturnType != typeof(void))
                 {
-                    ioText.AppendLine("Returns:   " + AddAndGetShownTypeName(overload.ReturnType));
+                    ioText.AppendLine("Returns:   " + descriptor.GetName(overload.ReturnType, true));
                 }
 
                 if (ioText.Length > 0)
@@ -84,7 +78,7 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
                     overloadText += "** -- Example Usage -- **";
 
                     // Add example codeblock.
-                    overloadText += "```" + overload.GetExample (command, e.GetGuild ()?.Id) + "```\n";
+                    overloadText += "```" + overload.GetExample (command, owner) + "```\n";
 
                     // Add display value.
                     overloadText += "Displays: " + overload.Example.Message + "\n";
@@ -102,23 +96,11 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
             }
 
             // Laymans terms field.
-            string laymansText = "";
-            for (int i = 0; i < shownTypes.Count; i++) {
-
-                Type type = shownTypes[i];
-                string indexText = (i + 1).ToString ();
-
-                laymansText += "**" + indexText + " - " + type.Name + "** - *" + TypeDescriptions.GetDescription (type) + "*";
-                if (i != shownTypes.Count - 1)
-                    laymansText += "\n\n\u200b";
-            }
-
-            if (containsArray)
-                laymansText += "\n\n\u200b**A - Array** - " + TypeDescriptions.ArrayDescription;
+            string laymansText = "\n" + string.Join ("\n\n\u200b", descriptor.GetDescriptions());
 
             if (!string.IsNullOrWhiteSpace (laymansText) && laymansText.Length > 0)
             {
-                builder.AddField("Types in laymans terms", laymansText);
+                builder.AddField("Type descriptions", laymansText);
             }
 
             string footer = string.Empty;

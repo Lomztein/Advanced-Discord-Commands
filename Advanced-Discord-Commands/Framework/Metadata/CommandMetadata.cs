@@ -22,17 +22,22 @@ namespace Lomztein.AdvDiscordCommands.Framework
         public ulong AuthorID { get => Message.Author.Id; }
         public ulong ID { get => Message.Id; }
 
-        public ISplitter Splitter { get => Root.Splitter; }
-        public IExtractor Extractor { get => Root.Extractor; }
-        public ISearcher Searcher { get => Root.Searcher; }
-        public IExecutor Executor { get => Root.Executor; }
+        public ISplitter Splitter { get; private set; }
+        public IExtractor Extractor { get; private set; }
+        public ISearcher Searcher { get; private set; }
+        public IExecutor Executor { get; private set; }
 
         public readonly List<string> _callstack = new List<string>();
 
-        public CommandMetadata (IMessage _message, ICommandRoot _root, ulong? _owner) {
+        public CommandMetadata (IMessage _message, ICommandRoot _root, ulong? _owner, ISplitter splitter, IExtractor extractor, ISearcher searcher, IExecutor executor) {
             Message = _message;
             Root = _root;
             Owner = _owner;
+
+            Splitter = splitter;
+            Extractor = extractor;
+            Searcher = searcher;
+            Executor = executor;
         }
 
         public void ChangeDepth(int change) => Depth += change;

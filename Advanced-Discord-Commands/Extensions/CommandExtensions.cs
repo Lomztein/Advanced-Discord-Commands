@@ -47,8 +47,8 @@ namespace Lomztein.AdvDiscordCommands.Extensions
             return commandChild.CommandParent.GetChildPrefix (owner);
         }
 
-        public static Embed GetHelpEmbed (this ICommand command, IMessage message) {
-            return CommandAutodocumentation.GetAutodocumentationEmbed (command, message, false);
+        public static Embed GetHelpEmbed (this ICommand command, CommandMetadata metadata) {
+            return CommandAutodocumentation.GetAutodocumentationEmbed (command, metadata, false);
         }
 
     }
