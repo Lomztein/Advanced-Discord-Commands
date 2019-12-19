@@ -68,19 +68,5 @@ namespace Lomztein.AdvDiscordCommands.Extensions
 
             return null;
         }
-
-        public static string ExtractArgumentPart(this string fullCommand) {
-
-            if (!string.IsNullOrEmpty (fullCommand)) {
-                int spaceIndex = fullCommand.IndexOfAny (CharExtensions.WhitespaceChars);
-                if (spaceIndex == -1)
-                    return null;
-                else
-                    return fullCommand.Substring (spaceIndex + 1);
-            }
-
-            return null;
-
-        }
     }
 }

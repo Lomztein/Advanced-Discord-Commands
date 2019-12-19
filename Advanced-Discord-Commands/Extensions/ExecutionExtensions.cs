@@ -28,7 +28,7 @@ namespace Lomztein.AdvDiscordCommands.Extensions
                     string line = multiline[counter];
 
                     ICommand command = root.Searcher.Search (line, root.GetCommands (), owner);
-                    object[] arguments = root.Extractor.ExtractArguments (line).Cast<object> ().ToArray ();
+                    Arguments arguments = root.Extractor.ExtractArguments (line);
 
                     ExecutionData execution = new ExecutionData (command, arguments, metadata);
 
@@ -51,11 +51,11 @@ namespace Lomztein.AdvDiscordCommands.Extensions
         }
 
         public static ExecutionData CreateExecution(this ICommandRoot root, string fullCommand, CommandMetadata metadata,List<ICommand> commandList) {
-            object[] arguments = root.Extractor.ExtractArguments (fullCommand);
+            Arguments arguments = root.Extractor.ExtractArguments (fullCommand);
             return CreateExecution (root, fullCommand, metadata, arguments, commandList);
         }
 
-        public static ExecutionData CreateExecution(this ICommandRoot root, string fullCommand, CommandMetadata metadata, object[] arguments, List<ICommand> commandList) {
+        public static ExecutionData CreateExecution(this ICommandRoot root, string fullCommand, CommandMetadata metadata, Arguments arguments, List<ICommand> commandList) {
             ICommand cmd = root.Searcher.Search (fullCommand, commandList, metadata.Owner);
             return new ExecutionData(cmd, arguments, metadata);
         }

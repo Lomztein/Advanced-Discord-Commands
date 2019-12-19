@@ -24,7 +24,7 @@ namespace Lomztein.AdvDiscordCommands.Tests
         [InlineData ("!math multiply    \n  \t (!math \t\t floor (!math sin      80)), (!math subtract 10,  \t\n (!math mod \n\t 10,\n\t     2))", -10d)]
         [InlineData ("!var setl n, 0;\n!flow for 10, [!var setl n, (!math add {n}, 1)];\n!var getl n", 10d)]
         [InlineData ("!math add 2 5 2 6, 6", "2 5 2 66")]
-        [InlineData ("!math dieinafire 2, 5", null)]
+        [InlineData ("!discord dieinafire 2, 5", null)]
         [InlineData ("!thisdoesntexist", null)]
         [InlineData ("math add 2, 2", null)]
         [InlineData ("!var setl text, This is Text;\n!math add {text}[5], t", "it")]
@@ -38,7 +38,6 @@ namespace Lomztein.AdvDiscordCommands.Tests
             var result = await testRoot.EnterCommand (message.Content, message, null);
 
             Assert.Equal (expectedResult, result?.Value);
-
         }
 
         [Theory]

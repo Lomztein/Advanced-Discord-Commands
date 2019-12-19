@@ -42,7 +42,11 @@ namespace Lomztein.AdvDiscordCommands.Framework
             }
 
             public bool HasAttribute(Type attributeType) => attributes.Any (x => x.GetType () == attributeType);
+
+            public override string ToString() => $"{type.Name} {name}";
         }
+
+        public override string ToString() => $"{ExecuteOverload.Method.Name} ({string.Join(", ", Parameters.Select(x => x.ToString()))}) - {Description}";
 
         public class ExampleInfo {
 
@@ -70,7 +74,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
                 for (int i = 0; i < Arguments.Length; i++) {
                     combinedArgs += Arguments[i];
                     if (i != Arguments.Length - 1)
-                        combinedArgs += DefaultExtractor.argSeperator + " ";
+                        combinedArgs += Framework.Arguments.SEPERATOR + " ";
                 }
 
                 return cmd.GetCommand (owner) + " " + combinedArgs;

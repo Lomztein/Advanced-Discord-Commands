@@ -40,33 +40,67 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         }
 
         // The parsing is currently very reliant on how the rest of the code works, I'd like to change that somehow.
-        public override async Task<Result> TryExecute (CommandMetadata data, params object[] arguments) {
+        public override async Task<Result> TryExecute(CommandMetadata data, Arguments args)
+        {
+            string command = string.Empty;
+            List<List<object>> newSets = new List<List<object>>();
+            int index = 0;
 
-            if (arguments.Length != 0) {
+            foreach (object[] arguments in args)
+            {
+                List<object> newArgs = new List<object>();
+                if (arguments.Length != 0)
+                {
+                    string zeroArgString = arguments[0].ToString();
+                    int spaceIndex = zeroArgString.IndexOfAny(CharExtensions.WhitespaceChars);
 
-                string zeroArgString = arguments[0].ToString ();
-                int spaceIndex = zeroArgString.IndexOfAny (CharExtensions.WhitespaceChars);
+                    if (spaceIndex != -1)
+                    {
+                        newArgs.Add(zeroArgString.Substring(spaceIndex).Trim());
+                    }
 
-                string command = zeroArgString.Substring (0, spaceIndex != -1 ? spaceIndex : zeroArgString.Length).Trim ();
-                List<object> newArgs = new List<object> ();
+                    for (int i = 1; i < arguments.Length; i++)
+                    {
+                        newArgs.Add(arguments[i]);
+                    }
 
-                if (spaceIndex != -1) {
-                    newArgs.Add (zeroArgString.Substring (spaceIndex + 1).Trim (CharExtensions.WhitespaceChars));
+                    if (index == 0)
+                    {
+                        command = zeroArgString.Substring(0, spaceIndex != -1 ? spaceIndex : zeroArgString.Length).Trim();
+                        command = data.Searcher.GetTrigger(data.Message.GetGuild()?.Id) + command;
+                    }
+                    index++;
                 }
+                newSets.Add(newArgs);
+            }
 
-                for (int i = 1; i < arguments.Length; i++)
-                    newArgs.Add (arguments[i]);
-
-                command = data.Searcher.GetTrigger (data.Message.GetGuild ()?.Id) + command;
-
-                ExecutionData execution = data.Root.CreateExecution (command, data, newArgs.ToArray (), _commandsInSet);
-                return execution.Executable == false ? await ExecuteDefault (arguments, data) : await data.Executor.Execute(execution);
-            } else {
-                return await ExecuteDefault(arguments, data);
+            if (args.Any(x => x.Length > 0))
+            {
+                ExecutionData execution = data.Root.CreateExecution(command, data, new Arguments (newSets), _commandsInSet);
+                if (execution.Executable == false)
+                {
+                    Result defaultResult = await ExecuteDefault (args, data);
+                    if (defaultResult.Failed)
+                    {
+                        return new Result(GetDocumentationEmbed(data), string.Empty);
+                    }
+                    else
+                    {
+                        return defaultResult;
+                    }
+                }
+                else
+                {
+                    return await data.Executor.Execute(execution);
+                }
+            }
+            else
+            {
+                return new Result(GetDocumentationEmbed(data), string.Empty);
             }
         }
 
-        private async Task<Result> ExecuteDefault (object[] args, CommandMetadata data)
+        private async Task<Result> ExecuteDefault(Arguments args, CommandMetadata data)
         {
             ExecutionData defaultExecution = new ExecutionData(_defaultCommand, args, data);
             if (defaultExecution.Executable)

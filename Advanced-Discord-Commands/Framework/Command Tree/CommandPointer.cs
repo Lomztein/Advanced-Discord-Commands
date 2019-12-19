@@ -54,7 +54,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             return AtPointer.IsCommand (name);
         }
 
-        public Task<Result> TryExecute(CommandMetadata data, params object[] arguments) {
+        public Task<Result> TryExecute(CommandMetadata data, Arguments arguments) {
             return AtPointer.TryExecute (data, arguments);
         }
     }

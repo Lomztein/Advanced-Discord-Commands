@@ -20,11 +20,11 @@ namespace Lomztein.AdvDiscordCommands.Tests
         [InlineData ("!command [!arg1, arg2, arg3]", new string[] { "[!arg1, arg2, arg3]" })]
         public void SplitArgsTests(string input, string[] expected) {
             DefaultExtractor extractor = new DefaultExtractor ();
-            string[] result = extractor.ExtractArguments (input);
+            Arguments result = extractor.ExtractArguments (input);
 
             bool allTrue = true;
-            for (int i = 0; i < result.Length; i++)
-                if (result[i] != expected[i])
+            for (int i = 0; i < result[0].Length; i++)
+                if (result[0, i].ToString () != expected[i])
                     allTrue = false;
 
             Assert.True (allTrue);
@@ -39,11 +39,11 @@ namespace Lomztein.AdvDiscordCommands.Tests
         [InlineData ("!math 2   ,, ,  ,   ,   2", new string[] { "2", "", "", "", "", "2" })]
         public void ConstructArgumentsTests (string input, string[] outArguments) {
             DefaultExtractor extractor = new DefaultExtractor ();
-            object[] arguments = extractor.ExtractArguments (input);
+            Arguments arguments = extractor.ExtractArguments (input);
 
             bool allTrue = true;
-            for (int i = 0; i < arguments.Length; i++)
-                if ((string)arguments [ i ] != outArguments [ i ])
+            for (int i = 0; i < arguments[0].Length; i++)
+                if ((string)arguments[0, i].ToString () != outArguments [ i ])
                     allTrue = false;
 
             Assert.True (allTrue);

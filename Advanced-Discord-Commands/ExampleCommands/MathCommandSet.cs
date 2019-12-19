@@ -52,14 +52,15 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
 
             [Overload (typeof (double), "Add two numbers together.")]
             [Example ("10", "\"Sum of given numbers: 10\"", "1", "2", "3", "4")]
-            public Task<Result> Execute(CommandMetadata e, params double[] numbers) {
-                return TaskResult (numbers.Sum (), $"Sum of given numbes: {numbers.Sum ()}");
+            public Task<Result> Execute(CommandMetadata e, double number, params double[] numbers) {
+                return TaskResult (number + numbers.Sum (), $"Sum of given numbes: {number + numbers.Sum ()}");
             }
 
             [Overload (typeof (string), "Get the combination of two strings.")]
             [Example ("FirstSecond", "FirstSecond", "First", "Second")]
-            public Task<Result> Execute(CommandMetadata e, string str1, string str2) {
-                return TaskResult (str1 + str2, str1 + str2);
+            public Task<Result> Execute(CommandMetadata e, string text, params string[] texts) {
+                string result = text + string.Join("", texts);
+                return TaskResult (result, result);
             }
         }
 
@@ -442,7 +443,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 }
                 catch (Exception exc)
                 {
-                    return TaskResult(result, $"Failed to evaluate '{expression}': " + exc.Message);
+                    return TaskResult(result, $"Failed to evaluate '{expression}': it may be formatted in a wrong or otherwise unsupported way.");
                 }
                 return TaskResult(result, $"{expression} = {result}");
             }

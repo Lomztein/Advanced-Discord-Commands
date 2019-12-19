@@ -21,7 +21,7 @@ namespace Lomztein.AdvDiscordCommands.Tests.Fakes
 
         public IMessageChannel Channel => new FakeChannel ();
 
-        public IUser Author => throw new NotImplementedException ();
+        public IUser Author { get; private set; } = new FakeUser();
 
         public IReadOnlyCollection<IAttachment> Attachments => throw new NotImplementedException ();
 

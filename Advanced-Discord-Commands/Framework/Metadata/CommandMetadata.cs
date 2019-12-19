@@ -27,6 +27,8 @@ namespace Lomztein.AdvDiscordCommands.Framework
         public ISearcher Searcher { get => Root.Searcher; }
         public IExecutor Executor { get => Root.Executor; }
 
+        public readonly List<string> _callstack = new List<string>();
+
         public CommandMetadata (IMessage _message, ICommandRoot _root, ulong? _owner) {
             Message = _message;
             Root = _root;
@@ -37,6 +39,8 @@ namespace Lomztein.AdvDiscordCommands.Framework
         public void ChangeProgramCounter(uint change) => ProgramCounter += change;
         public void SetProgramCounter(uint position) => ProgramCounter = position;
         public void AbortProgram() => SetProgramCounter (uint.MaxValue);
+        public void AddToCallstack(string call) => _callstack.Add(call);
+        public string[] GetCallstack() => _callstack.ToArray();
 
     }
 }

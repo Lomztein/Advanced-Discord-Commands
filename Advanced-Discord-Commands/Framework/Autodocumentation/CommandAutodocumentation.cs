@@ -20,7 +20,9 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
         public static Embed GetAutodocumentationEmbed(this ICommand command, IMessage e, bool advanced) {
             EmbedBuilder builder = new EmbedBuilder ();
 
-            builder.WithTitle ($"Command \"{command.GetCommand (e.GetGuild ().Id)}\"")
+            command.GetCommand(e.GetGuild()?.Id);
+
+            builder.WithTitle ($"Command \"{command.GetCommand (e.GetGuild ()?.Id)}\"")
                 .WithDescription (command.Description);
 
             // Compile a list of all C# types used, in order to explain them to the layman.
@@ -56,15 +58,17 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
                 // Start codeblock for syntax.
                 StringBuilder ioText = new StringBuilder ();
 
-                // If return type is not void, then add return type.
-                if (overload.ReturnType != typeof (void))
-                    ioText.AppendLine("Returns:   " + AddAndGetShownTypeName (overload.ReturnType));
-
                 // Add arguments.
                 if (overload.Parameters.Length > 0)
                 {
                     ioText.Append("Arguments: ");
                     ioText.AppendLine(string.Join(", ", overload.Parameters.Select(x => $"{AddAndGetShownTypeName(x.type)} {x.name}")));
+                }
+
+                // If return type is not void, then add return type.
+                if (overload.ReturnType != typeof(void))
+                {
+                    ioText.AppendLine("Returns:   " + AddAndGetShownTypeName(overload.ReturnType));
                 }
 
                 if (ioText.Length > 0)
@@ -74,7 +78,7 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
                 }
                 
                 // Add example, if there is one.
-                if (!overload.Example.IsEmpty) {
+                if (overload.Example != null && !overload.Example.IsEmpty) {
 
                     // Add "Example" header.
                     overloadText += "** -- Example Usage -- **";
@@ -112,7 +116,10 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
             if (containsArray)
                 laymansText += "\n\n\u200b**A - Array** - " + TypeDescriptions.ArrayDescription;
 
-            builder.AddField ("Types in laymans terms", laymansText);
+            if (!string.IsNullOrWhiteSpace (laymansText) && laymansText.Length > 0)
+            {
+                builder.AddField("Types in laymans terms", laymansText);
+            }
 
             string footer = string.Empty;
             if (command.AvailableInDM && !command.AvailableOnServer)

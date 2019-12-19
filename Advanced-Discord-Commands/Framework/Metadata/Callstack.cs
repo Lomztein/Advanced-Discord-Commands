@@ -54,7 +54,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
                 string arguments = " ";
                 for (int i = 0; i < Arguments.Length; i++) {
-                    arguments += Arguments[i] + (i == Arguments.Length - 1 ? "" : DefaultExtractor.argSeperator + " ");
+                    arguments += Arguments[i] + (i == Arguments.Length - 1 ? "" : Framework.Arguments.SEPERATOR + " ");
                 }
 
                 string called = Depth + " - " + Command.GetCommand (owner) + arguments;
