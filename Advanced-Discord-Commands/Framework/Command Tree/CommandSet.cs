@@ -20,7 +20,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
         public CommandSet() {
             Name = "commandset";
             Description = "DEFAULT_COMMAND_SET";
-            Category = StandardCategories.Miscilaneous;
+            Category = StandardCategories.Uncategorised;
         }
 
         public override void Initialize() {

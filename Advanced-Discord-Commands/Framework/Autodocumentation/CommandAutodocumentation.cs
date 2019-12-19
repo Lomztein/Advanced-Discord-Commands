@@ -5,6 +5,7 @@ using Lomztein.AdvDiscordCommands.Framework.Execution;
 using Lomztein.AdvDiscordCommands.Framework.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -52,33 +53,26 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
                 // Add overload description.
                 overloadText += "*" + overload.Description + "*\n\n";
 
-                // Add "Syntax".
-                overloadText += "** -- Usage -- **";
-
                 // Start codeblock for syntax.
-                overloadText += "```";
+                StringBuilder ioText = new StringBuilder ();
 
                 // If return type is not void, then add return type.
                 if (overload.ReturnType != typeof (void))
-                    overloadText += "Returns:   " + AddAndGetShownTypeName (overload.ReturnType) + "\n";
+                    ioText.AppendLine("Returns:   " + AddAndGetShownTypeName (overload.ReturnType));
 
                 // Add arguments.
-                overloadText += "Arguments: ";
-                for (int j = 0; j < overload.Parameters.Length; j++) {
-                    CommandOverload.Parameter parameter = overload.Parameters[j];
-
-                    overloadText += AddAndGetShownTypeName (parameter.type) + " " + parameter.name;
-
-                    // Add arg seperator between each argument to seperate.
-                    if (j != overload.Parameters.Length - 1)
-                        overloadText += DefaultExtractor.argSeperator + " ";
+                if (overload.Parameters.Length > 0)
+                {
+                    ioText.Append("Arguments: ");
+                    ioText.AppendLine(string.Join(", ", overload.Parameters.Select(x => $"{AddAndGetShownTypeName(x.type)} {x.name}")));
                 }
-                // End syntax code block
-                overloadText += "```";
 
-                if (i != overloads.Length - 1)
-                    overloadText += "\n";
-
+                if (ioText.Length > 0)
+                {
+                    // Add "Syntax".
+                    overloadText += $"** -- Usage -- **\n```{ioText.ToString ()}```\n";
+                }
+                
                 // Add example, if there is one.
                 if (!overload.Example.IsEmpty) {
 
