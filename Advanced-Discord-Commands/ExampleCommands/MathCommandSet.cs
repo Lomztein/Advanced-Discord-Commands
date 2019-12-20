@@ -426,6 +426,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 Name = "evaluate";
                 Description = "Evaluate expression.";
                 Category = ScienceCategory;
+                Aliases = new[] { "eval" };
+                Shortcut = "evaluate";
+                ShortcutAliases = new[] { "eval" };
             }
 
             [Overload(typeof(double), "Evaluate the given mathematical expression and return the result.")]
@@ -481,6 +484,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 Name = "graph";
                 Description = "Draw a graph of a function.";
                 Category = FunctionsCategory;
+                Shortcut = "graph";
             }
 
             [Overload (typeof (void), "Draw a graph of the given function within the given range.")]

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -41,6 +42,11 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
 
         public string GetDescription (Type type)
         {
+            if (type == null)
+            {
+                return "Null Type";
+            }
+
             Add(type);
             Type elementType = ElementType(type);
             return ReplaceNested (type.IsArray ? ArrayText.Replace ("[ArrayElementPlaceholderType]", $"[{elementType.FullName}]") : TypeDescriptions.GetDescription(elementType));
@@ -48,6 +54,11 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
         
         public string GetName (Type type, bool withSuperscript)
         {
+            if (type == null)
+            {
+                return "Null Type";
+            }
+
             Add(type);
             Type elementType = ElementType(type);
             int index = _described.IndexOf(type);
@@ -59,7 +70,7 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
         {
             Regex regex = new Regex(NestedRegex);
             var matches = regex.Matches(input);
-            return matches.Select(x => Type.GetType(x.Value.Substring (1, x.Value.Length - 2))).ToList ();
+            return matches.Select(x => GetType(x.Value.Substring (1, x.Value.Length - 2), true, true)).ToList ();
         }
 
         private string ReplaceNested (string input)
@@ -87,6 +98,26 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
                 descriptions.Add($"**{i+1} - {GetName(cur, false)}**: {GetDescription(cur)}");
             }
             return descriptions.ToArray();
+        }
+
+        // Quickly stole this off StackOverflow lol.
+        // Credits goes to here: https://stackoverflow.com/a/11811046
+        private static Type GetType(string typeName, bool throwOnError, bool ignoreCase)
+        {
+            var type = Type.GetType(typeName, false, ignoreCase);
+            if (type != null) return type;
+            foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                type = a.GetType(typeName, false, ignoreCase);
+                if (type != null)
+                    return type;
+            }
+
+            if (throwOnError)
+            {
+                throw new InvalidOperationException($"Could not load type '{typeName}' from any currently loaded assembly.");
+            }
+            return null;
         }
     }
 }

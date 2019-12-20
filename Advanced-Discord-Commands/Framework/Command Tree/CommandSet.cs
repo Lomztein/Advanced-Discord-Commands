@@ -39,50 +39,32 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             }
         }
 
-        // The parsing is currently very reliant on how the rest of the code works, I'd like to change that somehow.
         public override async Task<Result> TryExecute(CommandMetadata data, Arguments args)
         {
-            string command = string.Empty;
-            List<List<object>> newSets = new List<List<object>>();
-            int index = 0;
+            int spaceIndex = args.Raw.IndexOf(" ");
+            string nextCmd = data.Searcher.GetTrigger (data.Owner).ToString ();
 
-            foreach (object[] arguments in args)
+            if (spaceIndex != -1)
             {
-                List<object> newArgs = new List<object>();
-                if (arguments.Length != 0)
-                {
-                    string zeroArgString = arguments[0].ToString();
-                    int spaceIndex = zeroArgString.IndexOfAny(CharExtensions.WhitespaceChars);
-
-                    if (spaceIndex != -1)
-                    {
-                        newArgs.Add(zeroArgString.Substring(spaceIndex).Trim());
-                    }
-
-                    for (int i = 1; i < arguments.Length; i++)
-                    {
-                        newArgs.Add(arguments[i]);
-                    }
-
-                    if (index == 0)
-                    {
-                        command = zeroArgString.Substring(0, spaceIndex != -1 ? spaceIndex : zeroArgString.Length).Trim();
-                        command = data.Searcher.GetTrigger(data.Message.GetGuild()?.Id) + command;
-                    }
-                    index++;
-                }
-                newSets.Add(newArgs);
-            }
-
-            ExecutionData execution = data.Root.CreateExecution(command, data, new Arguments(newSets), _commandsInSet);
-            if (execution.Executable == false)
-            {
-                Result defaultResult = await ExecuteDefault(args, data);
-                return defaultResult.Failed ? await DocumentationResult(data) : defaultResult;
+                nextCmd += args.Raw.Substring(0, spaceIndex).Trim();
             }
             else
             {
+                nextCmd += args.Raw;
+            }
+
+            ICommand cmd = data.Searcher.Search(nextCmd, _commandsInSet, data.Owner);
+            Arguments newArgs = data.Extractor.ExtractArguments(args.Raw);
+
+            ExecutionData execution = new ExecutionData (cmd, newArgs, data);
+            if (execution.Executable == true)
+            {
                 return await data.Executor.Execute(execution);
+            }
+            else
+            {
+                Result defaultResult = await ExecuteDefault(args, data);
+                return defaultResult.Failed ? await DocumentationResult(data) : defaultResult;
             }
         }
 

@@ -25,6 +25,7 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
             { typeof (SocketRole), "Role" },
             { typeof (SocketGuildChannel), "Channel" },
             { typeof (SocketGuild), "Server" },
+            { typeof (IUser), "User." },
             { typeof (IUserMessage), "Message" },
             { typeof (IMessage), "Message" },
             { typeof (IMentionable), "Mentionable" },
@@ -41,16 +42,19 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
             { typeof (long), "This is an integer number, which is a number that with no decimal points. This specific variant can represent very large numbers." },
             { typeof (float), "This is a decimal number, which means that it is a number with a decimal point." },
             { typeof (double), "This is a decimal number, which means that it is a number with a decimal point. This specific variant is highly accurate." },
-            { typeof (SocketGuildUser), "This object refers to a [Discord.WebSocket.SocketUser] of a specific server. A mention of the user can be used here." },
-            { typeof (SocketUser), "This object refers to a user that is not connected to a server. A mention can also be used if you are on a server." },
-            { typeof (SocketRole), "This object refers to a role on a server. A mention can be used if the role is mentionable." },
+            { typeof (object), "This can represent litteraly anything." },
+            { typeof (SocketGuildUser), "This represents a [Discord.WebSocket.SocketUser] of a specific server. A mention of the user can be used here." },
+            { typeof (SocketUser), "This represents a specific user. A mention can also be used if you are on a server." },
+            { typeof (SocketRole), "This represents to a role on a server. A mention can be used if the role is mentionable." },
             { typeof (SocketGuildChannel), "This represents a specific channel on a server. A mention can be used." },
             { typeof (SocketGuild), "This represents a particular Discord server." },
-            { typeof (IUserMessage), "This refers to messages on Discord that are specifically sent by users or bots." },
-            { typeof (IMessage), "This refers to any type of message on Discord, such as those you send to your friends." },
+            { typeof (IUserMessage), "This represents a message on Discord that are specifically sent by users or bots." },
+            { typeof (IMessage), "This represents any type of message on Discord, such as those you send to your friends." },
             { typeof (IUser), "This represents any type of Discord user, be it bot, system or person." },
             { typeof (ICommand), "This represents a single command." },
-            { typeof (ICommandSet), "This represents a set of [Lomztein.AdvDiscordCommands.Framework.Interfaces.ICommand]s." }
+            { typeof (ICommandSet), "This represents a set of [Lomztein.AdvDiscordCommands.Framework.Interfaces.ICommand]s." },
+            { typeof (IMentionable), "This represents anything in Discord that may be mentioned, such as users, channels and roles." },
+            { typeof (IDeletable), "This represents anything that may be deleted, such as channels an roles." },
         };
 
         public static void AddName (Type type, string name)

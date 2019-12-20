@@ -10,15 +10,18 @@ namespace Lomztein.AdvDiscordCommands.Framework
     {
         public const char SEPERATOR = ',';
 
+        public readonly string Raw;
         private readonly object[][] _arguments;
 
-        public Arguments (params object[][] arguments)
+        public Arguments (string raw, params object[][] arguments)
         {
+            Raw = raw;
             _arguments = arguments;
         }
 
-        public Arguments(List<List<object>> arguments)
+        public Arguments(string raw, List<List<object>> arguments)
         {
+            Raw = raw;
             _arguments = arguments.Select(x => x.ToArray()).ToArray();
         }
 

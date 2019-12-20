@@ -29,7 +29,8 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
                 aliasText = $"```{string.Join('\n', command.Aliases.Select(x => $"{command.GetPrefix(owner)}{x}"))}";
                 if (!string.IsNullOrEmpty(command.Shortcut))
                 {
-                    aliasText += $"\nShortcut: {metadata.Root.GetChildPrefix (owner)}{command.Shortcut}";
+                    string prefix = metadata.Root.GetChildPrefix(owner);
+                    aliasText += $"\n{prefix}{command.Shortcut}\n{string.Join ('\n', command.ShortcutAliases.Select (x => $"{prefix}{x}"))}";
                 }
                 aliasText += "```\u200b";
 

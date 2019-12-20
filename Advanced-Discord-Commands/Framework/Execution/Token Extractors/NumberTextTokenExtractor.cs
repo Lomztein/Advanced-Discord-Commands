@@ -23,6 +23,10 @@ namespace Lomztein.AdvDiscordCommands.Framework.Execution.TokenExtractors
                     newArgs.Add(value);
                 }else
                 {
+                    if (sinceLastNumber.Length > 0)
+                    {
+                        sinceLastNumber.Append(" ");
+                    }
                     sinceLastNumber.Append(split[i].ToString());
                 }
             }

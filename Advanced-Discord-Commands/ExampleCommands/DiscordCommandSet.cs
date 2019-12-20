@@ -217,6 +217,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     Description = "Adds roles to someone.";
                     Category = UserCategory;
                     RequiredPermissions.Add (GuildPermission.ManageRoles);
+                    Shortcut = "addrole";
                 }
 
                 [Overload (typeof (bool), "Add all given roles to the given person.")]
@@ -238,8 +239,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     Name = "removerole";
                     Description = "Removes roles from someone.";
                     Category = UserCategory;
-
                     RequiredPermissions.Add (GuildPermission.ManageRoles);
+                    Shortcut = "removerole";
                 }
 
                 [Overload (typeof (bool), "Add all given roles to the given person.")]
@@ -262,11 +263,13 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                     Category = UserCategory;
                     RequiredPermissions.Add (GuildPermission.Administrator);
 
-                    Aliases = new string[] { "pm" };
+                    Aliases = new [] { "pm" };
+                    Shortcut = "dm";
+                    ShortcutAliases = new [] { "pm" };
                 }
 
                 [Overload (typeof (IUserMessage), "Sends a DM to the given person with the given text.")]
-                [Example ("IUserMessage", "Succesfully sent a DM.", "@Usermention", "Hello Usermention!")]
+                [Example ("Message Object", "Succesfully sent a DM.", "@Moduthulhu", "Hello friend!")]
                 public async Task<Result> Execute(CommandMetadata e, SocketGuildUser user, string text) {
                     IUserMessage message = await user.SendMessageAsync (text);
                     return new Result (message, "Succesfully send a DM.");
@@ -587,7 +590,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public Mention() {
                 Name = "mention";
                 Description = "Mentions given objects.";
-                    Category = MiscCategory;
+                Category = MiscCategory;
             }
 
             [Overload (typeof (string), "Mention all given objects.")]
@@ -604,7 +607,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
             public ID() {
                 Name = "id";
                 Description = "Get the ID of given object.";
-                    Category = MiscCategory;
+                Category = MiscCategory;
+                Shortcut = "id";
             }
 
             [Overload (typeof (ulong), "Return the ID of the given object.")]

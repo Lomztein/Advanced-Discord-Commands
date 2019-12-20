@@ -15,6 +15,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
     {
         public string[] Aliases { get; set; } = new string[0];
         public string Shortcut { get; set; }
+        public string[] ShortcutAliases { get; set; } = new string[0];
         public ICategory Category { get; set; } = StandardCategories.Uncategorised;
 
         public bool CommandEnabled { get; set; } = true;

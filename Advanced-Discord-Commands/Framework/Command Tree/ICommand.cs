@@ -10,6 +10,7 @@ namespace Lomztein.AdvDiscordCommands.Framework.Interfaces {
 
         string[] Aliases { get; set; }
         string Shortcut { get; set; }
+        string[] ShortcutAliases { get; set; }
 
         ICategory Category { get; set; }
 

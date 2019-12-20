@@ -24,8 +24,9 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
         public string Name { get; set; }
         public string Description { get => AtPointer.Description; set => AtPointer.Description = value; }
-        public string[] Aliases { get => AtPointer.Aliases; set => AtPointer.Aliases = value; }
-        public string Shortcut { get => AtPointer.Shortcut; set => AtPointer.Shortcut = value; }
+        public string[] Aliases { get => AtPointer.ShortcutAliases; set => AtPointer.ShortcutAliases = value; }
+        public string Shortcut { get => null; set { } }
+        public string[] ShortcutAliases { get => new string[0]; set { } }
 
         public CommandPointer (ICommand atPointer, string name) {
             AtPointer = atPointer;

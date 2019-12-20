@@ -28,23 +28,20 @@ namespace Lomztein.AdvDiscordCommands.Framework.Execution
                 extractedSets[i] = extractor.ExtractTokens(arguments);
             }
 
-            return new Arguments(extractedSets);
+            return new Arguments(arguments, extractedSets);
         }
 
         private static string ExtractArgumentPart(string fullCommand)
         {
-
             if (!string.IsNullOrEmpty(fullCommand))
             {
                 int spaceIndex = fullCommand.IndexOfAny(CharExtensions.WhitespaceChars);
                 if (spaceIndex == -1)
-                    return null;
+                    return string.Empty;
                 else
                     return fullCommand.Substring(spaceIndex).Trim ();
             }
-
-            return null;
-
+            return string.Empty;
         }
     }
 }

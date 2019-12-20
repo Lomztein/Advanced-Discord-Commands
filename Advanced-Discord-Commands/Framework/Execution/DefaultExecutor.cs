@@ -45,7 +45,7 @@ namespace Lomztein.AdvDiscordCommands.Framework.Execution
                 converted.Add(setConverted);
             }
 
-            return new Arguments (converted);
+            return new Arguments (arguments.Raw, converted);
         }
 
         public async Task<Result> Execute(ExecutionData execution) {
