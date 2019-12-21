@@ -34,7 +34,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 new Round (), new Ceiling (), new Floor (), new Squareroot (), new Min (), new Max (), new Abs (), new Sign (), new Equal (), new Random (), new Graph (), new Evaluate ()
             };
 
-            _defaultCommand = new Evaluate();
+            _defaultCommand = new Evaluate ();
         }
 
         public class Add : Command {
@@ -500,7 +500,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 double yscale = (yend - ystart) / Y_RES;
 
                 using (Bitmap bitmap = new Bitmap (X_RES, Y_RES)) {
-                    int yprev = 0;
+
+                    int yprev = (await CalcY(data, yequals, xstart, yscale)).Item1;
+
                     for (int y = 0; y < Y_RES; y++) {
                         for (int x = 0; x < X_RES; x++) {
 
@@ -534,7 +536,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                     for (double x = xstart; x < xend; x += xscale) {
 
                         int xpix = (int)Math.Round (x / xscale) + X_RES / 2;
-                        System.Tuple<int, bool> res = await CalcY (data, yequals, x, xscale, yscale);
+                        Tuple<int, bool> res = await CalcY (data, yequals, x, yscale);
                         int ycur = res.Item1;
 
                         if (res.Item2) { // Is the result defined?
@@ -545,12 +547,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                                 dist = 1;
 
                             for (int yy = 0; yy < dist; yy++) {
-                                double fraction = yy / (double)dist * xscale;
-                                var locRes = await CalcY (data, yequals, x + fraction, xscale, yscale);
-                                if (!locRes.Item2)
-                                    break;
-
-                                int ypix = locRes.Item1;
+                                double fraction = yy / (double)dist;
+                                int ypix = (int)Lerp (yprev, ycur, fraction);
 
                                 if (!(
                                     xpix < 0 || xpix >= X_RES ||
@@ -573,7 +571,9 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
                 }
             }
 
-            private async Task<System.Tuple<int, bool>> CalcY(CommandMetadata data, string cmd, double x, double xscale, double yscale) {
+            private double Lerp (double start, double end, double t) => start * (1 - t) + end * t;
+
+            private async Task<System.Tuple<int, bool>> CalcY(CommandMetadata data, string cmd, double x, double yscale) {
                 CommandVariables.Set (data.Message.Id, "x", x, true);
 
                 ExecutionData execution = data.Root.CreateExecution (cmd, data);

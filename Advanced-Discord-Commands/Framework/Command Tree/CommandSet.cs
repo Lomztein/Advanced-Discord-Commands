@@ -56,7 +56,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
             ICommand cmd = data.Searcher.Search(nextCmd, _commandsInSet, data.Owner);
             Arguments newArgs = data.Extractor.ExtractArguments(args.Raw);
 
-            ExecutionData execution = new ExecutionData (cmd, newArgs, data);
+            ExecutionData execution = new ExecutionData (cmd, newArgs, data, newArgs.IsDocumentationRequest());
             if (execution.Executable == true)
             {
                 return await data.Executor.Execute(execution);

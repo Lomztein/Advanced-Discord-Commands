@@ -591,6 +591,8 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands
                 Name = "mention";
                 Description = "Mentions given objects.";
                 Category = MiscCategory;
+
+                RequiredPermissions.Add(GuildPermission.MentionEveryone);
             }
 
             [Overload (typeof (string), "Mention all given objects.")]

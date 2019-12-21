@@ -28,7 +28,7 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             return Execute (data, data.Root);
         }
 
-        [Overload (typeof (string), "Reveals a list of commands in a given command array.")]
+        [Overload (typeof (Embed), "Reveals a list of commands in a given command array.")]
         public Task<Result> Execute(CommandMetadata data, params ICommand[] commands) {
             // I mean, it works, right?
             Embed result = CommandListAutodocumentation.ListCommands (data, "given", "", commands);
@@ -36,11 +36,29 @@ namespace Lomztein.AdvDiscordCommands.ExampleCommands {
             return r;
         }
 
-        [Overload (typeof (string), "Reveals a list of commands in a given command set interface.")]
+        [Overload (typeof (Embed), "Reveals a list of commands in a given command set interface.")]
         public Task<Result> Execute(CommandMetadata e, ICommandSet set) {
             //Embed result = set.ListCommands (e);
             Embed result = CommandListAutodocumentation.ListCommands (e, "given", "",set.GetCommands ().ToArray ());
             return TaskResult (result, null);
+        }
+
+        [Overload (typeof (Embed), "Get help for a given command. Really just appends `?` and throws whatever you give it back in, so it can execute commands if you give them arguments as well. Fixing this 'feature' isn't really possible, at the current time.")]
+        public Task<Result> Execute (CommandMetadata e, string command)
+        {
+            string request;
+            if (command.Length > 0 && command[0].IsCommandTrigger (e.Owner, e.Searcher))
+            {
+                request = command;
+            }
+            else
+            {
+                request = e.Root.GetChildPrefix(e.Owner) + command;
+            }
+
+            ExecutionData execution = e.Root.CreateExecution (request, e);
+            var result = e.Executor.Execute(execution);
+            return result;
         }
     }
 }

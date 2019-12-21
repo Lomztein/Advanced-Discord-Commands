@@ -111,13 +111,7 @@ namespace Lomztein.AdvDiscordCommands.Autodocumentation
                 footer += " - AVAILABLE IN DM";
 
             if (command.RequiredPermissions.Count > 0) {
-                footer += " - REQUIRES PERMISSIONS: ";
-                for (int i = 0; i < command.RequiredPermissions.Count; i++) {
-                    footer += command.RequiredPermissions[i].ToString ().ToUpper ();
-
-                    if (i != command.RequiredPermissions.Count - 1)
-                        footer += ", ";
-                }
+                footer += $" - REQUIRES PERMISSIONS: {string.Join (", ", command.RequiredPermissions.Select (x => TypeDescriptions.GetPermissionName (x).ToUpperInvariant ()))}";
             }
 
             builder.WithFooter (footer);

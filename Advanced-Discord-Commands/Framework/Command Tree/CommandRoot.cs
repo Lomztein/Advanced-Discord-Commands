@@ -64,7 +64,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
                     Arguments arguments = Extractor.ExtractArguments(line);
 
-                    ExecutionData execution = new ExecutionData(command, arguments, metadata);
+                    ExecutionData execution = new ExecutionData(command, arguments, metadata, arguments.IsDocumentationRequest ());
 
                     if (execution.Executable)
                         result = await Executor.Execute(execution);
@@ -84,7 +84,7 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
         private void RecursiveFlatten ()
         {
-            _shortcuts = this.GetAllRecursive().Where (x => !string.IsNullOrEmpty (x.Shortcut)).Select(x => new CommandPointer(x, x.Shortcut)).ToList ();
+            _shortcuts = this.GetAllRecursive().Where (x => !string.IsNullOrEmpty (x.Shortcut)).Select(x => new CommandPointer(x, x.Shortcut, x.ShortcutAliases)).ToList ();
         }
 
         /// <summary>

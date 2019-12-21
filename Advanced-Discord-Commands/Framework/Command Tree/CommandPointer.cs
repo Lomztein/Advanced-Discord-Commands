@@ -24,13 +24,14 @@ namespace Lomztein.AdvDiscordCommands.Framework {
 
         public string Name { get; set; }
         public string Description { get => AtPointer.Description; set => AtPointer.Description = value; }
-        public string[] Aliases { get => AtPointer.ShortcutAliases; set => AtPointer.ShortcutAliases = value; }
-        public string Shortcut { get => null; set { } }
-        public string[] ShortcutAliases { get => new string[0]; set { } }
+        public string[] Aliases { get; set; }
+        public string Shortcut { get; set; }
+        public string[] ShortcutAliases { get; set; }
 
-        public CommandPointer (ICommand atPointer, string name) {
+        public CommandPointer (ICommand atPointer, string name, string[] aliases) {
             AtPointer = atPointer;
             Name = name;
+            Aliases = aliases;
         }
 
         public string AllowExecution(CommandMetadata metadata) {

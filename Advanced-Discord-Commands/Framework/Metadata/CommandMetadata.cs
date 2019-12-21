@@ -14,7 +14,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
         public ICommandRoot Root { get; private set; }
 
         public ulong? Owner { get; private set; }
-        public int Depth { get; private set; }
+        public int Complexity { get; private set; }
         public uint ProgramCounter { get; private set; }
 
         public string Content { get => Message.Content; }
@@ -40,7 +40,7 @@ namespace Lomztein.AdvDiscordCommands.Framework
             Executor = executor;
         }
 
-        public void ChangeDepth(int change) => Depth += change;
+        public void ChangeComplexity(int change) => Complexity += change;
         public void ChangeProgramCounter(uint change) => ProgramCounter += change;
         public void SetProgramCounter(uint position) => ProgramCounter = position;
         public void AbortProgram() => SetProgramCounter (uint.MaxValue);
