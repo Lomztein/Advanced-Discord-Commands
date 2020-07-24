@@ -23,7 +23,7 @@ namespace Lomztein.AdvDiscordCommands.Extensions
             if (character == searcher.GetTrigger (owner))
                 return true;
 
-            if (character == searcher.GetTrigger (owner)) {
+            if (character == searcher.GetHiddenTrigger (owner)) {
                 isHidden = true;
                 return true;
             }
@@ -32,7 +32,7 @@ namespace Lomztein.AdvDiscordCommands.Extensions
         }
 
         public static bool IsCommandTrigger (this char character, ulong? owner, ISearcher searcher) {
-            return character.IsCommandTrigger (owner, searcher, out bool isHidden);
+            return character.IsCommandTrigger (owner, searcher, out _);
         }
     }
 }
